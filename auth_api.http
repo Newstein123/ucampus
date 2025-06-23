@@ -1,0 +1,52 @@
+@token = "uiyERDJ3W2M0nINoxLg8OXrFkCTzWNxNjBqJQVeQ14bd549d"
+
+### Register
+# @name register
+POST http://localhost/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "username": "johndoe123",
+  "email": "johndoe@example.com",
+  "password": "password123",
+  "password_confirmation": "password123",
+  "dob": "1990-01-01",
+  "location": "New York",
+  "phone": "1234567890"
+}
+
+### Login (by email)
+# @name login
+POST http://localhost/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "johndoe@example.com",
+  "password": "password"
+}
+
+### Login (by phone)
+# @name loginByPhone
+POST http://localhost/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "1234567890",
+  "password": "password123"
+}
+
+### Google Login
+# @name googleLogin
+POST http://localhost/api/auth/login/google
+Content-Type: application/json
+
+{
+  "token": "GOOGLE_OAUTH_TOKEN_HERE"
+} 
+
+### Get User Profile
+# @name getUserProfile
+GET http://localhost/api/user
+Content-Type: application/json
+Authorization: Bearer {{token}}
