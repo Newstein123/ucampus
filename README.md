@@ -170,3 +170,7 @@ To test the authentication API, use the provided `auth_api.http` file (or simila
 
 ## License
 MIT License
+
+## Telegram Bot Git Notifier Addded
+
+- when you commit and pushed, telegram bot will send message in the group
