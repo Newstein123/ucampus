@@ -175,3 +175,4 @@ MIT License
 
 - when you commit and pushed, telegram bot will send message in the group
 - we can track who is making commit right now
+- new update has come
