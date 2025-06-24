@@ -174,3 +174,4 @@ MIT License
 ## Telegram Bot Git Notifier Addded
 
 - when you commit and pushed, telegram bot will send message in the group
+- we can track who is making commit right now
