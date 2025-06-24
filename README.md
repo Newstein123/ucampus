@@ -169,4 +169,4 @@ To test the authentication API, use the provided `auth_api.http` file (or simila
 ---
 
 ## License
-MIT 
+MIT License
