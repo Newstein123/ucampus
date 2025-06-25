@@ -57,6 +57,86 @@
 
 ---
 
+## Frontend Setup (React + TypeScript)
+
+The frontend is built with React, TypeScript, TanStack Query, and Redux Toolkit.
+
+### Key Features:
+- **TanStack Query (React Query)**: For server state management and caching
+- **Redux Toolkit**: For client state management
+- **TypeScript**: For type safety
+- **Axios**: For HTTP requests with interceptors
+- **Tailwind CSS**: For styling
+
+### Project Structure:
+```
+resources/ts/
+├── api/
+│   ├── client.ts          # Axios client with interceptors
+│   └── auth.ts            # Authentication API functions
+├── components/            # Reusable React components
+├── hooks/
+│   └── useAuth.ts         # Custom authentication hook
+├── pages/                 # Page components
+├── store/
+│   ├── index.ts           # Redux store configuration
+│   └── authSlice.ts       # Authentication Redux slice
+├── types/
+│   └── auth.ts            # TypeScript interfaces
+├── utilities/             # Utility functions
+├── App.tsx                # Main App component
+└── index.tsx              # Entry point with providers
+```
+
+### Development:
+```bash
+# Start development server
+./vendor/bin/sail npm run dev
+
+# Build for production
+./vendor/bin/sail npm run build
+
+# Type checking
+./vendor/bin/sail npm run types
+
+# Linting
+./vendor/bin/sail npm run lint
+```
+
+### Usage Examples:
+
+**Using the useAuth hook:**
+```typescript
+import { useAuth } from './hooks/useAuth';
+
+function LoginForm() {
+  const { login, isLoading, loginError } = useAuth();
+  
+  const handleSubmit = (credentials) => {
+    login(credentials);
+  };
+  
+  return (
+    // Your form JSX
+  );
+}
+```
+
+**Using Redux store:**
+```typescript
+import { useSelector, useDispatch } from 'react-redux';
+import { login } from './store/authSlice';
+
+function Component() {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  
+  // Use dispatch(login(credentials)) for login
+}
+```
+
+---
+
 ## How to Use `auth_api.http` for Authentication API Testing
 
 You do **not** need to write or edit any authentication routes yourself. All necessary routes are already set up in the project.
@@ -169,7 +249,7 @@ To test the authentication API, use the provided `auth_api.http` file (or simila
 ---
 
 ## License
-MIT License
+MIT
 
 ## Telegram Bot Git Notifier Addded
 
