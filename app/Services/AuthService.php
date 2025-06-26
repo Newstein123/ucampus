@@ -91,4 +91,11 @@ class AuthService implements AuthServiceInterface
             'data' => $user,
         ];
     }
+
+    public function updateProfile($user, array $data)
+    {
+        $user->fill($data);
+        $user->save();
+        return $user;
+    }
 }

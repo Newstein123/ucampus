@@ -7,15 +7,17 @@ use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Resources\UserRegisterResource;
 use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\UserLoginResource;
+use App\Services\AuthServiceInterface;
 
 class AuthController extends Controller
 {
 
     public function __construct(
-        protected AuthService $authService
+        protected AuthServiceInterface $authService
     ) {}
 
     public function register(RegisterRequest $request)
@@ -60,5 +62,11 @@ class AuthController extends Controller
     {
         $result = $this->authService->profile();
         return $this->response(new UserProfileResource($result), 'Profile retrieved successfully');
+    }
+
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        $result = $this->authService->updateProfile($request->user(), $request->validated());
+        return $this->response(new UserProfileResource($result), 'Profile updated successfully');
     }
 }

@@ -16,3 +16,5 @@ Route::prefix('auth')->group(function () {
     Route::post('/login/google/callback', [AuthController::class, 'googleLoginCallback']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
+
+Route::middleware('auth:sanctum')->post('/user/profile', [AuthController::class, 'updateProfile']);
