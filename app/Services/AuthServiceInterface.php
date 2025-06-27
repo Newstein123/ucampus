@@ -10,4 +10,5 @@ interface AuthServiceInterface
     public function googleLoginCallback($code);
     public function logout($user);
     public function profile();
+    public function updateProfile($user, array $data);
 }

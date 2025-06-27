@@ -30,4 +30,11 @@ class UserRepository
     {
         return User::find($id);
     }
+
+    public function update($user, array $data)
+    {
+        $user->fill($data);
+        $user->save();
+        return $user;
+    }
 }
