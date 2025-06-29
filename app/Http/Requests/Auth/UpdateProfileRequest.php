@@ -20,6 +20,16 @@ class UpdateProfileRequest extends FormRequest
             'phone' => ['sometimes', 'string', 'max:20', 'unique:users,phone,' . $this->user()->id],
             'location' => ['sometimes', 'string', 'max:255'],
             'dob' => ['sometimes', 'date'],
+            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png,svg', 'max:1024'],
+        ];
+
+    }
+    public function messages(): array
+    {
+        return [
+            'avatar.image' => 'The avatar must be an image file.',
+            'avatar.mimes' => 'The avatar must be a file of type: jpg, jpeg, png, webp.',
+            'avatar.max' => 'The avatar must not be larger than 2MB.',
         ];
     }
 }
