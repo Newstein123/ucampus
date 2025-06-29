@@ -18,3 +18,4 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->post('/user/profile', [AuthController::class, 'updateProfile']);
+Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 'profile']);

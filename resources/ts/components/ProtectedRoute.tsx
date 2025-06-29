@@ -1,18 +1,23 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
-import { RootState } from '../store';
-import Onboarding from '../pages/Onboarding';
-import Home from '../pages/Home';
+import { Navigate, useLocation } from 'react-router-dom';
+import { selectIsAuthenticated, selectUser } from '../store/slices/authSlice';
 
 interface ProtectedRouteProps {
-    children?: React.ReactNode;
+    children: React.ReactNode;
+    redirectTo?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const { isAuthenticated, user, loading } = useSelector((state: RootState) => state.auth);
-    console.log(isAuthenticated, user, loading);
-    if (loading) {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+    children,
+    redirectTo = '/login'
+}) => {
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+    const user = useSelector(selectUser);
+    const location = useLocation();
+    console.log(isAuthenticated, user);
+    // Show loading while checking authentication
+    if (!isAuthenticated) {
         return (
             <div style={{
                 display: 'flex',
@@ -27,7 +32,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to={redirectTo} state={{ from: location }} replace />;
     }
 
     // If authenticated but user data is not loaded yet
@@ -44,13 +49,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         );
     }
 
-    // If user hasn't completed onboarding, show onboarding
-    if (!user.onboarding_completed) {
-        return <Onboarding />;
-    }
-
-    // If user has completed onboarding, show the protected content (Home)
-    return <Home />;
+    // If all checks pass, render the protected content
+    return <>{children}</>;
 };
 
 export default ProtectedRoute; 

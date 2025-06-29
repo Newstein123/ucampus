@@ -2,7 +2,7 @@ import { apiClient } from './client';
 import type { 
   LoginRequest, 
   RegisterRequest, 
-  AuthResponse, 
+  RegisterResponse, 
   ProfileResponse, 
   LogoutResponse,
   LoginResponse
@@ -10,14 +10,14 @@ import type {
 import { endpoints } from './endpoints';
 
 export const authApi = {
-  async login(credentials: LoginRequest): Promise<AuthResponse> {
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
     const response = await apiClient.getClient().post<LoginResponse>(endpoints.auth_login, credentials);
     apiClient.setAuthToken(response.data.data.token);
     return response.data;
   },
 
-  async register(userData: RegisterRequest): Promise<AuthResponse> {
-    const response = await apiClient.getClient().post<AuthResponse>(endpoints.auth_register, userData);
+  async register(userData: RegisterRequest): Promise<RegisterResponse> {
+    const response = await apiClient.getClient().post<RegisterResponse>(endpoints.auth_register, userData);
     if (response.data.success) {
       apiClient.setAuthToken(response.data.data.token);
     }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\AuthService;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\UpdateProfileRequest;
@@ -12,6 +11,7 @@ use App\Http\Resources\UserRegisterResource;
 use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\UserLoginResource;
 use App\Services\AuthServiceInterface;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -31,10 +31,15 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
+        $user = Auth::user();
+        $first_login = $user->last_login_at ? false : true;
+        $user->last_login_at = now();
+        $user->save();
         $result = $this->authService->login($request->validated());
         return $this->response([
             'user' => new UserLoginResource($result['user']),
             'token' => $result['token'],
+            'first_login' => $first_login,
         ], 'Login successful');
     }
 

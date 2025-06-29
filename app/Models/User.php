@@ -22,10 +22,11 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
-        'password',
         'phone',
         'dob',
         'location',
+        'password',
+        'is_first_login',
     ];
 
     /**

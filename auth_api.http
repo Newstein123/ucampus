@@ -1,4 +1,4 @@
-@token = "uiyERDJ3W2M0nINoxLg8OXrFkCTzWNxNjBqJQVeQ14bd549d"
+@token = "9Qlub34V3Iu3iiP71JhMCcUPDrGC56ujYK6YSLXrb61caf60"
 
 ### Register
 # @name register
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 {
   "login": "johndoe@example.com",
-  "password": "password"
+  "password": "password123"
 }
 
 ### Login (by phone)
@@ -47,6 +47,6 @@ Content-Type: application/json
 
 ### Get User Profile
 # @name getUserProfile
-GET http://localhost/api/user
+GET http://localhost/api/user/profile
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer 9Qlub34V3Iu3iiP71JhMCcUPDrGC56ujYK6YSLXrb61caf60

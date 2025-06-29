@@ -21,7 +21,8 @@ import useUserLoginMutation from '../hooks/auth/useUserLoginMuatation';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { ErrorResponse } from '../hooks';
-import { setUser } from '../store/authSlice';
+import { setUser } from '../store/slices/authSlice';
+import { LoginUser } from '../types/auth';
 
 const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -42,15 +43,25 @@ const Login: React.FC = () => {
     });
 
     const onSubmit = async (data: LoginFormData) => {
+        console.log("Logint Called");
         userLoginMutation.mutate({
             login: data.login,
             password: data.password,
         }, {
             onSuccess: (response) => {
-                dispatch(setUser(response.data.user));
-                navigate('/');
+                console.log("Login Success");
+                console.log(response.data.first_login);
+                if (response.data.first_login) {
+                    console.log("First Login");
+                    navigate('/onboarding');
+                } else {
+                    console.log("Not First Login");
+                    navigate('/');
+                }
+                dispatch(setUser({ user: response.data.user as unknown as LoginUser }));
             },
             onError: (error: AxiosError<ErrorResponse>) => {
+                console.log("Login Error");
                 if (error.response?.data.errors) {
                     setApiValidationErrors(error.response.data.errors);
                 }
@@ -68,7 +79,6 @@ const Login: React.FC = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                pt: 2,
                 pb: 2,
             }}
         >
@@ -88,34 +98,18 @@ const Login: React.FC = () => {
             >
                 {/* Placeholder image */}
                 <img
-                    src="https://placehold.co/80x80?text=Img"
+                    src="/assets/images/login_cover.png"
                     alt="login"
                     style={{
-                        opacity: 0.5,
+                        opacity: 1,
                         position: 'absolute',
                         top: '50%',
                         left: '50%',
-                        transform: 'translate(-50%, -30%)',
+                        width: '100%',
+                        height: '100%',
+                        transform: 'translate(-50%, -50%)',
                     }}
                 />
-                {/* Avatar */}
-                <Avatar
-                    sx={{
-                        bgcolor: '#1abc60',
-                        color: '#fff',
-                        width: 40,
-                        height: 40,
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -110%)',
-                        border: '3px solid #fff',
-                        boxShadow: 2,
-                        fontWeight: 700,
-                    }}
-                >
-                    M
-                </Avatar>
             </Box>
 
             {/* Login form */}
@@ -180,10 +174,16 @@ const Login: React.FC = () => {
                     }}
                 />
 
-                <Box sx={{ textAlign: 'left', mt: 1, mb: 2 }}>
-                    <Link href="#" underline="none" sx={{ color: '#1abc60', fontWeight: 500, fontSize: 14 }}>
+                {/* Forgot password link */}
+                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', mt: -1, mb: 2 }}>
+                    <Typography
+                        variant="body2"
+                        color="primary"
+                        sx={{ cursor: 'pointer', textDecoration: 'underline', fontSize: 14 }}
+                        onClick={() => navigate('/forgot-password')}
+                    >
                         Forgot password?
-                    </Link>
+                    </Typography>
                 </Box>
 
                 <Button
@@ -209,7 +209,7 @@ const Login: React.FC = () => {
 
                 <Typography align="center" sx={{ fontSize: 15, mb: 2 }}>
                     Not a member?{' '}
-                    <Link href="#" underline="none" sx={{ color: '#1abc60', fontWeight: 600 }}>
+                    <Link href="/register" underline="none" sx={{ color: '#1abc60', fontWeight: 600 }}>
                         Register now
                     </Link>
                 </Typography>

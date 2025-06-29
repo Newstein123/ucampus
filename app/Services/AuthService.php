@@ -22,6 +22,7 @@ class AuthService implements AuthServiceInterface
             'password' => Hash::make($data['password']),
             'dob' => $data['dob'],
             'location' => $data['location'],
+            'phone' => $data['phone'],
         ]);
 
         $token = $user->createToken('api_token')->plainTextToken;
@@ -85,11 +86,7 @@ class AuthService implements AuthServiceInterface
     public function profile()
     {
         $user = Auth::user();
-        return [
-            'success' => true,
-            'message' => 'Profile retrieved successfully',
-            'data' => $user,
-        ];
+        return $user;
     }
 
     public function updateProfile($user, array $data)

@@ -31,8 +31,9 @@ export interface LoginResponse {
   success: boolean;
   message: string;
   data: {
-    user: User;
+    user: LoginUser;
     token: string;
+    first_login: boolean;
   };
 }
 
@@ -47,7 +48,7 @@ export interface RegisterRequest {
   phone?: string;
 }
 
-export interface AuthResponse {
+export interface RegisterResponse {
   success: boolean;
   message: string;
   data: {
