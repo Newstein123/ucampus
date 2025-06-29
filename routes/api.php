@@ -19,8 +19,5 @@ Route::prefix('auth')->group(function () {
     Route::put('/profile/edit/password', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
 });
 
-<<<<<<< HEAD
-=======
 Route::middleware('auth:sanctum')->post('/user/profile', [AuthController::class, 'updateProfile']);
 Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 'profile']);
->>>>>>> c9f304631036c22a6a079c1670d33494ea8fa054

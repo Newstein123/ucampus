@@ -2,20 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-<<<<<<< HEAD
-use App\Services\AuthService;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use App\Services\AuthServiceInterface;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Resources\UserLoginResource;
-use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Resources\UserProfileResource;
-use App\Http\Resources\UserRegisterResource;
-use App\Http\Requests\Auth\UpdateProfileRequest;
-use App\Http\Requests\Auth\ChangePasswordRequest;
-=======
+use Illuminate\Http\Request;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\UpdateProfileRequest;
@@ -24,7 +12,9 @@ use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\UserLoginResource;
 use App\Services\AuthServiceInterface;
 use Illuminate\Support\Facades\Auth;
->>>>>>> c9f304631036c22a6a079c1670d33494ea8fa054
+use App\Http\Requests\Auth\ChangePasswordRequest;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
