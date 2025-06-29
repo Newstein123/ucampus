@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+<<<<<<< HEAD
 use App\Services\AuthService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,16 @@ use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\UserRegisterResource;
 use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Requests\Auth\ChangePasswordRequest;
+=======
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
+use App\Http\Resources\UserRegisterResource;
+use App\Http\Resources\UserProfileResource;
+use App\Http\Resources\UserLoginResource;
+use App\Services\AuthServiceInterface;
+use Illuminate\Support\Facades\Auth;
+>>>>>>> c9f304631036c22a6a079c1670d33494ea8fa054
 
 class AuthController extends Controller
 {
@@ -33,10 +44,15 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
+        $user = Auth::user();
+        $first_login = $user->last_login_at ? false : true;
+        $user->last_login_at = now();
+        $user->save();
         $result = $this->authService->login($request->validated());
         return $this->response([
             'user' => new UserLoginResource($result['user']),
             'token' => $result['token'],
+            'first_login' => $first_login,
         ], 'Login successful');
     }
 

@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { selectUser } from '../store/slices/authSlice';
+import { useSelector } from 'react-redux';
 import { Box, Typography, Button, MobileStepper, Paper } from '@mui/material';
 import { KeyboardArrowRight } from '@mui/icons-material';
-import { RootState } from '../store';
-import { setUser } from '../store/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Onboarding: React.FC = () => {
     const [activeStep, setActiveStep] = useState(0);
-    const dispatch = useDispatch();
-    const { user } = useSelector((state: RootState) => state.auth);
-
+    const user = useSelector(selectUser);
+    console.log(user);
+    const navigate = useNavigate();
     const steps = [
         {
             title: "What is U Campus?",
@@ -27,17 +27,8 @@ const Onboarding: React.FC = () => {
 
     const handleNext = () => {
         if (activeStep === steps.length - 1) {
-            // Complete onboarding
-            if (user) {
-                const updatedUser = {
-                    ...user,
-                    onboarding_completed: true
-                };
-                dispatch(setUser(updatedUser));
-
-                // TODO: Call API to update user's onboarding status
-                // await authApi.updateOnboardingStatus();
-            }
+            console.log("Onboarding Completed");
+            navigate('/');
         } else {
             setActiveStep((prevStep) => prevStep + 1);
         }

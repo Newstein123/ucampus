@@ -13,13 +13,14 @@ return new class extends Migration
             $table->string('phone')->unique()->nullable()->after('email');
             $table->date('dob')->after('password');
             $table->string('location')->after('dob');
+            $table->dateTime('last_login_at')->nullable()->after('location');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['username', 'phone', 'dob', 'location']);
+            $table->dropColumn(['username', 'phone', 'dob', 'location', 'last_login_at']);
         });
     }
 };

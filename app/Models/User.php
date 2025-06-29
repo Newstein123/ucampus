@@ -23,11 +23,15 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
-        'password',
         'phone',
         'dob',
         'location',
+<<<<<<< HEAD
         'avatar',
+=======
+        'password',
+        'is_first_login',
+>>>>>>> c9f304631036c22a6a079c1670d33494ea8fa054
     ];
 
     /**
