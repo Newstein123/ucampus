@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use Illuminate\Http\UploadedFile;
 use App\Repositories\UserRepository;
-use Illuminate\Support\Facades\Hash;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthService implements AuthServiceInterface
 {
@@ -94,7 +96,17 @@ class AuthService implements AuthServiceInterface
 
     public function updateProfile($user, array $data)
     {
+        if (isset($data['avatar']) && $data['avatar'] instanceof UploadedFile) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $avatarPath = $data['avatar']->store('avatars', 'public');
+            $data['avatar'] = $avatarPath;
+        }
+
         $updatedUser = $this->users->update($user, $data);
+
         return $updatedUser;
     }
 }

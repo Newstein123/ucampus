@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
-use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\UpdateProfileRequest;
-use App\Http\Resources\UserRegisterResource;
-use App\Http\Resources\UserProfileResource;
-use App\Http\Resources\UserLoginResource;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use App\Services\AuthServiceInterface;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\UserLoginResource;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserProfileResource;
+use App\Http\Resources\UserRegisterResource;
+use App\Http\Requests\Auth\UpdateProfileRequest;
+use App\Http\Requests\Auth\ChangePasswordRequest;
 
 class AuthController extends Controller
 {
@@ -68,5 +70,19 @@ class AuthController extends Controller
     {
         $result = $this->authService->updateProfile($request->user(), $request->validated());
         return $this->response(new UserProfileResource($result), 'Profile updated successfully');
+    }
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = $request->user();
+
+        if (!Hash::check($request->input('old_password'), $user->password)) {
+            return $this->response(null, 'Old password is incorrect');
+        }
+
+        $this->authService->updateProfile($user, [
+            'password' => bcrypt($request->input('new_password'))
+        ]);
+
+        return $this->response(null, 'Password updated successfully');
     }
 }
