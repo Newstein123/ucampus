@@ -28,7 +28,7 @@ const MyProfile: React.FC = () => {
 
     return (
         <Layout>
-            <Box sx={{ bgcolor: '#f5f6fa', minHeight: '100vh', px: 2, py: 3 }}>
+            <Box sx={{ minHeight: '100vh' }}>
                 <Typography align="center" variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                     My Hub
                 </Typography>
@@ -62,18 +62,16 @@ const MyProfile: React.FC = () => {
                     <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
                         <ListItemText primary="Change Password" />
                     </ListItem>
-                    <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            fullWidth
-                            onClick={handleLogout}
-                            sx={{ mt: 1, textTransform: 'none', fontWeight: 600 }}
-                        >
-                            Logout
-                        </Button>
-                    </ListItem>
                 </List>
+                <Button
+                    variant="contained"
+                    color="error"
+                    fullWidth
+                    onClick={handleLogout}
+                    sx={{ mt: 1, textTransform: 'none', fontWeight: 600 }}
+                >
+                    Logout
+                </Button>
             </Box>
         </Layout>
     );

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Tag;
+use App\Models\Contribution;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +13,34 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $tags = [
+            'agriculture',
+            'education',
+            'health',
+            'technology',
+            'environment',
+            'social',
+            'economy',
+            'politics',
+            'culture',
+            'other',
+        ];
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        foreach ($tags as $tag) {
+            Tag::create([
+                'name' => $tag,
+            ]);
+        }
+
+        $this->call([
+            UserSeeder::class,
+            ContributionSeeder::class,
         ]);
+
+        // connect tags to contributions
+        $contributions = Contribution::all();
+        foreach ($contributions as $contribution) {
+            $contribution->tags()->attach(Tag::inRandomOrder()->first()->id);
+        }
     }
 }

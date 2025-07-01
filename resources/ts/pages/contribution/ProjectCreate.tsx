@@ -412,7 +412,7 @@ const ProjectCreate: React.FC = () => {
         <Paper
             elevation={0}
             sx={{
-                maxWidth: 400,
+                maxWidth: 600,
                 width: '100%',
                 mx: 'auto',
                 minHeight: '100vh',

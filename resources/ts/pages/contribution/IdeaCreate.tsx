@@ -361,20 +361,6 @@ const IdeaCreate: React.FC = () => {
                 </Box>
             </Box>
             <Controller
-                name="allowContributions"
-                control={control}
-                render={({ field }) => (
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Switch
-                            checked={field.value}
-                            onChange={e => field.onChange(e.target.checked)}
-                            color="success"
-                        />
-                        <Typography>Allow Contributions</Typography>
-                    </Box>
-                )}
-            />
-            <Controller
                 name="publicVisibility"
                 control={control}
                 render={({ field }) => (
@@ -412,7 +398,7 @@ const IdeaCreate: React.FC = () => {
         <Paper
             elevation={0}
             sx={{
-                maxWidth: 400,
+                maxWidth: 600,
                 width: '100%',
                 mx: 'auto',
                 minHeight: '100vh',

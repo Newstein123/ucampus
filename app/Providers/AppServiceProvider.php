@@ -19,6 +19,14 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\UserRepositoryInterface::class,
             \App\Repositories\UserRepository::class
         );
+        $this->app->bind(
+            \App\Repositories\ContributionRepositoryInterface::class,
+            \App\Repositories\ContributionRepository::class
+        );
+        $this->app->bind(
+            \App\Services\ContributionServiceInterface::class,
+            \App\Services\ContributionService::class
+        );
     }
 
     /**
