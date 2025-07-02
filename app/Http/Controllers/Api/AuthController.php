@@ -13,7 +13,7 @@ use App\Http\Resources\UserLoginResource;
 use App\Services\AuthServiceInterface;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\ChangePasswordRequest;
-use Illuminate\Support\Facades\Hash;
+
 
 
 class AuthController extends Controller
@@ -80,10 +80,6 @@ class AuthController extends Controller
     public function changePassword(ChangePasswordRequest $request)
     {
         $user = $request->user();
-
-        if (!Hash::check($request->input('old_password'), $user->password)) {
-            return $this->response(null, 'Old password is incorrect');
-        }
 
         $this->authService->updateProfile($user, [
             'password' => bcrypt($request->input('new_password'))

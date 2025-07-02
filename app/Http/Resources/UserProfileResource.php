@@ -23,8 +23,7 @@ class UserProfileResource extends JsonResource
             'phone' => $this->phone,
             'location' => $this->location,
             'dob' => $this->dob,
-            'avatar' => $this->avatar,
-            'avatar_url' => $this->avatar ? Storage::disk('public')->url($this->avatar) : null,
+            'avatar' => $this->avatar ? asset('storage/' . $this->avatar) : null,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];

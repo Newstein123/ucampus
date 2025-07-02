@@ -24,12 +24,4 @@ class UpdateProfileRequest extends FormRequest
         ];
 
     }
-    public function messages(): array
-    {
-        return [
-            'avatar.image' => 'The avatar must be an image file.',
-            'avatar.mimes' => 'The avatar must be a file of type: jpg, jpeg, png, webp.',
-            'avatar.max' => 'The avatar must not be larger than 2MB.',
-        ];
-    }
 }

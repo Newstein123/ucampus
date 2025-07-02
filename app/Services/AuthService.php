@@ -98,7 +98,7 @@ class AuthService implements AuthServiceInterface
                 Storage::disk('public')->delete($user->avatar);
             }
 
-            $avatarPath = $data['avatar']->store('avatars', 'public');
+            $avatarPath = Storage::put('avatars', $data['avatar']);
             $data['avatar'] = $avatarPath;
         }
 
