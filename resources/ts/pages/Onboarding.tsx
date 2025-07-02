@@ -48,7 +48,7 @@ const Onboarding: React.FC = () => {
                 alignItems: 'center',
                 pt: 2,
                 pb: 2,
-                maxWidth: 400,
+                maxWidth: 600,
                 mx: 'auto',
             }}
         >

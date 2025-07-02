@@ -14,6 +14,7 @@ import Explore from './pages/Explore';
 import Projects from './pages/Projects';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import ProjectDetails from './pages/contribution/ProjectDetails';
 
 const App: React.FC = () => (
     <BrowserRouter>
@@ -75,6 +76,12 @@ const App: React.FC = () => (
             <Route path="/projects" element={
                 <ProtectedRoute>
                     <Projects />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/projects/:id" element={
+                <ProtectedRoute>
+                    <ProjectDetails />
                 </ProtectedRoute>
             } />
 

@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#1976d2" />
     <meta name="description" content="A collaborative platform for Myanmar youth to share and develop social good ideas" />
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <title>SparkSpot - Social Good Platform</title>
+    <title>U Campus</title>
     
     @viteReactRefresh
     @vite(['resources/ts/index.tsx', 'resources/css/app.css'])

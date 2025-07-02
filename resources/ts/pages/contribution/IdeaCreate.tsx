@@ -10,6 +10,9 @@ import { useForm, Controller } from 'react-hook-form';
 import { ideaSchema, IdeaForm } from '../../schemas/idea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
+import { ErrorResponse } from '../../hooks';
+import { AxiosError } from 'axios';
 
 const steps = [
     "What's your idea?",
@@ -31,8 +34,7 @@ const ideaStep3Schema = z.object({
     resources: z.string().min(1, 'Resources needed is required'),
     attachments: z.array(z.any()).optional(),
     tags: z.array(z.string()).optional(),
-    allowContributions: z.boolean(),
-    publicVisibility: z.boolean(),
+    is_public: z.boolean(),
 });
 
 const defaultValues: IdeaForm = {
@@ -45,8 +47,7 @@ const defaultValues: IdeaForm = {
     resources: '',
     attachments: [],
     tags: [],
-    allowContributions: false,
-    publicVisibility: false,
+    is_public: false,
 };
 
 const IdeaCreate: React.FC = () => {
@@ -81,6 +82,8 @@ const IdeaCreate: React.FC = () => {
     const step1Valid = !!title && !!description;
     const step2Valid = !!problem && !!solution && !!impact;
     const step3Valid = !!resources;
+    const createContributionMutation = useCreateContributionMutation();
+    const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
 
     // Handlers
     const handleBack = () => setActiveStep((s) => s - 1);
@@ -111,7 +114,6 @@ const IdeaCreate: React.FC = () => {
         setValue('attachments', (getValues('attachments') || []).filter((_: any, i: number) => i !== idx));
     };
 
-    // Per-step validation handlers
     const handleStep1Next = () => {
         const result = ideaStep1Schema.safeParse({ title, description, thumbnail });
         if (result.success) {
@@ -132,13 +134,34 @@ const IdeaCreate: React.FC = () => {
             });
         }
     };
-    // Final submit uses full schema
     const onSubmit = (data: IdeaForm) => {
-        // No API, just log
-        console.log(data);
+        const requestData = {
+            title: data.title,
+            content: {
+                title: data.title,
+                description: data.description,
+                problem: data.problem,
+                solution: data.solution,
+                impact: data.impact,
+                resources: data.resources,
+                question: null,
+                answer: null,
+                references: null,
+            },
+            type: 'idea',
+            tags: data.tags || [],
+            is_public: data.is_public,
+        }
+        createContributionMutation.mutate(requestData, {
+            onSuccess: () => {
+                navigate('/contribution');
+            },
+            onError: (error: AxiosError<ErrorResponse>) => {
+                setApiValidationErrors(error.response?.data.errors || {});
+            },
+        });
     };
 
-    // Renderers
     const renderStep1 = () => (
         <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, textAlign: 'center' }}>
@@ -361,7 +384,7 @@ const IdeaCreate: React.FC = () => {
                 </Box>
             </Box>
             <Controller
-                name="publicVisibility"
+                name="is_public"
                 control={control}
                 render={({ field }) => (
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

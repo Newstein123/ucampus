@@ -33,12 +33,26 @@ export interface ContributionListRequest {
 
 export interface Content {
   title: string;
-  description: string;
-  question: string;
-  answer: string;
-  problem: string;
-  solution: string;
-  impact: string;
-  resources: string;
-  references: string;
+  description: string | null;
+  question: string | null;
+  answer: string | null;
+  problem: string | null;
+  solution: string | null;
+  impact: string | null;
+  resources: string | null;
+  references: string | null;
+}
+
+export interface CreateContributionRequest {
+  title: string;
+  content: Content;
+  is_public: boolean;
+  type: string;
+  tags: string[];
+}
+
+export interface CreateContributionResponse {
+  success: boolean;
+  message: string;
+  data: Contribution;
 }

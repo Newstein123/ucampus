@@ -23,11 +23,7 @@ class Contribution extends Model
 
     protected $casts = [
         'content' => 'array',
-        'allow_collab' => 'boolean',
-        'is_public' => 'boolean',
-        'status' => 'string',
         'views_count' => 'integer',
-        'thumbnail_url' => 'string',
         'likes_count' => 'integer',
     ];
 

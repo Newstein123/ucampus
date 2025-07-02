@@ -7,6 +7,7 @@ export const endpoints = Object.freeze({
 
   // Contribution endpoints
   contribution_list: '/contributions',
+  contribution_create: '/contributions',
 
 //   auth_google_login: '/api/auth/login/google',
 //   auth_google_callback: '/api/auth/login/google/callback',

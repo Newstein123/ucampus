@@ -6,5 +6,6 @@ use App\Models\Contribution;
 
 interface ContributionRepositoryInterface
 {
-    public function list();
+    public function list(array $filters = []);
+    public function create(array $data = []);
 }

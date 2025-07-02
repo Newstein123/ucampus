@@ -8,29 +8,31 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
+import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
+import { AxiosError } from 'axios';
+import { ErrorResponse } from '../../hooks';
 
 const questionSchema = z.object({
     question: z.string().min(1, 'Question is required'),
-    description: z.string().min(1, 'Description is required'),
-    attachments: z.array(z.any()).optional(),
+    answer: z.string().min(1, 'Answer is required'),
     tags: z.array(z.string()).optional(),
-    publicVisibility: z.boolean(),
+    is_public: z.boolean(),
 });
 
 type QuestionForm = z.infer<typeof questionSchema>;
 
 const defaultValues: QuestionForm = {
     question: '',
-    description: '',
-    attachments: [],
+    answer: '',
     tags: [],
-    publicVisibility: false,
+    is_public: false,
 };
 
 const QuestionCreate: React.FC = () => {
     const [tagInput, setTagInput] = useState('');
     const navigate = useNavigate();
-
+    const createContributionMutation = useCreateContributionMutation();
+    const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
     const {
         control,
         handleSubmit,
@@ -42,12 +44,6 @@ const QuestionCreate: React.FC = () => {
         defaultValues,
         mode: 'onTouched',
     });
-
-    const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setValue('attachments', [...(getValues('attachments') || []), e.target.files[0]]);
-        }
-    };
 
     const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && tagInput.trim()) {
@@ -61,13 +57,31 @@ const QuestionCreate: React.FC = () => {
         setValue('tags', (getValues('tags') || []).filter(t => t !== tag));
     };
 
-    const handleRemoveAttachment = (idx: number) => {
-        setValue('attachments', (getValues('attachments') || []).filter((_: any, i: number) => i !== idx));
-    };
-
     const onSubmit = (data: QuestionForm) => {
-        // No API, just log
-        console.log(data);
+        createContributionMutation.mutate({
+            title: data.question,
+            content: {
+                title: data.question,
+                answer: data.answer,
+                question: data.question,
+                description: null,
+                problem: null,
+                solution: null,
+                impact: null,
+                resources: null,
+                references: null,
+            },
+            type: 'question',
+            tags: data.tags || [],
+            is_public: data.is_public,
+        }, {
+            onSuccess: () => {
+                navigate('/contribution');
+            },
+            onError: (error: AxiosError<ErrorResponse>) => {
+                setApiValidationErrors(error.response?.data.errors || {});
+            },
+        });
     };
 
     return (
@@ -113,51 +127,22 @@ const QuestionCreate: React.FC = () => {
                     )}
                 />
                 <Controller
-                    name="description"
+                    name="answer"
                     control={control}
                     render={({ field }) => (
                         <TextField
                             {...field}
-                            label="Description"
+                            label="Answer"
                             fullWidth
                             margin="normal"
                             multiline
                             minRows={3}
                             placeholder="Explain your question"
-                            error={!!errors.description}
-                            helperText={errors.description?.message}
+                            error={!!errors.answer}
+                            helperText={errors.answer?.message}
                         />
                     )}
                 />
-                <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Attachments</Typography>
-                    <input
-                        accept="*"
-                        id="attachment-upload"
-                        type="file"
-                        style={{ display: 'none' }}
-                        onChange={handleAttachmentChange}
-                    />
-                    <label htmlFor="attachment-upload">
-                        <Button
-                            startIcon={<AttachFileIcon />}
-                            sx={{ mb: 1, textTransform: 'none', color: '#1F8505' }}
-                            component="span"
-                        >
-                            Add attachment
-                        </Button>
-                    </label>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {(getValues('attachments') || []).map((file, idx) => (
-                            <Chip
-                                key={idx}
-                                label={file.name}
-                                onDelete={() => handleRemoveAttachment(idx)}
-                                sx={{ bgcolor: '#e8f5e9', color: '#1F8505' }}
-                            />
-                        ))}
-                    </Box>
-                </Box>
                 <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" sx={{ mb: 1 }}>Add tag</Typography>
                     <TextField
@@ -179,7 +164,7 @@ const QuestionCreate: React.FC = () => {
                     </Box>
                 </Box>
                 <Controller
-                    name="publicVisibility"
+                    name="is_public"
                     control={control}
                     render={({ field }) => (
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

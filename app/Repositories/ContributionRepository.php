@@ -17,6 +17,11 @@ class ContributionRepository implements ContributionRepositoryInterface
             $query->where('type', $filters['type']);
         }
 
-        return $query->paginate($perPage, ['*'], 'page', $page);
+        return $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function create(array $data = [])
+    {
+        return Contribution::create($data);
     }
 }

@@ -10,8 +10,8 @@ export const ideaSchema = z.object({
   resources: z.string().min(1, 'Resources needed is required'),
   attachments: z.array(z.any()).optional(),
   tags: z.array(z.string()).optional(),
-  allowContributions: z.boolean(),
-  publicVisibility: z.boolean(),
+  allow_collab: z.boolean().optional(),
+  is_public: z.boolean(),
 });
 
 export type IdeaForm = z.infer<typeof ideaSchema>; 

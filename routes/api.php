@@ -23,10 +23,10 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->post('/user/profile', [AuthController::class, 'updateProfile']);
 Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 'profile']);
 
-Route::group(['prefix' => 'contributions'], function () {
+Route::prefix('contributions')->group(function () {
     Route::get('/', [ContributionController::class, 'index']);
-    Route::get('/{id}', [ContributionController::class, 'show']);
-    Route::post('/', [ContributionController::class, 'store']);
-    Route::put('/{id}', [ContributionController::class, 'update']);
-    Route::delete('/{id}', [ContributionController::class, 'destroy']);
+    Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum');
+    Route::post('/', [ContributionController::class, 'store'])->middleware('auth:sanctum');
+    Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
 });

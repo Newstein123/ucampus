@@ -1,4 +1,4 @@
-@token = "l7Nr71icKmoXFMqRaeEUieVMZNAWlTKkRLth3JiXf4083316"
+@token = "DmuNMuyf3Emi4XyC0x1x03aVdkePFf5OdGsKgqH205533186"
 
 ### Login (by email)
 # @name login
@@ -14,3 +14,44 @@ Content-Type: application/json
 # @name listContributions
 GET http://localhost/api/contributions
 Authorization: Bearer {{token}}
+
+### Create contribution
+# @name createContribution
+POST http://localhost/api/contributions
+Authorization: Bearer Fa9YkXt9fcGsXS4eis8y0P2cgEUY15RT83NWEBSU9df9f2ef
+Content-Type: application/json
+
+{
+  "title": "ကျေးရွာသန့်ရှင်းရေးစီမံကိန်း",
+  "content": {
+    "description": "ကျေးရွာသန့်ရှင်းရေးစီမံကိန်း",
+    "problem": "ကျေးရွာအနီးအနားတွင် အမှိုက်များကို စနစ်တကျ စွန့်ပစ်နိုင်သော နေရာများမရှိသဖြင့် ကျန်းမာရေးနှင့် ပတ်ဝန်းကျင်ထိခိုက်မှုများ ဖြစ်ပေါ်နေသည်။",
+    "solution": "ကျေးရွာအတွင်း သတ်မှတ်ထားသော အမှိုက်စုစည်းစက်ရုံတစ်ခု တည်ဆောက်ပြီး တနင်္လာနှင့် သောကြာနေ့များတွင် အမှိုက်ကောက်ယူရေးစနစ်တစ်ခု တည်ဆောက်ရန် စီစဉ်ထားသည်။",
+    "impact": "ရပ်ရွာသူအများစု၏ ကျန်းမာရေးကောင်းမွန်မှုတိုးတက်လာပြီး သန့်ရှင်းသပ်ရပ်သော ပတ်ဝန်းကျင်တစ်ခု ဖြစ်လာမည်ဟုမျှော်လင့်သည်။ ကျောင်းသားများအတွက်လည်း ပညာသင်ကြားရာ၌ ပိုမိုအာရုံစိုက်နိုင်မည်။",
+    "resources": "အမှိုက်စုစည်းအတွက် ကွန်တိန်နာများ၊ စက်ရုံတည်ဆောက်ရန် ငွေကြေးအခွန်ပေးသွင်းသူများထံမှ လှူဒါန်းမှုများနှင့် လူကြမ်းအားအင်္ဂါရပ်များလိုအပ်သည်။",
+    "attachments": [
+      {
+        "type": "image",
+        "url": "https://via.placeholder.com/150"
+      }
+    ]
+  },
+  "type": "idea",
+  "tags": ["test", "contribution", "idea"]
+}
+
+### create contribution for question
+# @name createContributionForQuestion
+POST http://localhost/api/contributions
+Authorization: Bearer Fa9YkXt9fcGsXS4eis8y0P2cgEUY15RT83NWEBSU9df9f2ef
+Content-Type: application/json
+
+{
+  "title": "ကမ္ဘာပေါ် မျိုးတုန်းပျောက်ကွယ်တော့မယ့် သတ္တဝါတွေကို ဘယ်လိုကာကွယ်မလဲ",
+  "content": {  
+      "question": "ကမ္ဘာပေါ် မျိုးတုန်းပျောက်ကွယ်တော့မယ့် သတ္တဝါတွေကို ဘယ်လိုကာကွယ်မလဲ",
+      "answer": "သတ္တဝါတွေကို ကမ္ဘာပေါ် မျိုးတုန်းပျောက်ကွယ်တော့မယ့် သတ္တဝါတွေကို ကာကွယ်ခြင်းက အကောင်းဆုံးပါပဲ"
+  },
+  "type": "question",
+  "tags": ["test", "question"]
+}
