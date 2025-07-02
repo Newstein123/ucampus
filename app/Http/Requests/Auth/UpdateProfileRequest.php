@@ -20,6 +20,8 @@ class UpdateProfileRequest extends FormRequest
             'phone' => ['sometimes', 'string', 'max:20', 'unique:users,phone,' . $this->user()->id],
             'location' => ['sometimes', 'string', 'max:255'],
             'dob' => ['sometimes', 'date'],
+            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png,svg', 'max:1024'],
         ];
+
     }
 }

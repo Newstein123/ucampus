@@ -12,6 +12,9 @@ use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\UserLoginResource;
 use App\Services\AuthServiceInterface;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Auth\ChangePasswordRequest;
+
+
 
 class AuthController extends Controller
 {
@@ -73,5 +76,17 @@ class AuthController extends Controller
     {
         $result = $this->authService->updateProfile($request->user(), $request->validated());
         return $this->response(new UserProfileResource($result), 'Profile updated successfully');
+    }
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = $request->user();
+
+        $new_password = bcrypt($request->input('new_password'));
+
+        $this->authService->updateProfile($user, [
+            'password' => $new_password
+        ]);
+
+        return $this->response(null, 'Password updated successfully');
     }
 }
