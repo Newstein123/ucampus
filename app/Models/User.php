@@ -39,9 +39,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-    protected $appends = [
-        'avatar_url'
-    ];
 
     /**
      * Get the attributes that should be cast.
@@ -54,9 +51,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-    public function getAvatarUrlAttribute(): ?string
-    {
-        return $this->avatar ? Storage::url($this->avatar) : null;
     }
 }

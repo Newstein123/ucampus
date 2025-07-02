@@ -81,8 +81,10 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
+        $new_password = bcrypt($request->input('new_password'));
+
         $this->authService->updateProfile($user, [
-            'password' => bcrypt($request->input('new_password'))
+            'password' => $new_password
         ]);
 
         return $this->response(null, 'Password updated successfully');
