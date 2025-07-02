@@ -1,0 +1,16 @@
+@token = "l7Nr71icKmoXFMqRaeEUieVMZNAWlTKkRLth3JiXf4083316"
+
+### Login (by email)
+# @name login
+POST http://localhost/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "johndoe@example.com",
+  "password": "password123"
+}
+
+### List contributions
+# @name listContributions
+GET http://localhost/api/contributions
+Authorization: Bearer {{token}}

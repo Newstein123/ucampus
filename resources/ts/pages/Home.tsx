@@ -8,68 +8,14 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import Layout from '../components/Layout';
-
-const contributions = [
-    {
-        type: 'idea',
-        title: 'Empowering Youth Through Tech',
-        desc: 'A new initiative to provide tech skills training for young people in Yangon.',
-        image: '/assets/images/idea-sample.png',
-        likes: 123,
-        comments: 123,
-        icon: <InfoOutlinedIcon sx={{ color: '#1F8505' }} />,
-    },
-    {
-        type: 'question',
-        title: 'Preserving Traditional Arts?',
-        desc: 'Efforts to support and promote traditional Myanmar arts and crafts.',
-        image: '',
-        likes: 123,
-        comments: 123,
-        icon: <QuestionMarkOutlinedIcon sx={{ color: '#1F8505' }} />,
-    },
-    {
-        type: 'idea',
-        title: 'Empowering Youth Through Tech',
-        desc: 'A new initiative to provide tech skills training for young people in Yangon.',
-        image: '/assets/images/idea-sample.png',
-        likes: 123,
-        comments: 123,
-        icon: <InfoOutlinedIcon sx={{ color: '#1F8505' }} />,
-    },
-    {
-        type: 'question',
-        title: 'Preserving Traditional Arts?',
-        desc: 'Efforts to support and promote traditional Myanmar arts and crafts.',
-        image: '',
-        likes: 123,
-        comments: 123,
-        icon: <QuestionMarkOutlinedIcon sx={{ color: '#1F8505' }} />,
-    },
-    {
-        type: 'idea',
-        title: 'Empowering Youth Through Tech',
-        desc: 'A new initiative to provide tech skills training for young people in Yangon.',
-        image: '/assets/images/idea-sample.png',
-        likes: 123,
-        comments: 123,
-        icon: <InfoOutlinedIcon sx={{ color: '#1F8505' }} />,
-    },
-    {
-        type: 'question',
-        title: 'Preserving Traditional Arts?',
-        desc: 'Efforts to support and promote traditional Myanmar arts and crafts.',
-        image: '',
-        likes: 123,
-        comments: 123,
-        icon: <QuestionMarkOutlinedIcon sx={{ color: '#1F8505' }} />,
-    },
-];
+import useContributionListQuery from '../hooks/contribution/useContributionListQuery';
 
 const tabLabels = ['All Contributions', 'Ideas', 'Questions', 'Projects'];
 
 const Home: React.FC = () => {
     const [tab, setTab] = useState(0);
+    const { data: contributionList, isLoading } = useContributionListQuery({});
+    const contributions = contributionList?.data || [];
 
     return (
         <Layout>
@@ -93,30 +39,30 @@ const Home: React.FC = () => {
             <Divider />
             {/* Contributions List */}
             <Box sx={{ px: 2, pt: 2 }}>
-                {contributions.map((item, idx) => (
-                    <Card key={idx} sx={{ mb: 3, boxShadow: 0, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0' }}>
+                {contributions.map((item) => (
+                    <Card key={item.id} sx={{ mb: 3, boxShadow: 0, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0' }}>
                         <CardContent sx={{ pb: 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                 <Avatar sx={{ bgcolor: '#e8f5e9', width: 32, height: 32, mr: 1 }}>
-                                    {item.icon}
+                                    {item.user.name[0]}
                                 </Avatar>
-                                <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{item.title}</Typography>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{item.type === 'idea' ? item.title : item.content.question}</Typography>
                             </Box>
-                            <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>{item.desc}</Typography>
+                            <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>{item.type === 'idea' ? item.content.description : item.content.answer}</Typography>
                         </CardContent>
-                        {item.image && (
+                        {item.type === 'idea' && item.thumbnail_url && (
                             <CardMedia
                                 component="img"
-                                image={item.image}
+                                image={item.thumbnail_url}
                                 alt={item.title}
                                 sx={{ width: '100%', borderRadius: 2, mb: 1, maxHeight: 180, objectFit: 'cover' }}
                             />
                         )}
                         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }}>
                             <IconButton size="small"><FavoriteBorderIcon fontSize="small" /></IconButton>
-                            <Typography sx={{ fontSize: 14, mr: 2 }}>{item.likes}</Typography>
+                            <Typography sx={{ fontSize: 14, mr: 2 }}>{item.likes_count}</Typography>
                             <IconButton size="small"><ChatBubbleOutlineIcon fontSize="small" /></IconButton>
-                            <Typography sx={{ fontSize: 14, mr: 2 }}>{item.comments}</Typography>
+                            <Typography sx={{ fontSize: 14, mr: 2 }}>{item.views_count}</Typography>
                             <Box sx={{ flex: 1 }} />
                             <IconButton size="small"><BookmarkBorderIcon fontSize="small" /></IconButton>
                         </Box>

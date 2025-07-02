@@ -34,7 +34,7 @@ const Create: React.FC = () => {
         <Layout>
             <Box
                 sx={{
-                    maxWidth: 400,
+                    maxWidth: 600,
                     width: '100%',
                     mx: 'auto',
                     bgcolor: '#f7fafd',
@@ -51,7 +51,19 @@ const Create: React.FC = () => {
 
                 <List>
                     {contributionItems.map((item, index) => (
-                        <ListItem key={index} sx={{ bgcolor: '#fff', borderRadius: 2, p: 2, mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} onClick={() => navigate(item.path)}>
+                        <ListItem key={index} sx={{
+                            bgcolor: '#fff',
+                            borderRadius: 2,
+                            p: 2,
+                            mb: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                bgcolor: '#f0f0f0'
+                            }
+                        }} onClick={() => navigate(item.path)}>
                             <ListItemIcon>
                                 {item.icon}
                             </ListItemIcon>

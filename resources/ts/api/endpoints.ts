@@ -4,6 +4,10 @@ export const endpoints = Object.freeze({
   auth_logout: '/auth/logout',
   auth_register: '/auth/register',
   auth_profile: '/user/profile',
+
+  // Contribution endpoints
+  contribution_list: '/contributions',
+
 //   auth_google_login: '/api/auth/login/google',
 //   auth_google_callback: '/api/auth/login/google/callback',
 //   auth_forgot_password: '/api/auth/forgot-password',
