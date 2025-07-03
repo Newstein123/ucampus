@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\UpdateProfileRequest;
-use App\Http\Resources\UserRegisterResource;
-use App\Http\Resources\UserProfileResource;
-use App\Http\Resources\UserLoginResource;
-use App\Services\AuthServiceInterface;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AuthServiceInterface;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\UserLoginResource;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserProfileResource;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Resources\UserRegisterResource;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Requests\Auth\ChangePasswordRequest;
-
 
 
 class AuthController extends Controller
@@ -88,5 +89,21 @@ class AuthController extends Controller
         ]);
 
         return $this->response(null, 'Password updated successfully');
+    }
+    public function forgotPassword(ForgotPasswordRequest $request)
+    {
+        $result = $this->authService->forgotPassword($request->email);
+        return $this->response(null, $result['message']);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $result = $this->authService->resetPassword(
+            $request->email,
+            $request->token,
+            $request->password
+        );
+
+        return $this->response(null, $result['message']);
     }
 }

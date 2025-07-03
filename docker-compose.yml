@@ -23,6 +23,13 @@ services:
       - sail
     depends_on:
       - mysql
+  mailhog:
+        image: mailhog/mailhog
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+        networks:
+            - sail    # Add this line
   mysql:
     image: 'mysql/mysql-server:8.0'
     ports:

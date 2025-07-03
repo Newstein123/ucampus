@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
+use App\Jobs\SendResetPasswordEmail;
 
 class AuthService implements AuthServiceInterface
 {
@@ -105,5 +109,59 @@ class AuthService implements AuthServiceInterface
         $updatedUser = $this->users->update($user, $data);
 
         return $updatedUser;
+    }
+
+    public function forgotPassword(string $email)
+    {
+        $user = $this->users->findByEmail($email);
+        
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => 'User not found',
+                'data' => null
+            ];
+        }
+
+        $token = Password::createToken($user);
+        $resetUrl = env('APP_URL') . '/reset-password?token=' . $token . '&email=' . urlencode($email);
+
+        SendResetPasswordEmail::dispatch($user, $resetUrl);
+
+        return [
+            'success' => true,
+            'message' => 'Reset Url Send Successfully',
+            'data' => ['reset_url' => $resetUrl]
+        ];
+    }
+
+    public function resetPassword(string $email, string $token, string $password)
+    {
+        $status = Password::reset(
+            [
+                'email' => $email,
+                'token' => $token,
+                'password' => $password,
+                'password_confirmation' => $password
+            ],
+            function ($user, $password) {
+                $user->password = Hash::make($password);
+                $user->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return [
+                'success' => true,
+                'message' => 'Password Reset Successfully',
+                'data' => null
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => __($status),
+            'data' => null
+        ];
     }
 }
