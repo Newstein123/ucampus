@@ -11,4 +11,6 @@ interface AuthServiceInterface
     public function logout($user);
     public function profile();
     public function updateProfile($user, array $data);
+    public function forgotPassword(string $email);
+    public function resetPassword(string $email, string $token, string $password);
 }
