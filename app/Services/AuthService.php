@@ -114,7 +114,7 @@ class AuthService implements AuthServiceInterface
     public function forgotPassword(string $email)
     {
         $user = $this->users->findByEmail($email);
-        
+
         if (!$user) {
             return [
                 'success' => false,
@@ -124,7 +124,7 @@ class AuthService implements AuthServiceInterface
         }
 
         $token = Password::createToken($user);
-        $resetUrl = env('APP_URL') . '/reset-password?token=' . $token . '&email=' . urlencode($email);
+        $resetUrl = env('RESET_PASSWORD_URL') . '?token=' . $token . '&email=' . urlencode($email);
 
         SendResetPasswordEmail::dispatch($user, $resetUrl);
 

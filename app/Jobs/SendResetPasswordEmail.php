@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use Exception;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -35,18 +34,11 @@ class SendResetPasswordEmail implements ShouldQueue
     public function handle(): void
     {
         try {
-            Log::info('Attempting to send password reset email to: ' . $this->user->email);
-            Log::info('Reset URL: ' . $this->resetUrl);
-
             Mail::send('emails.reset-password', ['resetUrl' => $this->resetUrl], function ($message) {
                 $message->to($this->user->email)
                     ->subject('Reset Your Password');
             });
-
-            Log::info('Password reset email sent successfully to: ' . $this->user->email);
         } catch (Exception $e) {
-            Log::error('Reset password email failed: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
             throw $e;
         }
     }
@@ -56,6 +48,6 @@ class SendResetPasswordEmail implements ShouldQueue
      */
     public function failed(Exception $e): void
     {
-        Log::error('Job failed finally after retries: ' . $e->getMessage());
+        // You can add failure handling logic here if needed
     }
 }
