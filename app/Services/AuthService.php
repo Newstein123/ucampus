@@ -51,25 +51,44 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    public function googleLogin($googleToken)
+    public function googleLogin()
     {
-        // This is a stub. Actual implementation will use Socialite.
-        // $googleUser = Socialite::driver('google')->userFromToken($googleToken);
-        // ...
+        $url = \Laravel\Socialite\Facades\Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
         return [
-            'success' => false,
-            'message' => 'Google login not implemented yet',
+            'url' => $url
         ];
     }
 
-    public function googleLoginCallback($code)
+    public function googleLoginCallback($request)
     {
-        // $googleUser = Socialite::driver('google')->userFromToken($code);
-        // return [
-        //     'success' => true,
-        //     'message' => 'Google login successful',
-        //     'data' => $googleUser,
-        // ];
+        $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->stateless()->user();
+        $user = $this->users->findByEmail($googleUser->getEmail());
+        if (!$user) {
+            
+            $user = $this->users->create([
+                'name' => $googleUser->getName() ?? $googleUser->getNickname(),
+                'email' => $googleUser->getEmail(),
+                'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
+            ]);
+        }
+       
+        $account = \App\Models\SocialAccount::updateOrCreate(
+            [
+                'provider' => 'google',
+                'provider_user_id' => $googleUser->getId(),
+            ],
+            [
+                'user_id' => $user->id,
+                'token' => $googleUser->token,
+            ]
+        );
+        
+        \Illuminate\Support\Facades\Auth::login($user);
+        $token = $user->createToken('google-login')->plainTextToken;
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
     }
 
     public function logout($user)

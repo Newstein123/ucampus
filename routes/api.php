@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
+use App\Http\Controllers\Api\GoogleAuthController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,6 +25,9 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->post('/user/profile', [AuthController::class, 'updateProfile']);
 Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 'profile']);
+
+Route::get('auth/google/login', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
 Route::prefix('contributions')->group(function () {
     Route::get('/', [ContributionController::class, 'index']);
