@@ -64,11 +64,25 @@ class AuthService implements AuthServiceInterface
         $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->stateless()->user();
         $user = $this->users->findByEmail($googleUser->getEmail());
         if (!$user) {
+            // Generate a unique username from email
+            $baseUsername = strtolower(explode('@', $googleUser->getEmail())[0]);
+            $username = $baseUsername;
+            $counter = 1;
+            
+            // Check if username exists and generate a unique one
+            while ($this->users->findByUsername($username)) {
+                $username = $baseUsername . $counter;
+                $counter++;
+            }
             
             $user = $this->users->create([
                 'name' => $googleUser->getName() ?? $googleUser->getNickname(),
+                'username' => $username,
                 'email' => $googleUser->getEmail(),
                 'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
+                'dob' => '1990-01-01', // Default date of birth
+                'location' => 'Unknown', // Default location
+                'phone' => null, // Phone is nullable
             ]);
         }
        
