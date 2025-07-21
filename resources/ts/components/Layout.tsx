@@ -7,8 +7,10 @@ import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate } from 'react-router-dom';
 import NotificationIcon from '@mui/icons-material/Notifications';
+import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { t } = useTranslation();
     const [value, setValue] = React.useState(0);
     const navigate = useNavigate();
     return (
@@ -71,11 +73,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         },
                     }}
                 >
-                    <BottomNavigationAction onClick={() => navigate('/')} label="Home" icon={<HomeIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/explore')} label="Explore" icon={<ExploreIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/contribution/create')} label="Create" icon={<AddCircleOutlineIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/projects')} label="Projects" icon={<FolderIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/myhub')} label="My Hub" icon={<PersonIcon />} />
+                    <BottomNavigationAction onClick={() => navigate('/')} label={t('Home')} icon={<HomeIcon />} />
+                    <BottomNavigationAction onClick={() => navigate('/explore')} label={t('Explore')} icon={<ExploreIcon />} />
+                    <BottomNavigationAction onClick={() => navigate('/contribution/create')} label={t('Create')} icon={<AddCircleOutlineIcon />} />
+                    <BottomNavigationAction onClick={() => navigate('/projects')} label={t('Projects')} icon={<FolderIcon />} />
+                    <BottomNavigationAction onClick={() => navigate('/myhub')} label={t('My Hub')} icon={<PersonIcon />} />
                 </BottomNavigation>
             </Paper>
         </Box>

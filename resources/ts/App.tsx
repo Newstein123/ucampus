@@ -15,6 +15,11 @@ import Projects from './pages/Projects';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ProjectDetails from './pages/contribution/ProjectDetails';
+import MyIdeasAndQuestions from './pages/MyIdeasAndQuestions';
+import TermsAndConditions from './pages/TermsAndConditions';
+import ContactUs from './pages/ContactUs';
+import Language from './pages/Language';
+import ChangePassword from './pages/ChangePassword';
 
 const App: React.FC = () => (
     <BrowserRouter>
@@ -34,6 +39,36 @@ const App: React.FC = () => (
             <Route path="/myhub" element={
                 <ProtectedRoute>
                     <MyProfile />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/my-ideas-and-questions" element={
+                <ProtectedRoute>
+                    <MyIdeasAndQuestions />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/terms-and-conditions" element={
+                <ProtectedRoute>
+                    <TermsAndConditions />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/contact-us" element={
+                <ProtectedRoute>
+                    <ContactUs />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/language" element={
+                <ProtectedRoute>
+                    <Language />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/change-password" element={
+                <ProtectedRoute>
+                    <ChangePassword />
                 </ProtectedRoute>
             } />
 
