@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\AuthServiceInterface;
 
-class GoogleAuthController extends Controller
+class SocialAuthController extends Controller
 {
     protected $authService;
 
@@ -15,17 +15,15 @@ class GoogleAuthController extends Controller
         $this->authService = $authService;
     }
 
-    
-    public function redirectToGoogle()
+    public function redirectToProvider($provider)
     {
-        $result = $this->authService->googleLogin();
+        $result = $this->authService->socialLogin($provider);
         return response()->json($result);
     }
 
-    
-    public function handleGoogleCallback(Request $request)
+    public function handleProviderCallback($provider, Request $request)
     {
-        $result = $this->authService->googleLoginCallback($request);
+        $result = $this->authService->socialLoginCallback($provider, $request);
         return response()->json($result);
     }
 } 

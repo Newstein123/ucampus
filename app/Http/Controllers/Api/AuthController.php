@@ -47,18 +47,18 @@ class AuthController extends Controller
         ], 'Login successful');
     }
 
-    public function googleLogin(Request $request)
+    public function socialLogin($provider, Request $request)
     {
-        $result = $this->authService->googleLogin($request->input('token'));
+        $result = $this->authService->socialLogin($provider);
         return $this->response([
-            'link' => $result['link'],
-        ], 'Google login successful');
+            'link' => $result['url'],
+        ], ucfirst($provider) . ' login successful');
     }
 
-    public function googleLoginCallback(Request $request)
+    public function socialLoginCallback($provider, Request $request)
     {
-        $result = $this->authService->googleLoginCallback($request->input('code'));
-        return $this->response($result, $result['success'] ? 'Google login successful' : 'Google login failed');
+        $result = $this->authService->socialLoginCallback($provider, $request);
+        return $this->response($result, $result['success'] ?? true ? ucfirst($provider) . ' login successful' : ucfirst($provider) . ' login failed');
     }
 
     public function logout(Request $request)

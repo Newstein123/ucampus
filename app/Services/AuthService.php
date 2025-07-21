@@ -51,54 +51,50 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    public function googleLogin()
+    public function socialLogin($provider)
     {
-        $url = \Laravel\Socialite\Facades\Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
+        $url = \Laravel\Socialite\Facades\Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
         return [
             'url' => $url
         ];
     }
 
-    public function googleLoginCallback($request)
+    public function socialLoginCallback($provider, $request)
     {
-        $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->stateless()->user();
-        $user = $this->users->findByEmail($googleUser->getEmail());
+        $socialUser = \Laravel\Socialite\Facades\Socialite::driver($provider)->stateless()->user();
+        $user = $this->users->findByEmail($socialUser->getEmail());
         if (!$user) {
             // Generate a unique username from email
-            $baseUsername = strtolower(explode('@', $googleUser->getEmail())[0]);
+            $baseUsername = strtolower(explode('@', $socialUser->getEmail())[0]);
             $username = $baseUsername;
             $counter = 1;
-            
             // Check if username exists and generate a unique one
             while ($this->users->findByUsername($username)) {
                 $username = $baseUsername . $counter;
                 $counter++;
             }
-            
             $user = $this->users->create([
-                'name' => $googleUser->getName() ?? $googleUser->getNickname(),
+                'name' => $socialUser->getName() ?? $socialUser->getNickname(),
                 'username' => $username,
-                'email' => $googleUser->getEmail(),
+                'email' => $socialUser->getEmail(),
                 'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
                 'dob' => '1990-01-01', // Default date of birth
                 'location' => 'Unknown', // Default location
                 'phone' => null, // Phone is nullable
             ]);
         }
-       
         $account = \App\Models\SocialAccount::updateOrCreate(
             [
-                'provider' => 'google',
-                'provider_user_id' => $googleUser->getId(),
+                'provider' => $provider,
+                'provider_user_id' => $socialUser->getId(),
             ],
             [
                 'user_id' => $user->id,
-                'token' => $googleUser->token,
+                'token' => $socialUser->token,
             ]
         );
-        
         \Illuminate\Support\Facades\Auth::login($user);
-        $token = $user->createToken('google-login')->plainTextToken;
+        $token = $user->createToken($provider . '-login')->plainTextToken;
         return [
             'user' => $user,
             'token' => $token,

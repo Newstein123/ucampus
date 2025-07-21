@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
-use App\Http\Controllers\Api\GoogleAuthController;
+use App\Http\Controllers\Api\SocialAuthController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -14,8 +14,8 @@ Route::get('/user', function (Request $request) {
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/login/google', [AuthController::class, 'googleLogin']);
-    Route::post('/login/google/callback', [AuthController::class, 'googleLoginCallback']);
+    Route::post('/login/{provider}', [AuthController::class, 'socialLogin']);
+    Route::post('/login/{provider}/callback', [AuthController::class, 'socialLoginCallback']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::post('/profile/edit',[AuthController::class, 'updateProfile'])->middleware('auth:sanctum');
     Route::put('/profile/edit/password', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
@@ -26,8 +26,8 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->post('/user/profile', [AuthController::class, 'updateProfile']);
 Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 'profile']);
 
-Route::get('auth/google/login', [GoogleAuthController::class, 'redirectToGoogle']);
-Route::get('auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+Route::get('auth/{provider}/login', [SocialAuthController::class, 'redirectToProvider']);
+Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
 
 Route::prefix('contributions')->group(function () {
     Route::get('/', [ContributionController::class, 'index']);
