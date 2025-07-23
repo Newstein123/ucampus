@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use App\Jobs\SendResetPasswordEmail;
+use Illuminate\Support\Str;
+use App\Models\SocialAccount;
 
 class AuthService implements AuthServiceInterface
 {
@@ -53,7 +55,7 @@ class AuthService implements AuthServiceInterface
 
     public function socialLogin($provider)
     {
-        $url = \Laravel\Socialite\Facades\Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+        $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
         return [
             'url' => $url
         ];
@@ -61,29 +63,22 @@ class AuthService implements AuthServiceInterface
 
     public function socialLoginCallback($provider, $request)
     {
-        $socialUser = \Laravel\Socialite\Facades\Socialite::driver($provider)->stateless()->user();
+        $socialUser = Socialite::driver($provider)->stateless()->user();
         $user = $this->users->findByEmail($socialUser->getEmail());
         if (!$user) {
-            // Generate a unique username from email
-            $baseUsername = strtolower(explode('@', $socialUser->getEmail())[0]);
-            $username = $baseUsername;
-            $counter = 1;
-            // Check if username exists and generate a unique one
-            while ($this->users->findByUsername($username)) {
-                $username = $baseUsername . $counter;
-                $counter++;
-            }
+            // Use full email as username
+            $username = $socialUser->getEmail();
             $user = $this->users->create([
                 'name' => $socialUser->getName() ?? $socialUser->getNickname(),
                 'username' => $username,
                 'email' => $socialUser->getEmail(),
-                'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
-                'dob' => '1990-01-01', // Default date of birth
-                'location' => 'Unknown', // Default location
-                'phone' => null, // Phone is nullable
+                'password' => Hash::make(Str::random(16)),
+                'dob' => null,
+                'location' => null,
+                'phone' => null,
             ]);
         }
-        $account = \App\Models\SocialAccount::updateOrCreate(
+        $account = SocialAccount::updateOrCreate(
             [
                 'provider' => $provider,
                 'provider_user_id' => $socialUser->getId(),
@@ -93,7 +88,7 @@ class AuthService implements AuthServiceInterface
                 'token' => $socialUser->token,
             ]
         );
-        \Illuminate\Support\Facades\Auth::login($user);
+        Auth::login($user);
         $token = $user->createToken($provider . '-login')->plainTextToken;
         return [
             'user' => $user,
