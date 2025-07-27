@@ -4,7 +4,6 @@ import laravel from 'laravel-vite-plugin';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import fs from 'fs';
 
 export default defineConfig({
     plugins: [
@@ -17,7 +16,7 @@ export default defineConfig({
         tailwindcss(),
         VitePWA({
           registerType:'autoUpdate',
-          includeAssets:['favicon.ico', "apple-touc-icon.png", "masked-icon.svg"],
+          includeAssets:['favicon.ico', "apple-touch-icon.png", "masked-icon.svg"],
             manifest: {
               name: 'U Campus',
               short_name: 'UCampus',
@@ -26,32 +25,65 @@ export default defineConfig({
               background_color: '#f7fafd',
               display: 'standalone',
               start_url: '/',
-              icons:[{
-                src: '/assets/images/android-chrome-192x192.png',
-                sizes:'192x192',
-                type:'image/png',
-                purpose:'favicon'
-              },
-              {
-                src:'/assets/images/android-chrome-512x512.png',
-                sizes:'512x512',
-                type:'image/png',
-                purpose:'favicon'
-              },
-              {
-                src: '/assets/images/apple-touch-icon.png',
-                sizes:'180x180',
-                type:'image/png',
-                purpose:'apple touch icon',
-              },
-              {
-                src: '/assets/images/maskable_icon.png',
-                sizes:'512x512',
-                type:'image/png',
-                purpose:'any maskable',
-              }
-            ],
+              scope: '/',
+              orientation: 'portrait',
+              icons:[
+                {
+                  src: '/assets/images/android-chrome-192x192.png',
+                  sizes:'192x192',
+                  type:'image/png',
+                  purpose:'any'
+                },
+                {
+                  src:'/assets/images/android-chrome-512x512.png',
+                  sizes:'512x512',
+                  type:'image/png',
+                  purpose:'any'
+                },
+                {
+                  src: '/assets/images/apple-touch-icon.png',
+                  sizes:'180x180',
+                  type:'image/png',
+                  purpose:'any'
+                },
+                {
+                  src: '/assets/images/maskable_icon.png',
+                  sizes:'512x512',
+                  type:'image/png',
+                  purpose:'maskable'
+                }
+              ],
+              categories: ['social', 'productivity', 'education'],
+              lang: 'en',
+              dir: 'ltr'
             },
+            workbox: {
+              globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+              runtimeCaching: [
+                {
+                  urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'google-fonts-cache',
+                    expiration: {
+                      maxEntries: 10,
+                      maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                    }
+                  }
+                },
+                {
+                  urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'gstatic-fonts-cache',
+                    expiration: {
+                      maxEntries: 10,
+                      maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                    }
+                  }
+                }
+              ]
+            }
         }),
     ],
     // server: {

@@ -5,14 +5,27 @@ import ExploreIcon from '@mui/icons-material/TravelExplore';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import NotificationIcon from '@mui/icons-material/Notifications';
 import { useTranslation } from 'react-i18next';
+import { useHomeContext } from '../contexts/HomeContext';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { t } = useTranslation();
     const [value, setValue] = React.useState(0);
     const navigate = useNavigate();
+    const location = useLocation();
+    const { triggerHomeRestart } = useHomeContext();
+    const handleHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        if (location.pathname === '/') {
+            console.log("triggerHomeRestart");
+            triggerHomeRestart();
+        } else {
+            navigate('/');
+        }
+    };
+
     return (
         <Box
             sx={{
@@ -73,7 +86,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         },
                     }}
                 >
-                    <BottomNavigationAction onClick={() => navigate('/')} label={t('Home')} icon={<HomeIcon />} />
+                    <BottomNavigationAction onClick={(e) => handleHomeClick(e)} label={t('Home')} icon={<HomeIcon />} />
                     <BottomNavigationAction onClick={() => navigate('/explore')} label={t('Explore')} icon={<ExploreIcon />} />
                     <BottomNavigationAction onClick={() => navigate('/contribution/create')} label={t('Create')} icon={<AddCircleOutlineIcon />} />
                     <BottomNavigationAction onClick={() => navigate('/projects')} label={t('Projects')} icon={<FolderIcon />} />

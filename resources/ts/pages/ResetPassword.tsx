@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, IconButton, InputAdornment, Link as MuiLink } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -6,6 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import useResetPasswordMutation from '../hooks/auth/useResetPasswordMutation';
+import { useSearchParams } from 'react-router-dom';
+import { AxiosError } from 'axios';
+import { ErrorResponse } from '../hooks';
 
 const schema = z.object({
     password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -19,16 +23,33 @@ type ResetPasswordForm = z.infer<typeof schema>;
 
 const ResetPassword: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
+    const email = searchParams.get('email');
     const { control, handleSubmit, formState: { errors } } = useForm<ResetPasswordForm>({
         resolver: zodResolver(schema),
         defaultValues: { password: '', confirmPassword: '' },
     });
     const [showPassword, setShowPassword] = React.useState(false);
     const [showConfirm, setShowConfirm] = React.useState(false);
-
+    const resetPasswordMutation = useResetPasswordMutation();
+    const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
     const onSubmit = (data: ResetPasswordForm) => {
-        // TODO: Call API to reset password
-        // Show success message or handle error
+        resetPasswordMutation.mutate({
+            email: email as string,
+            token: token as string,
+            password: data.password,
+            password_confirmation: data.confirmPassword,
+        }, {
+            onSuccess: () => {
+                navigate('/login');
+            },
+            onError: (error: AxiosError<ErrorResponse>) => {
+                if (error.response?.data.errors) {
+                    setApiValidationErrors(error.response.data.errors);
+                }
+            }
+        });
     };
 
     return (
@@ -36,7 +57,7 @@ const ResetPassword: React.FC = () => {
             sx={{
                 bgcolor: '#f7fafd',
                 minHeight: '100vh',
-                maxWidth: { xs: '100%', sm: 500 },
+                maxWidth: { xs: '100%', sm: 600 },
                 mx: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
@@ -64,7 +85,7 @@ const ResetPassword: React.FC = () => {
                             variant="outlined"
                             error={!!errors.password}
                             helperText={errors.password?.message}
-                            sx={{ mb: 2, bgcolor: '#fff', borderRadius: 2, border: '1px solid #eee', '& .MuiInputBase-input': { padding: '10px 16px' } }}
+                            sx={{ mb: 2, bgcolor: '#fff', borderRadius: 2 }}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -77,6 +98,9 @@ const ResetPassword: React.FC = () => {
                         />
                     )}
                 />
+                {apiValidationErrors.password && (
+                    <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.password}</Typography>
+                )}
                 <Typography fontWeight={600} mb={0.5} sx={{ textAlign: 'start' }}>
                     Confirm Password
                 </Typography>
@@ -93,7 +117,7 @@ const ResetPassword: React.FC = () => {
                             variant="outlined"
                             error={!!errors.confirmPassword}
                             helperText={errors.confirmPassword?.message}
-                            sx={{ mb: 2, bgcolor: '#fff', borderRadius: 2, border: '1px solid #eee', '& .MuiInputBase-input': { padding: '10px 16px' } }}
+                            sx={{ mb: 2, bgcolor: '#fff', borderRadius: 2 }}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -106,6 +130,9 @@ const ResetPassword: React.FC = () => {
                         />
                     )}
                 />
+                {apiValidationErrors.password && (
+                    <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.confirmPassword}</Typography>
+                )}
                 <Button
                     type="submit"
                     sx={{

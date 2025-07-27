@@ -150,6 +150,13 @@ class AuthService implements AuthServiceInterface
         $token = Password::createToken($user);
         $resetUrl = env('RESET_PASSWORD_URL') . '?token=' . $token . '&email=' . urlencode($email);
 
+        // Log the reset URL for debugging
+        \Illuminate\Support\Facades\Log::info('Forgot password request', [
+            'user_email' => $email,
+            'reset_url' => $resetUrl,
+            'env_reset_url' => env('RESET_PASSWORD_URL')
+        ]);
+
         SendResetPasswordEmail::dispatch($user, $resetUrl);
 
         return [

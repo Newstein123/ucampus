@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Paper, Link as MuiLink } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import useForgotPasswordMutation from '../hooks/auth/useForgotPasswordMutation';
+import { ErrorResponse } from '../hooks';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 const schema = z.object({
     email: z.string().email('Enter a valid email'),
@@ -18,9 +21,19 @@ const ForgotPassword: React.FC = () => {
         defaultValues: { email: '' },
     });
 
+    const forgotPasswordMutation = useForgotPasswordMutation();
+    const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
     const onSubmit = (data: ForgotPasswordForm) => {
-        // TODO: Call API to send reset email
-        // Show success message or handle error
+        forgotPasswordMutation.mutate(data, {
+            onSuccess: () => {
+                navigate('/login');
+            },
+            onError: (error: AxiosError<ErrorResponse>) => {
+                if (error.response?.data.errors) {
+                    setApiValidationErrors(error.response.data.errors);
+                }
+            }
+        });
     };
 
     return (
@@ -28,7 +41,7 @@ const ForgotPassword: React.FC = () => {
             sx={{
                 bgcolor: '#f7fafd',
                 minHeight: '100vh',
-                maxWidth: { xs: '100%', sm: 500 },
+                maxWidth: { xs: '100%', sm: 600 },
                 mx: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
@@ -58,10 +71,13 @@ const ForgotPassword: React.FC = () => {
                             variant="outlined"
                             error={!!errors.email}
                             helperText={errors.email?.message}
-                            sx={{ mb: 2, bgcolor: '#fff', borderRadius: 2, border: '1px solid #eee', '& .MuiInputBase-input': { padding: '10px 16px' } }}
+                            sx={{ mb: 2, bgcolor: '#fff', borderRadius: 2 }}
                         />
                     )}
                 />
+                {apiValidationErrors.email && (
+                    <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.email}</Typography>
+                )}
                 <Button
                     type="submit"
                     fullWidth

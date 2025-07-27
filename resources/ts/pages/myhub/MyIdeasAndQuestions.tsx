@@ -3,7 +3,7 @@ import {
     Box, Typography, Avatar, Paper, List, ListItem, ListItemAvatar, ListItemText
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '../components/BackButton';
+import BackButton from '../../components/BackButton';
 
 const ideas = [
     {

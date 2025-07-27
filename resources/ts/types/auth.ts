@@ -72,3 +72,38 @@ export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
 } 
+
+export interface UpdatePasswordRequest {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
+}
+
+export interface UpdatePasswordResponse {
+  success: boolean;
+  message: string;
+  data: null;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+  data: null;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+  data: null;
+}

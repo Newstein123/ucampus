@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, TextField, Button, Paper, Grid } from '@mui/material';
-import BackButton from '../components/BackButton';
+import BackButton from '../../components/BackButton';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,7 +48,7 @@ const ContactUs: React.FC = () => {
                                 margin="normal"
                                 error={!!errors.fullName}
                                 helperText={errors.fullName?.message || " "}
-                                sx={{ mb: 0, bgcolor: '#fff', borderRadius: 2, border: '1px solid #eee', '& .MuiInputBase-input': { padding: '10px 16px' } }}
+                                sx={{ mb: 0, bgcolor: '#fff', borderRadius: 2 }}
                             />
                         )}
                     />
@@ -64,7 +64,7 @@ const ContactUs: React.FC = () => {
                                 margin="normal"
                                 error={!!errors.email}
                                 helperText={errors.email?.message || " "}
-                                sx={{ mb: 0, bgcolor: '#fff', borderRadius: 2, border: '1px solid #eee', '& .MuiInputBase-input': { padding: '10px 16px' } }}
+                                sx={{ mb: 0, bgcolor: '#fff', borderRadius: 2 }}
                             />
                         )}
                     />
@@ -82,7 +82,7 @@ const ContactUs: React.FC = () => {
                                 minRows={3}
                                 error={!!errors.message}
                                 helperText={errors.message?.message || " "}
-                                sx={{ mb: 0, bgcolor: '#fff', borderRadius: 2, border: '1px solid #eee', '& .MuiInputBase-input': { padding: '10px 16px' } }}
+                                sx={{ mb: 0, bgcolor: '#fff', borderRadius: 2 }}
                             />
                         )}
                     />

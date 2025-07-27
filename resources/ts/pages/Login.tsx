@@ -61,7 +61,6 @@ const Login: React.FC = () => {
                 dispatch(setUser({ user: response.data.user as unknown as LoginUser }));
             },
             onError: (error: AxiosError<ErrorResponse>) => {
-                console.log("Login Error");
                 if (error.response?.data.errors) {
                     setApiValidationErrors(error.response.data.errors);
                 }
@@ -74,7 +73,7 @@ const Login: React.FC = () => {
             sx={{
                 bgcolor: '#f7fafd',
                 minHeight: '100vh',
-                maxWidth: { xs: '100%', sm: 500 },
+                maxWidth: { xs: '100%', sm: 600 },
                 mx: 'auto',
                 display: 'flex',
                 flexDirection: 'column',

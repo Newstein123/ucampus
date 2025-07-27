@@ -5,7 +5,13 @@ import type {
   RegisterResponse, 
   ProfileResponse, 
   LogoutResponse,
-  LoginResponse
+  LoginResponse,
+  UpdatePasswordResponse,
+  UpdatePasswordRequest,
+  ForgotPasswordResponse,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  ResetPasswordResponse
 } from '../types/auth';
 import { endpoints } from './endpoints';
 
@@ -32,6 +38,21 @@ export const authApi = {
 
   async getProfile(): Promise<ProfileResponse> {
     const response = await apiClient.getClient().get<ProfileResponse>(endpoints.auth_profile);
+    return response.data;
+  },
+
+  async changePassword(passwordData: UpdatePasswordRequest): Promise<UpdatePasswordResponse> {
+    const response = await apiClient.getClient().put<UpdatePasswordResponse>(endpoints.auth_change_password, passwordData);
+    return response.data;
+  },
+
+  async forgotPassword(email: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    const response = await apiClient.getClient().post<ForgotPasswordResponse>(endpoints.auth_forgot_password, email);
+    return response.data;
+  },
+
+  async resetPassword(passwordData: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    const response = await apiClient.getClient().post<ResetPasswordResponse>(endpoints.auth_reset_password, passwordData);
     return response.data;
   },
 }; 

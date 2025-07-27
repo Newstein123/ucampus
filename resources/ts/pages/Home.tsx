@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Box, Typography, Tabs, Tab, Avatar, Card, CardContent, CardMedia, IconButton, Divider,
     CircularProgress
@@ -6,8 +6,11 @@ import {
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import { useQueryClient } from '@tanstack/react-query';
 import Layout from '../components/Layout';
-import useContributionListQuery from '../hooks/contribution/useContributionListQuery';
+import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
+import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
+import { useHomeContext } from '../contexts/HomeContext';
 
 const tabLabels = ['All Contributions', 'Idea', 'Question'];
 
@@ -16,16 +19,48 @@ const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 const Home: React.FC = () => {
     const [tab, setTab] = useState(0);
     const type = tab === 0 ? undefined : tabLabels[tab].toLowerCase();
-    const { data: contributionList, isLoading, refetch } = useContributionListQuery({ type });
-    const contributions = contributionList?.data || [];
+    const queryClient = useQueryClient();
+
+    const {
+        data,
+        isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+        refetch
+    } = useContributionListInfiniteQuery({ type, perPage: 10 });
+
+    const { onHomeRestart } = useHomeContext();
+
+    // Flatten all pages into a single array
+    const contributions = data?.pages.flatMap(page => page.data) || [];
 
     const handleTabChange = (_: any, idx: number) => {
         setTab(idx);
     };
 
+    const handleLoadMore = () => {
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    };
+
+    const handleHomeRestart = useCallback(() => {
+        console.log('handleHomeRestart called');
+
+        // Scroll to top of the page
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Invalidate and refetch the query to get fresh data and reset pagination
+        console.log('Invalidating and refetching data...');
+        queryClient.invalidateQueries({ queryKey: ['contributionList', type] });
+    }, [queryClient, type]);
+
+    // Register restart callback
     useEffect(() => {
-        refetch();
-    }, [tab]);
+        console.log('Registering home restart callback');
+        onHomeRestart(handleHomeRestart);
+    }, [onHomeRestart, handleHomeRestart]);
 
     if (isLoading) {
         return <Layout>
@@ -68,7 +103,7 @@ const Home: React.FC = () => {
                             </Box>
                             {/* Created at time */}
                             <Typography sx={{ color: '#aaa', fontSize: 12, mb: 0.5, ml: 5 }}>
-                                {item.created_at}
+                                {new Date(item.created_at).toLocaleString()}
                             </Typography>
                             <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>{item.type === 'idea' ? item.content.description : item.content.answer}</Typography>
                         </CardContent>
@@ -98,7 +133,7 @@ const Home: React.FC = () => {
                         {item.type === 'idea' && (
                             <Box sx={{ px: 1, pb: 1 }}>
                                 <Typography sx={{ color: '#444', fontSize: 14, mb: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {item.content.description}
+                                    {item.content.problem}
                                 </Typography>
                                 <Typography
                                     sx={{ color: '#1F8505', fontWeight: 600, fontSize: 14, cursor: 'pointer', display: 'inline-block', ':hover': { textDecoration: 'underline' } }}
@@ -117,6 +152,14 @@ const Home: React.FC = () => {
                         </Box>
                     </Card>
                 ))}
+
+                {/* Infinite Scroll Trigger */}
+                <InfiniteScrollTrigger
+                    onIntersect={handleLoadMore}
+                    isLoading={isLoading}
+                    hasNextPage={hasNextPage}
+                    isFetchingNextPage={isFetchingNextPage}
+                />
             </Box>
         </Layout>
     );

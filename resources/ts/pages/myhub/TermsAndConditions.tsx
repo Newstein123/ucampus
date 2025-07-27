@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import BackButton from '../components/BackButton';
+import BackButton from '../../components/BackButton';
 
 const TermsAndConditions: React.FC = () => (
     <Box sx={{ maxWidth: 600, mx: 'auto', minHeight: '100vh', bgcolor: '#f7fafd', p: 0 }}>
