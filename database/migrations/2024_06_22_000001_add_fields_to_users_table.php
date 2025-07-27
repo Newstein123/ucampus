@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('username')->unique()->after('name');
             $table->string('phone')->unique()->nullable()->after('email');
-            $table->date('dob')->after('password');
-            $table->string('location')->after('dob');
+            $table->date('dob')->nullable()->after('password');
+            $table->string('location')->nullable()->after('dob');
             $table->dateTime('last_login_at')->nullable()->after('location');
         });
     }

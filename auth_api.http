@@ -36,14 +36,14 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### Google Login
-# @name googleLogin
+### Social Login (example: Google)
+# @name socialLogin
 POST http://localhost/api/auth/login/google
 Content-Type: application/json
 
 {
-  "token": "GOOGLE_OAUTH_TOKEN_HERE"
-} 
+  "token": "OAUTH_TOKEN_HERE"
+}
 
 ### Get User Profile
 # @name getUserProfile

@@ -37,4 +37,12 @@ class UserRepository
         $user->save();
         return $user;
     }
+
+    public function findByProviderId(string $provider, string $providerUserId)
+    {
+        $account = \App\Models\SocialAccount::where('provider', $provider)
+            ->where('provider_user_id', $providerUserId)
+            ->first();
+        return $account ? $account->user : null;
+    }
 }

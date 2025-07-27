@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use App\Jobs\SendResetPasswordEmail;
+use Illuminate\Support\Str;
+use App\Models\SocialAccount;
 
 class AuthService implements AuthServiceInterface
 {
@@ -51,25 +53,47 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    public function googleLogin($googleToken)
+    public function socialLogin($provider)
     {
-        // This is a stub. Actual implementation will use Socialite.
-        // $googleUser = Socialite::driver('google')->userFromToken($googleToken);
-        // ...
+        $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
         return [
-            'success' => false,
-            'message' => 'Google login not implemented yet',
+            'url' => $url
         ];
     }
 
-    public function googleLoginCallback($code)
+    public function socialLoginCallback($provider, $request)
     {
-        // $googleUser = Socialite::driver('google')->userFromToken($code);
-        // return [
-        //     'success' => true,
-        //     'message' => 'Google login successful',
-        //     'data' => $googleUser,
-        // ];
+        $socialUser = Socialite::driver($provider)->stateless()->user();
+        $user = $this->users->findByEmail($socialUser->getEmail());
+        if (!$user) {
+            // Use full email as username
+            $username = $socialUser->getEmail();
+            $user = $this->users->create([
+                'name' => $socialUser->getName() ?? $socialUser->getNickname(),
+                'username' => $username,
+                'email' => $socialUser->getEmail(),
+                'password' => Hash::make(Str::random(16)),
+                'dob' => null,
+                'location' => null,
+                'phone' => null,
+            ]);
+        }
+        $account = SocialAccount::updateOrCreate(
+            [
+                'provider' => $provider,
+                'provider_user_id' => $socialUser->getId(),
+            ],
+            [
+                'user_id' => $user->id,
+                'token' => $socialUser->token,
+            ]
+        );
+        Auth::login($user);
+        $token = $user->createToken($provider . '-login')->plainTextToken;
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
     }
 
     public function logout($user)
