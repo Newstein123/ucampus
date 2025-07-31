@@ -91,7 +91,7 @@ const Home: React.FC = () => {
             </Tabs>
             <Divider />
             {/* Contributions List */}
-            <Box sx={{ px: 2, pt: 2 }}>
+            <Box sx={{ px: 0, pt: 2 }}>
                 {contributions.map((item) => (
                     <Card key={item.id} sx={{ mb: 3, boxShadow: 0, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0' }}>
                         <CardContent sx={{ pb: 1 }}>

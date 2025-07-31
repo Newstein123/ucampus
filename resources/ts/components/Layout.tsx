@@ -26,6 +26,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         }
     };
 
+    const path = location.pathname;
+
+    const navigationValue = (() => {
+        if (path === '/' || path.startsWith('/home')) return 'home';
+        if (path.startsWith('/explore')) return 'explore';
+        if (path.startsWith('/contribution')) return 'create';
+        if (path.startsWith('/projects')) return 'projects';
+        if (path.startsWith('/myhub')) return 'myhub';
+        return '';
+    })();
+
     return (
         <Box
             sx={{
@@ -66,13 +77,32 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     maxWidth: 600,
                     borderTop: '1px solid #eee',
                     bgcolor: '#fff',
+                    padding: '5px 0px 20px 0px'
                 }}
                 elevation={3}
             >
                 <BottomNavigation
                     showLabels
-                    value={value}
-                    onChange={(_, newValue) => setValue(newValue)}
+                    value={navigationValue}
+                    onChange={(_, newValue) => {
+                        if (newValue === 'home') return;
+                        switch (newValue) {
+                            case 'explore':
+                                navigate('/explore');
+                                break;
+                            case 'create':
+                                navigate('/contribution/create');
+                                break;
+                            case 'projects':
+                                navigate('/projects');
+                                break;
+                            case 'myhub':
+                                navigate('/myhub');
+                                break;
+                            default:
+                                break;
+                        }
+                    }}
                     sx={{
                         bgcolor: '#fff',
                         '.Mui-selected, .Mui-selected svg': {
@@ -86,11 +116,15 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         },
                     }}
                 >
-                    <BottomNavigationAction onClick={(e) => handleHomeClick(e)} label={t('Home')} icon={<HomeIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/explore')} label={t('Explore')} icon={<ExploreIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/contribution/create')} label={t('Create')} icon={<AddCircleOutlineIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/projects')} label={t('Projects')} icon={<FolderIcon />} />
-                    <BottomNavigationAction onClick={() => navigate('/myhub')} label={t('My Hub')} icon={<PersonIcon />} />
+                    <BottomNavigationAction
+                        value="home"
+                        onClick={(e) => handleHomeClick(e)}
+                        label={t('Home')}
+                        icon={<HomeIcon />} />
+                    <BottomNavigationAction value="explore" onClick={() => navigate('/explore')} label={t('Explore')} icon={<ExploreIcon />} />
+                    <BottomNavigationAction value="create" onClick={() => navigate('/contribution/create')} label={t('Create')} icon={<AddCircleOutlineIcon />} />
+                    <BottomNavigationAction value="projects" onClick={() => navigate('/projects')} label={t('Projects')} icon={<FolderIcon />} />
+                    <BottomNavigationAction value="myhub" onClick={() => navigate('/myhub')} label={t('My Hub')} icon={<PersonIcon />} />
                 </BottomNavigation>
             </Paper>
         </Box>

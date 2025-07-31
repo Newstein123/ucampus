@@ -10,8 +10,7 @@ import {
     InputAdornment,
     IconButton,
     Divider,
-    Link,
-    Avatar,
+    Link
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -23,6 +22,7 @@ import { AxiosError } from 'axios';
 import { ErrorResponse } from '../hooks';
 import { setUser } from '../store/slices/authSlice';
 import { LoginUser } from '../types/auth';
+import { Link as RouterLink } from 'react-router-dom';
 
 const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -208,7 +208,12 @@ const Login: React.FC = () => {
 
                 <Typography align="center" sx={{ fontSize: 15, mb: 2 }}>
                     Not a member?{' '}
-                    <Link href="/register" underline="none" sx={{ color: '#1abc60', fontWeight: 600 }}>
+                    <Link
+                        component={RouterLink}
+                        to="/register"
+                        underline="none"
+                        sx={{ color: '#1abc60', fontWeight: 600 }}
+                    >
                         Register now
                     </Link>
                 </Typography>
