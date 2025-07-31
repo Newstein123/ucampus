@@ -208,14 +208,11 @@ const Login: React.FC = () => {
 
                 <Typography align="center" sx={{ fontSize: 15, mb: 2 }}>
                     Not a member?{' '}
-                    <Link
-                        component={RouterLink}
-                        to="/register"
-                        underline="none"
-                        sx={{ color: '#1abc60', fontWeight: 600 }}
+                    <span
+                        onClick={() => navigate('/register')}
                     >
                         Register now
-                    </Link>
+                    </span>
                 </Typography>
 
                 <Divider sx={{ my: 2 }}>Or continue with</Divider>
