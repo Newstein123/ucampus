@@ -4,8 +4,7 @@ import storage from 'redux-persist/lib/storage';
 import { ThunkAction } from 'redux-thunk';
 
 import authSlice from './slices/authSlice';
-
-export const RESET_ROOT_STATE = 'RESET_ROOT_STATE';
+import { RESET_ROOT_STATE, SET_WHOLE_STATE } from './types';
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
@@ -19,8 +18,6 @@ const persistConfig = {
 const rootReducer = combineReducers({
     auth: authSlice,
 });
-
-export const SET_WHOLE_STATE = 'SET_WHOLE_STATE';
 
 const rootReducerWithSet = (state: any, action: Action & { payload?: any }) => {
     if (action.type === SET_WHOLE_STATE && action.payload) {

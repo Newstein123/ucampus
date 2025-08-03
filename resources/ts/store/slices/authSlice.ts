@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { LoginUser } from '@/types/auth';
-import { RESET_ROOT_STATE, RootState } from '../index';
+import { RESET_ROOT_STATE } from '../types';
 
 interface AuthState {
     user: LoginUser | null;
@@ -48,7 +48,8 @@ export const authSlice = createSlice({
 
 export const { setUser, logout, setLoading, setError } = authSlice.actions;
 
-export const selectUser = (state: RootState) => state.auth.user;
-export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
+// Use proper typing for selectors
+export const selectUser = (state: { auth: AuthState }) => state.auth.user;
+export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
 
 export default authSlice.reducer;
