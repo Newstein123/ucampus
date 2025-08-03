@@ -1,18 +1,15 @@
-import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import {
-    Box, Typography, TextField, Button, Checkbox, FormControlLabel,
-    InputAdornment, IconButton, MenuItem, Link as MuiLink
-} from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { step1Schema, step2Schema } from '../schemas/register';
-import useUserRegisterMutation from '../hooks/auth/useUserRegisterMutation';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Link as MuiLink, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 import { ErrorResponse } from '../hooks';
+import useUserRegisterMutation from '../hooks/auth/useUserRegisterMutation';
+import { step1Schema, step2Schema } from '../schemas/register';
 
 type Step1Form = z.infer<typeof step1Schema>;
 type Step2Form = z.infer<typeof step2Schema>;
@@ -74,11 +71,7 @@ const Register: React.FC = () => {
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, ml: 1 }}>
                 Sign up
             </Typography>
-            <Typography sx={{ color: '#888', mb: 3, ml: 1 }}>
-                {step === 1
-                    ? 'Create an account to get started'
-                    : 'Finish your profile'}
-            </Typography>
+            <Typography sx={{ color: '#888', mb: 3, ml: 1 }}>{step === 1 ? 'Create an account to get started' : 'Finish your profile'}</Typography>
 
             {step === 1 && (
                 <>
@@ -132,10 +125,7 @@ const Register: React.FC = () => {
                                 placeholder: 'Create a password',
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowPassword((v) => !v)}
-                                            edge="end"
-                                        >
+                                        <IconButton onClick={() => setShowPassword((v) => !v)} edge="end">
                                             {showPassword ? <VisibilityOff /> : <Visibility />}
                                         </IconButton>
                                     </InputAdornment>
@@ -159,10 +149,7 @@ const Register: React.FC = () => {
                                 placeholder: 'Confirm password',
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowConfirm((v) => !v)}
-                                            edge="end"
-                                        >
+                                        <IconButton onClick={() => setShowConfirm((v) => !v)} edge="end">
                                             {showConfirm ? <VisibilityOff /> : <Visibility />}
                                         </IconButton>
                                     </InputAdornment>
@@ -197,7 +184,11 @@ const Register: React.FC = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Typography variant="body2" color="text.secondary">
                             Already have an account?{' '}
-                            <MuiLink component="button" onClick={() => navigate('/login')} sx={{ color: '#188600', fontWeight: 600, textDecoration: 'none' }}>
+                            <MuiLink
+                                component="button"
+                                onClick={() => navigate('/login')}
+                                sx={{ color: '#188600', fontWeight: 600, textDecoration: 'none' }}
+                            >
                                 Login now
                             </MuiLink>
                         </Typography>
@@ -270,7 +261,9 @@ const Register: React.FC = () => {
                         helperText={step2Form.formState.errors.location?.message}
                     >
                         {locations.map((loc) => (
-                            <MenuItem key={loc} value={loc}>{loc}</MenuItem>
+                            <MenuItem key={loc} value={loc}>
+                                {loc}
+                            </MenuItem>
                         ))}
                     </TextField>
                     {apiError && (
@@ -298,8 +291,7 @@ const Register: React.FC = () => {
                         label={
                             <span>
                                 I&apos;ve read and agree with the{' '}
-                                <span style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Terms and Conditions</span>
-                                {' '}and the{' '}
+                                <span style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Terms and Conditions</span> and the{' '}
                                 <span style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Privacy Policy</span>.
                             </span>
                         }

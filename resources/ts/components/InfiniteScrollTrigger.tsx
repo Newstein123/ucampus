@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useCallback } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 interface InfiniteScrollTriggerProps {
     onIntersect: () => void;
@@ -8,12 +8,7 @@ interface InfiniteScrollTriggerProps {
     isFetchingNextPage: boolean;
 }
 
-const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = ({
-    onIntersect,
-    isLoading,
-    hasNextPage,
-    isFetchingNextPage
-}) => {
+const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = ({ onIntersect, isLoading, hasNextPage, isFetchingNextPage }) => {
     const observerRef = useRef<HTMLDivElement>(null);
 
     const handleObserver = useCallback(
@@ -23,7 +18,7 @@ const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = ({
                 onIntersect();
             }
         },
-        [onIntersect, hasNextPage, isFetchingNextPage, isLoading]
+        [onIntersect, hasNextPage, isFetchingNextPage, isLoading],
     );
 
     useEffect(() => {
@@ -33,7 +28,7 @@ const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = ({
         const observer = new IntersectionObserver(handleObserver, {
             root: null,
             rootMargin: '100px', // Start loading 100px before the element comes into view
-            threshold: 0.1
+            threshold: 0.1,
         });
 
         observer.observe(element);
@@ -61,14 +56,12 @@ const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = ({
                 justifyContent: 'center',
                 alignItems: 'center',
                 py: 3,
-                minHeight: 60
+                minHeight: 60,
             }}
         >
-            {isFetchingNextPage && (
-                <CircularProgress size={24} sx={{ color: '#1F8505' }} />
-            )}
+            {isFetchingNextPage && <CircularProgress size={24} sx={{ color: '#1F8505' }} />}
         </Box>
     );
 };
 
-export default InfiniteScrollTrigger; 
+export default InfiniteScrollTrigger;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useCallback } from 'react';
+import React, { createContext, useCallback, useContext, useRef } from 'react';
 
 interface HomeContextType {
     triggerHomeRestart: () => void;
@@ -24,7 +24,7 @@ export const HomeProvider: React.FC<HomeProviderProps> = ({ children }) => {
 
     const triggerHomeRestart = useCallback(() => {
         console.log('triggerHomeRestart called, callbacks:', restartCallbacksRef.current.length);
-        restartCallbacksRef.current.forEach(callback => {
+        restartCallbacksRef.current.forEach((callback) => {
             try {
                 callback();
             } catch (error) {
@@ -41,12 +41,8 @@ export const HomeProvider: React.FC<HomeProviderProps> = ({ children }) => {
 
     const value: HomeContextType = {
         triggerHomeRestart,
-        onHomeRestart
+        onHomeRestart,
     };
 
-    return (
-        <HomeContext.Provider value={value}>
-            {children}
-        </HomeContext.Provider>
-    );
-}; 
+    return <HomeContext.Provider value={value}>{children}</HomeContext.Provider>;
+};

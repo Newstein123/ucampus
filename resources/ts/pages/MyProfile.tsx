@@ -1,12 +1,12 @@
+import { Avatar, Box, Button, List, ListItem, ListItemText, Typography } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
-import { Box, Typography, Avatar, Button, Divider, List, ListItem, ListItemText, ListSubheader } from '@mui/material';
-import { logout } from '../store/slices/authSlice';
-import Layout from '../components/Layout';
 import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 import useUserLogoutMutation from '../hooks/auth/useUserLogoutMutation';
 import useUserProfileQuery from '../hooks/auth/useUserProfileQuery';
-import { useTranslation } from 'react-i18next';
+import { logout } from '../store/slices/authSlice';
 
 const MyProfile: React.FC = () => {
     const { t } = useTranslation();
@@ -22,7 +22,7 @@ const MyProfile: React.FC = () => {
             },
             onError: (error) => {
                 console.error(error);
-            }
+            },
         });
     };
 
@@ -48,7 +48,11 @@ const MyProfile: React.FC = () => {
             </Box>
             <List sx={{ bgcolor: '#fff', borderRadius: 2, boxShadow: 0 }}>
                 <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
-                    <ListItemText primary={t('My ideas and questions')} onClick={() => navigate('/my-ideas-and-questions')} sx={{ cursor: 'pointer' }} />
+                    <ListItemText
+                        primary={t('My ideas and questions')}
+                        onClick={() => navigate('/my-ideas-and-questions')}
+                        sx={{ cursor: 'pointer' }}
+                    />
                 </ListItem>
                 <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
                     <ListItemText primary={t('Terms & Conditions')} onClick={() => navigate('/terms-and-conditions')} sx={{ cursor: 'pointer' }} />
@@ -63,16 +67,10 @@ const MyProfile: React.FC = () => {
                     <ListItemText primary={t('Change password')} onClick={() => navigate('/change-password')} sx={{ cursor: 'pointer' }} />
                 </ListItem>
             </List>
-            <Button
-                variant="contained"
-                color="error"
-                fullWidth
-                onClick={handleLogout}
-                sx={{ mt: 1, textTransform: 'none', fontWeight: 600 }}
-            >
+            <Button variant="contained" color="error" fullWidth onClick={handleLogout} sx={{ mt: 1, textTransform: 'none', fontWeight: 600 }}>
                 {t('Logout')}
             </Button>
-        </Layout >
+        </Layout>
     );
 };
 

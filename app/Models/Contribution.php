@@ -18,13 +18,11 @@ class Contribution extends Model
         'status',
         'views_count',
         'thumbnail_url',
-        'likes_count'
     ];
 
     protected $casts = [
         'content' => 'array',
         'views_count' => 'integer',
-        'likes_count' => 'integer',
     ];
 
     public function user()
@@ -35,5 +33,15 @@ class Contribution extends Model
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function interests()
+    {
+        return $this->belongsToMany(User::class, 'contribution_interest', 'contribution_id', 'user_id');
+    }
+
+    public function getInterestsCountAttribute()
+    {
+        return $this->interests->count();
     }
 }

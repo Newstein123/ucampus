@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, IconButton, InputAdornment, Link as MuiLink } from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import useResetPasswordMutation from '../hooks/auth/useResetPasswordMutation';
-import { useSearchParams } from 'react-router-dom';
+import { Box, Button, IconButton, InputAdornment, Link as MuiLink, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { z } from 'zod';
 import { ErrorResponse } from '../hooks';
+import useResetPasswordMutation from '../hooks/auth/useResetPasswordMutation';
 
-const schema = z.object({
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-});
+const schema = z
+    .object({
+        password: z.string().min(6, 'Password must be at least 6 characters'),
+        confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'Passwords do not match',
+        path: ['confirmPassword'],
+    });
 
 type ResetPasswordForm = z.infer<typeof schema>;
 
@@ -26,7 +27,11 @@ const ResetPassword: React.FC = () => {
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
     const email = searchParams.get('email');
-    const { control, handleSubmit, formState: { errors } } = useForm<ResetPasswordForm>({
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ResetPasswordForm>({
         resolver: zodResolver(schema),
         defaultValues: { password: '', confirmPassword: '' },
     });
@@ -35,21 +40,24 @@ const ResetPassword: React.FC = () => {
     const resetPasswordMutation = useResetPasswordMutation();
     const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
     const onSubmit = (data: ResetPasswordForm) => {
-        resetPasswordMutation.mutate({
-            email: email as string,
-            token: token as string,
-            password: data.password,
-            password_confirmation: data.confirmPassword,
-        }, {
-            onSuccess: () => {
-                navigate('/login');
+        resetPasswordMutation.mutate(
+            {
+                email: email as string,
+                token: token as string,
+                password: data.password,
+                password_confirmation: data.confirmPassword,
             },
-            onError: (error: AxiosError<ErrorResponse>) => {
-                if (error.response?.data.errors) {
-                    setApiValidationErrors(error.response.data.errors);
-                }
-            }
-        });
+            {
+                onSuccess: () => {
+                    navigate('/login');
+                },
+                onError: (error: AxiosError<ErrorResponse>) => {
+                    if (error.response?.data.errors) {
+                        setApiValidationErrors(error.response.data.errors);
+                    }
+                },
+            },
+        );
     };
 
     return (
@@ -64,7 +72,8 @@ const ResetPassword: React.FC = () => {
                 pt: 4,
                 pb: 4,
                 px: 2,
-            }}>
+            }}
+        >
             <Typography fontWeight={700} mb={1}>
                 Create New Password
             </Typography>
@@ -98,9 +107,7 @@ const ResetPassword: React.FC = () => {
                         />
                     )}
                 />
-                {apiValidationErrors.password && (
-                    <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.password}</Typography>
-                )}
+                {apiValidationErrors.password && <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.password}</Typography>}
                 <Typography fontWeight={600} mb={0.5} sx={{ textAlign: 'start' }}>
                     Confirm Password
                 </Typography>
@@ -154,7 +161,11 @@ const ResetPassword: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                     Not a member?{' '}
-                    <MuiLink component="button" onClick={() => navigate('/register')} sx={{ color: '#188600', fontWeight: 600, textDecoration: 'none' }}>
+                    <MuiLink
+                        component="button"
+                        onClick={() => navigate('/register')}
+                        sx={{ color: '#188600', fontWeight: 600, textDecoration: 'none' }}
+                    >
                         Register now
                     </MuiLink>
                 </Typography>
@@ -163,4 +174,4 @@ const ResetPassword: React.FC = () => {
     );
 };
 
-export default ResetPassword; 
+export default ResetPassword;

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper, Link as MuiLink } from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import useForgotPasswordMutation from '../hooks/auth/useForgotPasswordMutation';
-import { ErrorResponse } from '../hooks';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, Link as MuiLink, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+import { ErrorResponse } from '../hooks';
+import useForgotPasswordMutation from '../hooks/auth/useForgotPasswordMutation';
 
 const schema = z.object({
     email: z.string().email('Enter a valid email'),
@@ -16,7 +16,11 @@ type ForgotPasswordForm = z.infer<typeof schema>;
 
 const ForgotPassword: React.FC = () => {
     const navigate = useNavigate();
-    const { control, handleSubmit, formState: { errors } } = useForm<ForgotPasswordForm>({
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ForgotPasswordForm>({
         resolver: zodResolver(schema),
         defaultValues: { email: '' },
     });
@@ -32,7 +36,7 @@ const ForgotPassword: React.FC = () => {
                 if (error.response?.data.errors) {
                     setApiValidationErrors(error.response.data.errors);
                 }
-            }
+            },
         });
     };
 
@@ -48,7 +52,8 @@ const ForgotPassword: React.FC = () => {
                 pt: 4,
                 pb: 4,
                 px: 2,
-            }}>
+            }}
+        >
             <Typography fontWeight={700} mb={1}>
                 Forget Password
             </Typography>
@@ -75,9 +80,7 @@ const ForgotPassword: React.FC = () => {
                         />
                     )}
                 />
-                {apiValidationErrors.email && (
-                    <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.email}</Typography>
-                )}
+                {apiValidationErrors.email && <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.email}</Typography>}
                 <Button
                     type="submit"
                     fullWidth
@@ -100,13 +103,17 @@ const ForgotPassword: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                     Not a member?{' '}
-                    <MuiLink component="button" onClick={() => navigate('/register')} sx={{ color: '#188600', fontWeight: 600, textDecoration: 'none' }}>
+                    <MuiLink
+                        component="button"
+                        onClick={() => navigate('/register')}
+                        sx={{ color: '#188600', fontWeight: 600, textDecoration: 'none' }}
+                    >
                         Register now
                     </MuiLink>
                 </Typography>
             </Box>
-        </Box >
+        </Box>
     );
 };
 
-export default ForgotPassword; 
+export default ForgotPassword;

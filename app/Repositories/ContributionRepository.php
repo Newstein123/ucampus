@@ -6,6 +6,11 @@ use App\Models\Contribution;
 
 class ContributionRepository implements ContributionRepositoryInterface
 {
+    public function find(int $id)
+    {
+        return Contribution::find($id);
+    }
+
     public function list(array $filters = [])
     {
         $perPage = $filters['per_page'] ?? 10;

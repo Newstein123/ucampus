@@ -22,7 +22,6 @@ return new class extends Migration
             $table->enum('status', ['draft', 'active', 'completed'])->default('draft');
             $table->integer('views_count')->default(0);
             $table->string('thumbnail_url')->nullable();
-            $table->integer('likes_count')->default(0);
             $table->timestamps();
         });
     }

@@ -1,10 +1,8 @@
-import React from 'react';
-import {
-    Box, Typography, Card, CardContent, CardMedia, IconButton, Paper
-} from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import Layout from '../components/Layout';
+import { Box, CardMedia, IconButton, Paper, Typography } from '@mui/material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 
 const ownProjects = [
     {
@@ -40,13 +38,10 @@ const collabProjects = [
 const ProjectCard: React.FC<{ title: string; subtitle: string; image: string }> = ({ title, subtitle, image }) => {
     const navigate = useNavigate();
     return (
-        <Paper sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1.5, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0', boxShadow: 0 }}>
-            <CardMedia
-                component="img"
-                image={image}
-                alt={title}
-                sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: '#e8f5e9', mr: 2 }}
-            />
+        <Paper
+            sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1.5, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0', boxShadow: 0 }}
+        >
+            <CardMedia component="img" image={image} alt={title} sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: '#e8f5e9', mr: 2 }} />
             <Box sx={{ flex: 1 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{title}</Typography>
                 <Typography sx={{ color: '#888', fontSize: 13 }}>{subtitle}</Typography>
@@ -76,4 +71,4 @@ const Projects: React.FC = () => {
     );
 };
 
-export default Projects; 
+export default Projects;

@@ -1,0 +1,27 @@
+@token = "gTNvxwHbXwHk4ORF3X098I8hxMJI3Vgwfm6sgoGh32c280e7"
+
+### Login (by email)
+# @name login
+POST http://localhost/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "johndoe@example.com",
+  "password": "password123"
+}
+
+### List notifications
+# @name listNotifications
+GET http://localhost/api/notifications
+Authorization: Bearer gTNvxwHbXwHk4ORF3X098I8hxMJI3Vgwfm6sgoGh32c280e7
+
+### Mark as read
+# @name markAsRead
+POST http://localhost/api/notifications/3/read
+Authorization: Bearer gTNvxwHbXwHk4ORF3X098I8hxMJI3Vgwfm6sgoGh32c280e7
+Content-Type: application/json
+### Get unread count
+# @name getUnreadCount
+GET http://localhost/api/notifications/unread-count
+Authorization: Bearer gTNvxwHbXwHk4ORF3X098I8hxMJI3Vgwfm6sgoGh32c280e7
+Content-Type: application/json

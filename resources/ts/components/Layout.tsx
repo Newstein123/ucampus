@@ -1,14 +1,15 @@
-import React from 'react';
-import { AppBar, Toolbar, Box, BottomNavigation, BottomNavigationAction, Paper, Badge } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
-import ExploreIcon from '@mui/icons-material/TravelExplore';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import FolderIcon from '@mui/icons-material/Folder';
-import PersonIcon from '@mui/icons-material/Person';
-import { useNavigate, useLocation } from 'react-router-dom';
+import HomeIcon from '@mui/icons-material/Home';
 import NotificationIcon from '@mui/icons-material/Notifications';
+import PersonIcon from '@mui/icons-material/Person';
+import ExploreIcon from '@mui/icons-material/TravelExplore';
+import { AppBar, Badge, BottomNavigation, BottomNavigationAction, Box, Paper, Toolbar } from '@mui/material';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useHomeContext } from '../contexts/HomeContext';
+import useNotificationUnreadCountQuery from '../hooks/notification/useNotificationUnreadCountQuery';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { t } = useTranslation();
@@ -16,10 +17,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { triggerHomeRestart } = useHomeContext();
+    const { data: unreadCountData } = useNotificationUnreadCountQuery();
     const handleHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (location.pathname === '/') {
-            console.log("triggerHomeRestart");
+            console.log('triggerHomeRestart');
             triggerHomeRestart();
         } else {
             navigate('/');
@@ -50,21 +52,24 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             }}
         >
             {/* Navbar */}
-            <AppBar position="sticky" color="transparent" elevation={0} sx={{ borderBottom: '1px solid #eee', px: 2, top: 0, zIndex: 1100, bgcolor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(8px)' }}>
+            <AppBar
+                position="sticky"
+                color="transparent"
+                elevation={0}
+                sx={{ borderBottom: '1px solid #eee', px: 2, top: 0, zIndex: 1100, bgcolor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(8px)' }}
+            >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
                     <Toolbar>
-                        <img src='/assets/images/logo.png' alt="logo" width={70} height={70} />
+                        <img src="/assets/images/logo.png" alt="logo" width={70} height={70} />
                     </Toolbar>
-                    <Badge badgeContent={4} color='success' sx={{ mr: 2 }}>
-                        <NotificationIcon sx={{ fontSize: 30, color: '#1F2024' }} />
+                    <Badge badgeContent={unreadCountData?.data?.unread_count || 0} color="success" sx={{ mr: 2 }}>
+                        <NotificationIcon sx={{ fontSize: 30, color: '#1F2024', cursor: 'pointer' }} onClick={() => navigate('/notifications')} />
                     </Badge>
                 </Box>
             </AppBar>
 
             {/* Main Content */}
-            <Box sx={{ flex: 1, p: 2, pb: 8 }}>
-                {children}
-            </Box>
+            <Box sx={{ flex: 1, p: 2, pb: 8 }}>{children}</Box>
 
             {/* Footer */}
             <Paper
@@ -77,7 +82,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     maxWidth: 600,
                     borderTop: '1px solid #eee',
                     bgcolor: '#fff',
-                    padding: '5px 0px 20px 0px'
+                    padding: '5px 0px 20px 0px',
                 }}
                 elevation={3}
             >
@@ -116,13 +121,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         },
                     }}
                 >
-                    <BottomNavigationAction
-                        value="home"
-                        onClick={(e) => handleHomeClick(e)}
-                        label={t('Home')}
-                        icon={<HomeIcon />} />
+                    <BottomNavigationAction value="home" onClick={(e) => handleHomeClick(e)} label={t('Home')} icon={<HomeIcon />} />
                     <BottomNavigationAction value="explore" onClick={() => navigate('/explore')} label={t('Explore')} icon={<ExploreIcon />} />
-                    <BottomNavigationAction value="create" onClick={() => navigate('/contribution/create')} label={t('Create')} icon={<AddCircleOutlineIcon />} />
+                    <BottomNavigationAction
+                        value="create"
+                        onClick={() => navigate('/contribution/create')}
+                        label={t('Create')}
+                        icon={<AddCircleOutlineIcon />}
+                    />
                     <BottomNavigationAction value="projects" onClick={() => navigate('/projects')} label={t('Projects')} icon={<FolderIcon />} />
                     <BottomNavigationAction value="myhub" onClick={() => navigate('/myhub')} label={t('My Hub')} icon={<PersonIcon />} />
                 </BottomNavigation>
@@ -131,4 +137,4 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
 };
 
-export default Layout; 
+export default Layout;
