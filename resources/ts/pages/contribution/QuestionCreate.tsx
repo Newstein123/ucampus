@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
-import {
-    Box, Typography, TextField, Button, IconButton, Switch, Chip, Paper
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { useForm, Controller } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
-import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, Button, Chip, IconButton, Paper, Switch, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 import { ErrorResponse } from '../../hooks';
+import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
 
 const questionSchema = z.object({
     question: z.string().min(1, 'Question is required'),
@@ -38,7 +35,7 @@ const QuestionCreate: React.FC = () => {
         handleSubmit,
         setValue,
         getValues,
-        formState: { errors }
+        formState: { errors },
     } = useForm<QuestionForm>({
         resolver: zodResolver(questionSchema),
         defaultValues,
@@ -54,34 +51,40 @@ const QuestionCreate: React.FC = () => {
     };
 
     const handleRemoveTag = (tag: string) => {
-        setValue('tags', (getValues('tags') || []).filter(t => t !== tag));
+        setValue(
+            'tags',
+            (getValues('tags') || []).filter((t) => t !== tag),
+        );
     };
 
     const onSubmit = (data: QuestionForm) => {
-        createContributionMutation.mutate({
-            title: data.question,
-            content: {
+        createContributionMutation.mutate(
+            {
                 title: data.question,
-                answer: data.answer,
-                question: data.question,
-                description: null,
-                problem: null,
-                solution: null,
-                impact: null,
-                resources: null,
-                references: null,
+                content: {
+                    title: data.question,
+                    answer: data.answer,
+                    question: data.question,
+                    description: null,
+                    problem: null,
+                    solution: null,
+                    impact: null,
+                    resources: null,
+                    references: null,
+                },
+                type: 'question',
+                tags: data.tags || [],
+                is_public: data.is_public,
             },
-            type: 'question',
-            tags: data.tags || [],
-            is_public: data.is_public,
-        }, {
-            onSuccess: () => {
-                navigate('/contribution');
+            {
+                onSuccess: () => {
+                    navigate('/contribution');
+                },
+                onError: (error: AxiosError<ErrorResponse>) => {
+                    setApiValidationErrors(error.response?.data.errors || {});
+                },
             },
-            onError: (error: AxiosError<ErrorResponse>) => {
-                setApiValidationErrors(error.response?.data.errors || {});
-            },
-        });
+        );
     };
 
     return (
@@ -103,9 +106,7 @@ const QuestionCreate: React.FC = () => {
                 <IconButton edge="start" sx={{ color: '#888' }}>
                     <CloseIcon onClick={() => navigate('/contribution/create')} />
                 </IconButton>
-                <Typography sx={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>
-                    Question Contribution
-                </Typography>
+                <Typography sx={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>Question Contribution</Typography>
             </Box>
 
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -144,22 +145,19 @@ const QuestionCreate: React.FC = () => {
                     )}
                 />
                 <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Add tag</Typography>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        Add tag
+                    </Typography>
                     <TextField
                         fullWidth
                         placeholder="Add tags (e.g., #research, #study)"
                         value={tagInput}
-                        onChange={e => setTagInput(e.target.value)}
+                        onChange={(e) => setTagInput(e.target.value)}
                         onKeyDown={handleAddTag}
                     />
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
                         {(getValues('tags') || []).map((tag, idx) => (
-                            <Chip
-                                key={idx}
-                                label={tag}
-                                onDelete={() => handleRemoveTag(tag)}
-                                sx={{ bgcolor: '#e8f5e9', color: '#1F8505' }}
-                            />
+                            <Chip key={idx} label={tag} onDelete={() => handleRemoveTag(tag)} sx={{ bgcolor: '#e8f5e9', color: '#1F8505' }} />
                         ))}
                     </Box>
                 </Box>
@@ -168,11 +166,7 @@ const QuestionCreate: React.FC = () => {
                     control={control}
                     render={({ field }) => (
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <Switch
-                                checked={field.value}
-                                onChange={e => field.onChange(e.target.checked)}
-                                color="success"
-                            />
+                            <Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} color="success" />
                             <Typography>Public Visibility</Typography>
                         </Box>
                     )}

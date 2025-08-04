@@ -4,13 +4,15 @@ namespace App\Services;
 
 use App\Repositories\ContributionRepositoryInterface;
 use App\Repositories\TagRepositoryInterface;
+use App\Services\NotificationServiceInterface;
 
 class ContributionService implements ContributionServiceInterface
 {
 
     public function __construct(
         protected ContributionRepositoryInterface $contributionRepository,
-        protected TagRepositoryInterface $tagRepository
+        protected TagRepositoryInterface $tagRepository,
+        protected NotificationServiceInterface $notificationService
     ) {}
 
     public function list(array $data = [])
@@ -39,5 +41,30 @@ class ContributionService implements ContributionServiceInterface
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    public function interested(array $data = [])
+    {
+        try {
+            $contribution = $this->contributionRepository->find($data['contribution_id']);
+            $contribution->interests()->attach($data['user_id']);
+            $this->notificationService->create([
+                'recipient_user_id' => $contribution->user_id,
+                'contribution_id' => $data['contribution_id'],
+                'type' => 'interest',
+                'source_id' => $data['contribution_id'],
+                'source_type' => \App\Models\Contribution::class,
+                'message' => 'You have a new interest in your contribution',
+                'redirect_url' => route('contributions.show', $data['contribution_id']),
+                'sender_user_id' => $data['user_id'],
+            ]);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function find(int $id)
+    {
+        return $this->contributionRepository->find($id);
     }
 }

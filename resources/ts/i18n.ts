@@ -5,18 +5,16 @@ import my from './locales/my/translation.json';
 import zh from './locales/zh/translation.json';
 
 const resources = {
-  en: { translation: en },
-  my: { translation: my },
-  zh: { translation: zh }
+    en: { translation: en },
+    my: { translation: my },
+    zh: { translation: zh },
 };
 
-i18n
-  .use(initReactI18next)
-  .init({
+i18n.use(initReactI18next).init({
     resources,
     lng: localStorage.getItem('lang') || 'en',
     fallbackLng: 'en',
-    interpolation: { escapeValue: false }
-  });
+    interpolation: { escapeValue: false },
+});
 
-export default i18n; 
+export default i18n;

@@ -1,35 +1,33 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch } from 'react-redux';
-import {
-    Box,
-    Typography,
-    TextField,
-    Button,
-    InputAdornment,
-    IconButton,
-    Divider,
-    Link
-} from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import GoogleIcon from '@mui/icons-material/Google';
-import { loginSchema, type LoginFormData } from '../schemas/auth';
-import useUserLoginMutation from '../hooks/auth/useUserLoginMuatation';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, Divider, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { ErrorResponse } from '../hooks';
+import useUserLoginMutation from '../hooks/auth/useUserLoginMuatation';
+import { usePWANavigation } from '../hooks/usePWANavigation';
+import { loginSchema, type LoginFormData } from '../schemas/auth';
 import { setUser } from '../store/slices/authSlice';
 import { LoginUser } from '../types/auth';
-import { Link as RouterLink } from 'react-router-dom';
+import { addPWAMetaTags } from '../utils/pwa';
 
 const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const pwaNavigate = usePWANavigation();
     const dispatch = useDispatch();
     const userLoginMutation = useUserLoginMutation();
     const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
+
+    // Add PWA meta tags on component mount
+    useEffect(() => {
+        addPWAMetaTags();
+    }, []);
     const {
         register,
         handleSubmit,
@@ -43,30 +41,35 @@ const Login: React.FC = () => {
     });
 
     const onSubmit = async (data: LoginFormData) => {
-        console.log("Logint Called");
-        userLoginMutation.mutate({
-            login: data.login,
-            password: data.password,
-        }, {
-            onSuccess: (response) => {
-                console.log("Login Success");
-                console.log(response.data.first_login);
-                if (response.data.first_login) {
-                    console.log("First Login");
-                    navigate('/onboarding');
-                } else {
-                    console.log("Not First Login");
-                    navigate('/');
-                }
-                dispatch(setUser({ user: response.data.user as unknown as LoginUser }));
+        console.log('Login Called');
+        userLoginMutation.mutate(
+            {
+                login: data.login,
+                password: data.password,
             },
-            onError: (error: AxiosError<ErrorResponse>) => {
-                if (error.response?.data.errors) {
-                    setApiValidationErrors(error.response.data.errors);
-                }
+            {
+                onSuccess: (response) => {
+                    console.log('Login Success');
+                    console.log(response.data.first_login);
+                    dispatch(setUser({ user: response.data.user as unknown as LoginUser }));
+
+                    // Use PWA-aware navigation
+                    if (response.data.first_login) {
+                        console.log('First Login - navigating to onboarding');
+                        pwaNavigate('/onboarding', { replace: true });
+                    } else {
+                        console.log('Not First Login - navigating to home');
+                        pwaNavigate('/', { replace: true });
+                    }
+                },
+                onError: (error: AxiosError<ErrorResponse>) => {
+                    if (error.response?.data.errors) {
+                        setApiValidationErrors(error.response.data.errors);
+                    }
+                },
             },
-        });
-    }
+        );
+    };
 
     return (
         <Box
@@ -161,11 +164,7 @@ const Login: React.FC = () => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    onClick={() => setShowPassword((show) => !show)}
-                                    edge="end"
-                                >
+                                <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword((show) => !show)} edge="end">
                                     {showPassword ? <VisibilityOff /> : <Visibility />}
                                 </IconButton>
                             </InputAdornment>
@@ -207,29 +206,26 @@ const Login: React.FC = () => {
                 </Button>
 
                 <Typography align="center" sx={{ fontSize: 15, mb: 2 }}>
-                    Not a member?{' '}
-                    <span
-                        onClick={() => navigate('/register')}
-                    >
-                        Register now
-                    </span>
+                    Not a member? <span onClick={() => navigate('/register')}>Register now</span>
                 </Typography>
 
                 <Divider sx={{ my: 2 }}>Or continue with</Divider>
 
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-                    <Button sx={{
-                        bgcolor: '#fff',
-                        color: '#000',
-                        '&:hover': { bgcolor: '#f0f0f0' },
-                        borderRadius: 10,
-                        py: 1.2,
-                        mb: 2,
-                        textTransform: 'none',
-                        fontSize: 16,
-                        width: '100%',
-                        border: '1px solid #000',
-                    }}>
+                    <Button
+                        sx={{
+                            bgcolor: '#fff',
+                            color: '#000',
+                            '&:hover': { bgcolor: '#f0f0f0' },
+                            borderRadius: 10,
+                            py: 1.2,
+                            mb: 2,
+                            textTransform: 'none',
+                            fontSize: 16,
+                            width: '100%',
+                            border: '1px solid #000',
+                        }}
+                    >
                         <GoogleIcon />
                     </Button>
                 </Box>
@@ -238,4 +234,4 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login; 
+export default Login;

@@ -1,6 +1,6 @@
-import React from 'react';
-import { IconButton } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { IconButton } from '@mui/material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface BackButtonProps {
@@ -23,4 +23,4 @@ const BackButton: React.FC<BackButtonProps> = ({ to, color = '#1F8505', size = '
     );
 };
 
-export default BackButton; 
+export default BackButton;

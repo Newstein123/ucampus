@@ -1,4 +1,4 @@
-@token = "DmuNMuyf3Emi4XyC0x1x03aVdkePFf5OdGsKgqH205533186"
+@token = "gbgJPExxKFruJ6x1xvxVs2yOcVtqv7P8CnIoJWzr6abe04e6"
 
 ### Login (by email)
 # @name login
@@ -13,7 +13,7 @@ Content-Type: application/json
 ### List contributions
 # @name listContributions
 GET http://localhost/api/contributions
-Authorization: Bearer {{token}}
+Authorization: Bearer gbgJPExxKFruJ6x1xvxVs2yOcVtqv7P8CnIoJWzr6abe04e6
 
 ### Create contribution
 # @name createContribution
@@ -55,3 +55,15 @@ Content-Type: application/json
   "type": "question",
   "tags": ["test", "question"]
 }
+
+### Interest contribution
+# @name interestContribution
+POST http://localhost/api/contributions/1/interest
+Authorization: Bearer gbgJPExxKFruJ6x1xvxVs2yOcVtqv7P8CnIoJWzr6abe04e6
+Content-Type: application/json
+
+### Show contribution
+# @name showContribution
+GET http://localhost/api/contributions/1
+Authorization: Bearer gbgJPExxKFruJ6x1xvxVs2yOcVtqv7P8CnIoJWzr6abe04e6
+Content-Type: application/json

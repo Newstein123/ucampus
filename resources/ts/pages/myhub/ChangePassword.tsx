@@ -1,21 +1,25 @@
-import React, { useState } from 'react';
-import { Box, Typography, TextField, Button, Paper, InputAdornment, IconButton, Link } from '@mui/material';
-import BackButton from '../../components/BackButton';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { changePasswordSchema, ChangePasswordFormData } from '../../schemas/auth';
-import usePasswordUpdateMutation from '../../hooks/auth/usePasswordUpdateMutation';
+import { Box, Button, IconButton, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
-import { ErrorResponse } from '../../hooks';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../components/BackButton';
+import { ErrorResponse } from '../../hooks';
+import usePasswordUpdateMutation from '../../hooks/auth/usePasswordUpdateMutation';
+import { ChangePasswordFormData, changePasswordSchema } from '../../schemas/auth';
 
 const ChangePassword: React.FC = () => {
     const [showOld, setShowOld] = useState(false);
     const [showNew, setShowNew] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const { control, handleSubmit, formState: { errors } } = useForm<ChangePasswordFormData>({
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ChangePasswordFormData>({
         resolver: zodResolver(changePasswordSchema),
         mode: 'onTouched',
     });
@@ -24,28 +28,29 @@ const ChangePassword: React.FC = () => {
     const changePasswordMutation = usePasswordUpdateMutation();
     const navigate = useNavigate();
     const onSubmit = (data: ChangePasswordFormData) => {
-        changePasswordMutation.mutate({
-            old_password: data.oldPassword,
-            new_password: data.newPassword,
-            confirm_password: data.confirmPassword,
-        }, {
-            onSuccess: () => {
-                navigate('/myhub');
+        changePasswordMutation.mutate(
+            {
+                old_password: data.oldPassword,
+                new_password: data.newPassword,
+                confirm_password: data.confirmPassword,
             },
-            onError: (error: AxiosError<ErrorResponse>) => {
-                if (error.response?.data.errors) {
-                    setApiValidationErrors(error.response.data.errors);
-                }
+            {
+                onSuccess: () => {
+                    navigate('/myhub');
+                },
+                onError: (error: AxiosError<ErrorResponse>) => {
+                    if (error.response?.data.errors) {
+                        setApiValidationErrors(error.response.data.errors);
+                    }
+                },
             },
-        });
+        );
     };
     return (
         <Box sx={{ maxWidth: 600, mx: 'auto', minHeight: '100vh', bgcolor: '#f7fafd', p: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pt: 2, pb: 1, position: 'sticky', top: 0, bgcolor: '#f7fafd', zIndex: 10 }}>
                 <BackButton />
-                <Typography sx={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, textAlign: 'center', mr: 4 }}>
-                    Change password
-                </Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, textAlign: 'center', mr: 4 }}>Change password</Typography>
             </Box>
             <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, m: 2, p: 3 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2 }}>Change password</Typography>
@@ -80,7 +85,17 @@ const ChangePassword: React.FC = () => {
                         <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.old_password}</Typography>
                     )}
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1, mb: 1 }}>
-                        <Link href="/forgot-password" sx={{ color: '#1F8505', fontWeight: 600, fontSize: 14, cursor: 'pointer', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                        <Link
+                            href="/forgot-password"
+                            sx={{
+                                color: '#1F8505',
+                                fontWeight: 600,
+                                fontSize: 14,
+                                cursor: 'pointer',
+                                textDecoration: 'none',
+                                '&:hover': { textDecoration: 'underline' },
+                            }}
+                        >
                             Forgot password?
                         </Link>
                     </Box>
@@ -142,7 +157,22 @@ const ChangePassword: React.FC = () => {
                     {apiValidationErrors.confirm_password && (
                         <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.confirm_password}</Typography>
                     )}
-                    <Button type="submit" variant="contained" sx={{ bgcolor: '#1F8505', borderRadius: 2, fontWeight: 600, fontSize: 16, mt: 1, mb: 2, '&:hover': { bgcolor: '#176b03' }, py: 1.2 }} fullWidth disabled={changePasswordMutation.isPending}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        sx={{
+                            bgcolor: '#1F8505',
+                            borderRadius: 2,
+                            fontWeight: 600,
+                            fontSize: 16,
+                            mt: 1,
+                            mb: 2,
+                            '&:hover': { bgcolor: '#176b03' },
+                            py: 1.2,
+                        }}
+                        fullWidth
+                        disabled={changePasswordMutation.isPending}
+                    >
                         Continue
                     </Button>
                 </Box>
@@ -151,4 +181,4 @@ const ChangePassword: React.FC = () => {
     );
 };
 
-export default ChangePassword; 
+export default ChangePassword;

@@ -26,6 +26,8 @@ class Contribution extends Model
         'content' => 'array',
         'views_count' => 'integer',
         'likes_count' => 'integer',
+        'allow_collab' => 'boolean',
+        'is_public' => 'boolean',
     ];
 
     public function user()
@@ -51,5 +53,15 @@ class Contribution extends Model
     public function progressUpdates(): HasMany
     {
         return $this->hasMany(ProgressUpdate::class);
+    }
+    
+    public function interests()
+    {
+        return $this->belongsToMany(User::class, 'contribution_interest', 'contribution_id', 'user_id');
+    }
+
+    public function getInterestsCountAttribute()
+    {
+        return $this->interests->count();
     }
 }

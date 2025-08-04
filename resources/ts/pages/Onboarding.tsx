@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { selectUser } from '../store/slices/authSlice';
-import { useSelector } from 'react-redux';
-import { Box, Typography, Button, MobileStepper, Paper } from '@mui/material';
 import { KeyboardArrowRight } from '@mui/icons-material';
+import { Box, Button, MobileStepper, Paper, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { selectUser } from '../store/slices/authSlice';
 
 const Onboarding: React.FC = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -12,22 +12,24 @@ const Onboarding: React.FC = () => {
     const navigate = useNavigate();
     const steps = [
         {
-            title: "What is U Campus?",
-            content: "U Campus is envisioned as a free, community-driven digital platform uniquely designed to empower Myanmar youth. It will serve as a dynamic space for sharing ideas, exploring deep questions, and collaborating on real-world projects that foster learning, creativity, and tangible impact."
+            title: 'What is U Campus?',
+            content:
+                'U Campus is envisioned as a free, community-driven digital platform uniquely designed to empower Myanmar youth. It will serve as a dynamic space for sharing ideas, exploring deep questions, and collaborating on real-world projects that foster learning, creativity, and tangible impact.',
         },
         {
-            title: "Join Our Community",
-            content: "Connect with like-minded individuals, share your ideas, and collaborate on projects that make a difference. Our platform is designed to foster creativity and innovation."
+            title: 'Join Our Community',
+            content:
+                'Connect with like-minded individuals, share your ideas, and collaborate on projects that make a difference. Our platform is designed to foster creativity and innovation.',
         },
         {
-            title: "Get Started",
-            content: "You're all set! Start exploring the platform, connect with others, and begin your journey of learning and collaboration."
-        }
+            title: 'Get Started',
+            content: "You're all set! Start exploring the platform, connect with others, and begin your journey of learning and collaboration.",
+        },
     ];
 
     const handleNext = () => {
         if (activeStep === steps.length - 1) {
-            console.log("Onboarding Completed");
+            console.log('Onboarding Completed');
             navigate('/');
         } else {
             setActiveStep((prevStep) => prevStep + 1);
@@ -52,10 +54,7 @@ const Onboarding: React.FC = () => {
                 mx: 'auto',
             }}
         >
-            <Typography
-                variant="subtitle1"
-                sx={{ color: '#c1c1c1', fontWeight: 500, mb: 2, alignSelf: 'flex-start', pl: 2 }}
-            >
+            <Typography variant="subtitle1" sx={{ color: '#c1c1c1', fontWeight: 500, mb: 2, alignSelf: 'flex-start', pl: 2 }}>
                 Onboarding
             </Typography>
 
@@ -133,7 +132,7 @@ const Onboarding: React.FC = () => {
                                 flex: 1,
                                 '&:hover': {
                                     borderColor: '#388e3c',
-                                    bgcolor: 'rgba(76, 175, 80, 0.04)'
+                                    bgcolor: 'rgba(76, 175, 80, 0.04)',
                                 },
                             }}
                         >

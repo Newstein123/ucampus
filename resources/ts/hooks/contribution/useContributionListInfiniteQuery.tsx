@@ -14,7 +14,7 @@ const useContributionListInfiniteQuery = ({ type, perPage = 10 }: UseContributio
             const params: ContributionListRequest = {
                 type,
                 page: pageParam,
-                per_page: perPage
+                per_page: perPage,
             };
             return contributionApi.list(params);
         },
@@ -31,4 +31,4 @@ const useContributionListInfiniteQuery = ({ type, perPage = 10 }: UseContributio
     });
 };
 
-export default useContributionListInfiniteQuery; 
+export default useContributionListInfiniteQuery;

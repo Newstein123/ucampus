@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\CollaborationController;
 use App\Http\Controllers\Api\TaskController;
@@ -34,7 +35,7 @@ Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProv
 
 Route::prefix('contributions')->group(function () {
     Route::get('/', [ContributionController::class, 'index']);
-    Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum');
+    Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum')->name('contributions.show');
     Route::post('/', [ContributionController::class, 'store'])->middleware('auth:sanctum');
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
@@ -57,4 +58,11 @@ Route::prefix('contributions')->group(function () {
         Route::get('/progress-updates', [ProgressController::class, 'index']);
         Route::post('/progress-updates', [ProgressController::class, 'store']);
     });
+    Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');
+});
+
+Route::prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('/{id}/read', [NotificationController::class, 'read'])->middleware('auth:sanctum');
+    Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->middleware('auth:sanctum');
 });

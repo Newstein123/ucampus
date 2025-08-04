@@ -24,8 +24,8 @@ class ContributionResource extends JsonResource
             'is_public' => $this->is_public,
             'status' => $this->status,
             'views_count' => $this->views_count,
+            'interests_count' => $this->interests_count,
             'thumbnail_url' => $this->type === 'idea' ? env('APP_URL') . '/public/' . $this->thumbnail_url : null,
-            'likes_count' => $this->likes_count,
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

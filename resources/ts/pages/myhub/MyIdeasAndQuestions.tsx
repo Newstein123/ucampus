@@ -1,7 +1,5 @@
+import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
 import React from 'react';
-import {
-    Box, Typography, Avatar, Paper, List, ListItem, ListItemAvatar, ListItemText
-} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../../components/BackButton';
 
@@ -51,20 +49,20 @@ function formatDate(date: Date): string {
 const MyIdeasAndQuestions: React.FC = () => {
     const navigate = useNavigate();
     return (
-        <Box sx={{
-            maxWidth: 600,
-            mx: 'auto',
-            minHeight: '100vh',
-            bgcolor: '#f7fafd',
-            p: 0,
-            pt: 2,
-        }}>
+        <Box
+            sx={{
+                maxWidth: 600,
+                mx: 'auto',
+                minHeight: '100vh',
+                bgcolor: '#f7fafd',
+                p: 0,
+                pt: 2,
+            }}
+        >
             {/* Header */}
             <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }}>
                 <BackButton />
-                <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#1F8505', flex: 1 }}>
-                    My ideas and questions
-                </Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#1F8505', flex: 1 }}>My ideas and questions</Typography>
             </Box>
             <Paper elevation={0} sx={{ bgcolor: '#fafdff', borderRadius: 3, p: 0, boxShadow: 'none' }}>
                 {/* Section: Ideas */}
@@ -83,23 +81,11 @@ const MyIdeasAndQuestions: React.FC = () => {
                             }}
                         >
                             <ListItemAvatar>
-                                <Avatar
-                                    variant="rounded"
-                                    src={idea.image}
-                                    sx={{ width: 56, height: 56, mr: 2, bgcolor: '#e8f5e9' }}
-                                />
+                                <Avatar variant="rounded" src={idea.image} sx={{ width: 56, height: 56, mr: 2, bgcolor: '#e8f5e9' }} />
                             </ListItemAvatar>
                             <ListItemText
-                                primary={
-                                    <Typography sx={{ fontWeight: 700, fontSize: 15, color: '#222' }}>
-                                        {idea.title}
-                                    </Typography>
-                                }
-                                secondary={
-                                    <Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>
-                                        {formatDate(idea.created_at)}
-                                    </Typography>
-                                }
+                                primary={<Typography sx={{ fontWeight: 700, fontSize: 15, color: '#222' }}>{idea.title}</Typography>}
+                                secondary={<Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>{formatDate(idea.created_at)}</Typography>}
                             />
                         </ListItem>
                     ))}
@@ -136,16 +122,8 @@ const MyIdeasAndQuestions: React.FC = () => {
                                 </Avatar>
                             </ListItemAvatar>
                             <ListItemText
-                                primary={
-                                    <Typography sx={{ fontWeight: 700, fontSize: 15, color: '#222' }}>
-                                        {q.title}
-                                    </Typography>
-                                }
-                                secondary={
-                                    <Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>
-                                        {formatDate(q.created_at)}
-                                    </Typography>
-                                }
+                                primary={<Typography sx={{ fontWeight: 700, fontSize: 15, color: '#222' }}>{q.title}</Typography>}
+                                secondary={<Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>{formatDate(q.created_at)}</Typography>}
                             />
                         </ListItem>
                     ))}
@@ -155,4 +133,4 @@ const MyIdeasAndQuestions: React.FC = () => {
     );
 };
 
-export default MyIdeasAndQuestions; 
+export default MyIdeasAndQuestions;

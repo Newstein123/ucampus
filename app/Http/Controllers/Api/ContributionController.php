@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContributionController\ListRequest;
 use App\Http\Requests\ContributionController\CreateRequest;
+use App\Http\Requests\ContributionController\InterestRequest;
+use App\Http\Requests\ContributionController\ShowRequest;
 use App\Http\Resources\ContributionResource;
 use App\Services\ContributionServiceInterface;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +28,14 @@ class ContributionController extends Controller
         return $this->response($resource, 'Contributions fetched successfully');
     }
 
+    public function show(ShowRequest $request)
+    {
+        $data = $request->validated();
+        $contribution = $this->contributionService->find($data['contribution_id']);
+        $resource = new ContributionResource($contribution);
+        return $this->response($resource, 'Contribution fetched successfully');
+    }
+
     public function store(CreateRequest $request)
     {
         $data = $request->validated();
@@ -33,5 +43,13 @@ class ContributionController extends Controller
         $contribution = $this->contributionService->create($data);
         $resource = new ContributionResource($contribution);
         return $this->response($resource, 'Contribution created successfully');
+    }
+
+    public function interest(InterestRequest $request)
+    {
+        $data = $request->validated();
+        $data['user_id'] = Auth::user()->id;
+        $this->contributionService->interested($data);
+        return $this->response(null, 'Contribution interest added successfully');
     }
 }

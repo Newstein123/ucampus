@@ -58,6 +58,14 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\ProgressServiceInterface::class,
             \App\Services\ProgressService::class
         );
+        $this->app->bind(
+            \App\Repositories\NotificationRepositoryInterface::class,
+            \App\Repositories\NotificationRepository::class
+        );
+        $this->app->bind(
+            \App\Services\NotificationServiceInterface::class,
+            \App\Services\NotificationService::class
+        );
     }
 
     /**

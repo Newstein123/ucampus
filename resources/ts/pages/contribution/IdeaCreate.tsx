@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
-import {
-    Box, Typography, TextField, Button, Stepper, Step, StepLabel, IconButton, Switch, Chip, Paper
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { zodResolver } from '@hookform/resolvers/zod';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { useNavigate } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
-import { ideaSchema, IdeaForm } from '../../schemas/idea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
-import { ErrorResponse } from '../../hooks';
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, Button, Chip, IconButton, Paper, Step, StepLabel, Stepper, Switch, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+import { ErrorResponse } from '../../hooks';
+import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
+import { IdeaForm, ideaSchema } from '../../schemas/idea';
 
-const steps = [
-    "What's your idea?",
-    "Why it matters?",
-    "Make it real"
-];
+const steps = ["What's your idea?", 'Why it matters?', 'Make it real'];
 
 const ideaStep1Schema = z.object({
     title: z.string().min(1, 'Title is required'),
@@ -62,7 +56,7 @@ const IdeaCreate: React.FC = () => {
         getValues,
         watch,
         setError,
-        formState: { errors }
+        formState: { errors },
     } = useForm<IdeaForm>({
         resolver: zodResolver(ideaSchema),
         defaultValues,
@@ -107,11 +101,17 @@ const IdeaCreate: React.FC = () => {
     };
 
     const handleRemoveTag = (tag: string) => {
-        setValue('tags', (getValues('tags') || []).filter(t => t !== tag));
+        setValue(
+            'tags',
+            (getValues('tags') || []).filter((t) => t !== tag),
+        );
     };
 
     const handleRemoveAttachment = (idx: number) => {
-        setValue('attachments', (getValues('attachments') || []).filter((_: any, i: number) => i !== idx));
+        setValue(
+            'attachments',
+            (getValues('attachments') || []).filter((_: any, i: number) => i !== idx),
+        );
     };
 
     const handleStep1Next = () => {
@@ -119,7 +119,7 @@ const IdeaCreate: React.FC = () => {
         if (result.success) {
             setActiveStep(1);
         } else {
-            result.error.errors.forEach(err => {
+            result.error.errors.forEach((err) => {
                 setError(err.path[0] as any, { message: err.message });
             });
         }
@@ -129,7 +129,7 @@ const IdeaCreate: React.FC = () => {
         if (result.success) {
             setActiveStep(2);
         } else {
-            result.error.errors.forEach(err => {
+            result.error.errors.forEach((err) => {
                 setError(err.path[0] as any, { message: err.message });
             });
         }
@@ -151,7 +151,7 @@ const IdeaCreate: React.FC = () => {
             type: 'idea',
             tags: data.tags || [],
             is_public: data.is_public,
-        }
+        };
         createContributionMutation.mutate(requestData, {
             onSuccess: () => {
                 navigate('/contribution');
@@ -168,28 +168,30 @@ const IdeaCreate: React.FC = () => {
                 Brand New Idea Creation
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-                <input
-                    accept="image/*"
-                    id="thumbnail-upload"
-                    type="file"
-                    style={{ display: 'none' }}
-                    onChange={handleThumbnailChange}
-                />
+                <input accept="image/*" id="thumbnail-upload" type="file" style={{ display: 'none' }} onChange={handleThumbnailChange} />
                 <label htmlFor="thumbnail-upload">
                     <Controller
                         name="thumbnail"
                         control={control}
                         render={({ field }) => (
                             <IconButton component="span" sx={{ width: 80, height: 80, bgcolor: '#e8f5e9', mb: 1 }}>
-                                {field.value
-                                    ? <img src={URL.createObjectURL(field.value)} alt="thumb" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
-                                    : <AddPhotoAlternateIcon sx={{ fontSize: 40, color: '#1F8505' }} />}
+                                {field.value ? (
+                                    <img
+                                        src={URL.createObjectURL(field.value)}
+                                        alt="thumb"
+                                        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }}
+                                    />
+                                ) : (
+                                    <AddPhotoAlternateIcon sx={{ fontSize: 40, color: '#1F8505' }} />
+                                )}
                             </IconButton>
                         )}
                     />
                 </label>
                 {getValues('thumbnail') && (
-                    <Typography variant="caption" sx={{ mb: 1 }}>{getValues('thumbnail').name}</Typography>
+                    <Typography variant="caption" sx={{ mb: 1 }}>
+                        {getValues('thumbnail').name}
+                    </Typography>
                 )}
             </Box>
             <Controller
@@ -293,11 +295,7 @@ const IdeaCreate: React.FC = () => {
                 )}
             />
             <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-                <Button
-                    variant="outlined"
-                    sx={{ flex: 1, borderRadius: 2 }}
-                    onClick={handleBack}
-                >
+                <Button variant="outlined" sx={{ flex: 1, borderRadius: 2 }} onClick={handleBack}>
                     Back
                 </Button>
                 <Button
@@ -335,20 +333,12 @@ const IdeaCreate: React.FC = () => {
                 )}
             />
             <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>Attachments</Typography>
-                <input
-                    accept="*"
-                    id="attachment-upload"
-                    type="file"
-                    style={{ display: 'none' }}
-                    onChange={handleAttachmentChange}
-                />
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Attachments
+                </Typography>
+                <input accept="*" id="attachment-upload" type="file" style={{ display: 'none' }} onChange={handleAttachmentChange} />
                 <label htmlFor="attachment-upload">
-                    <Button
-                        startIcon={<AttachFileIcon />}
-                        sx={{ mb: 1, textTransform: 'none', color: '#1F8505' }}
-                        component="span"
-                    >
+                    <Button startIcon={<AttachFileIcon />} sx={{ mb: 1, textTransform: 'none', color: '#1F8505' }} component="span">
                         Add attachment
                     </Button>
                 </label>
@@ -364,22 +354,19 @@ const IdeaCreate: React.FC = () => {
                 </Box>
             </Box>
             <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>Add tag</Typography>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Add tag
+                </Typography>
                 <TextField
                     fullWidth
                     placeholder="Add tags (e.g., #research, #study)"
                     value={tagInput}
-                    onChange={e => setTagInput(e.target.value)}
+                    onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleAddTag}
                 />
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
                     {(getValues('tags') || []).map((tag, idx) => (
-                        <Chip
-                            key={idx}
-                            label={tag}
-                            onDelete={() => handleRemoveTag(tag)}
-                            sx={{ bgcolor: '#e8f5e9', color: '#1F8505' }}
-                        />
+                        <Chip key={idx} label={tag} onDelete={() => handleRemoveTag(tag)} sx={{ bgcolor: '#e8f5e9', color: '#1F8505' }} />
                     ))}
                 </Box>
             </Box>
@@ -388,21 +375,13 @@ const IdeaCreate: React.FC = () => {
                 control={control}
                 render={({ field }) => (
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Switch
-                            checked={field.value}
-                            onChange={e => field.onChange(e.target.checked)}
-                            color="success"
-                        />
+                        <Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} color="success" />
                         <Typography>Public Visibility</Typography>
                     </Box>
                 )}
             />
             <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                    variant="outlined"
-                    sx={{ flex: 1, borderRadius: 2 }}
-                    onClick={handleBack}
-                >
+                <Button variant="outlined" sx={{ flex: 1, borderRadius: 2 }} onClick={handleBack}>
                     Back
                 </Button>
                 <Button
@@ -436,9 +415,7 @@ const IdeaCreate: React.FC = () => {
                 <IconButton edge="start" sx={{ color: '#888' }}>
                     <CloseIcon onClick={() => navigate('/contribution/create')} />
                 </IconButton>
-                <Typography sx={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>
-                    Create idea – step {activeStep + 1}
-                </Typography>
+                <Typography sx={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>Create idea – step {activeStep + 1}</Typography>
             </Box>
             {/* Stepper */}
             <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 3 }}>
