@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
 use App\Http\Controllers\Api\SocialAuthController;
+use App\Http\Controllers\Api\CollaborationController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\ProgressController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -35,4 +38,23 @@ Route::prefix('contributions')->group(function () {
     Route::post('/', [ContributionController::class, 'store'])->middleware('auth:sanctum');
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
+    
+    
+    Route::prefix('{contributionId}')->middleware('auth:sanctum')->group(function () {
+        
+        Route::post('/collaborators/request', [CollaborationController::class, 'requestCollaboration']);
+        Route::get('/collaborators', [CollaborationController::class, 'getCollaborators']);
+        Route::put('/collaborators/{userId}/approve', [CollaborationController::class, 'approveCollaboration']);
+        Route::put('/collaborators/{userId}/reject', [CollaborationController::class, 'rejectCollaboration']);
+        
+       
+        Route::get('/tasks', [TaskController::class, 'index']);
+        Route::post('/tasks', [TaskController::class, 'store']);
+        Route::put('/tasks/{taskId}', [TaskController::class, 'update']);
+        Route::delete('/tasks/{taskId}', [TaskController::class, 'destroy']);
+        
+       
+        Route::get('/progress-updates', [ProgressController::class, 'index']);
+        Route::post('/progress-updates', [ProgressController::class, 'store']);
+    });
 });

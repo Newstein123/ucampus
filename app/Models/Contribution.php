@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contribution extends Model
 {
@@ -35,5 +36,20 @@ class Contribution extends Model
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function participants(): HasMany
+    {
+        return $this->hasMany(ContributionParticipant::class);
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(ProjectTask::class);
+    }
+
+    public function progressUpdates(): HasMany
+    {
+        return $this->hasMany(ProgressUpdate::class);
     }
 }

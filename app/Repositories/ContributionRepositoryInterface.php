@@ -8,4 +8,5 @@ interface ContributionRepositoryInterface
 {
     public function list(array $filters = []);
     public function create(array $data = []);
+    public function findById(int $id): ?array;
 }
