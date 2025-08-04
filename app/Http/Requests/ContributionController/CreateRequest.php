@@ -25,6 +25,8 @@ class CreateRequest extends FormRequest
             'title' => 'required|string|max:255',
             'content' => 'required|array',
             'type' => 'required|string|in:project,question,idea',
+            'allow_collab' => 'boolean',
+            'is_public' => 'boolean',
             'tags' => 'nullable|array',
             'tags.*' => 'nullable|string|max:255',
         ];

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contribution extends Model
 {
@@ -18,11 +19,15 @@ class Contribution extends Model
         'status',
         'views_count',
         'thumbnail_url',
+        'likes_count'
     ];
 
     protected $casts = [
         'content' => 'array',
         'views_count' => 'integer',
+        'likes_count' => 'integer',
+        'allow_collab' => 'boolean',
+        'is_public' => 'boolean',
     ];
 
     public function user()
@@ -35,6 +40,21 @@ class Contribution extends Model
         return $this->belongsToMany(Tag::class);
     }
 
+    public function participants(): HasMany
+    {
+        return $this->hasMany(ContributionParticipant::class);
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(ProjectTask::class);
+    }
+
+    public function progressUpdates(): HasMany
+    {
+        return $this->hasMany(ProgressUpdate::class);
+    }
+    
     public function interests()
     {
         return $this->belongsToMany(User::class, 'contribution_interest', 'contribution_id', 'user_id');

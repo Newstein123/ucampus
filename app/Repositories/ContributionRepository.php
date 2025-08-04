@@ -29,4 +29,10 @@ class ContributionRepository implements ContributionRepositoryInterface
     {
         return Contribution::create($data);
     }
+
+    public function findById(int $id): ?array
+    {
+        $contribution = Contribution::find($id);
+        return $contribution ? $contribution->toArray() : null;
+    }
 }
