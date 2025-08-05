@@ -17,6 +17,10 @@ export default defineConfig({
         VitePWA({
           registerType:'autoUpdate',
           includeAssets:['favicon.ico', "apple-touch-icon.png", "masked-icon.svg"],
+          injectRegister: 'auto',
+          devOptions: {
+            enabled: true
+          },
             manifest: {
               name: 'U Campus',
               short_name: 'UCampus',
@@ -28,6 +32,9 @@ export default defineConfig({
               scope: '/',
               orientation: 'portrait',
               prefer_related_applications: false,
+              categories: ['social', 'productivity', 'education'],
+              lang: 'en',
+              dir: 'ltr',
               icons:[
                 {
                   src: '/assets/images/android-chrome-192x192.png',
@@ -53,13 +60,12 @@ export default defineConfig({
                   type:'image/png',
                   purpose:'maskable'
                 }
-              ],
-              categories: ['social', 'productivity', 'education'],
-              lang: 'en',
-              dir: 'ltr'
+              ]
             },
             workbox: {
               globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+              navigateFallback: '/',
+              navigateFallbackAllowlist: [/^(?!\/__).*/],
               runtimeCaching: [
                 {
                   urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -97,6 +103,13 @@ export default defineConfig({
     //     '/api': 'https://localhost',
     //   },
     // },
+    server: {
+      host: '0.0.0.0',
+      port: 5173,
+      hmr: {
+        host: '172.20.10.12' // your local IP
+      }
+    },
     esbuild: {
         jsx: 'automatic',
     },

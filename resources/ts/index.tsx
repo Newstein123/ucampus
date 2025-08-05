@@ -6,7 +6,8 @@ import { Provider } from 'react-redux';
 import App from './App';
 import './i18n';
 import { store } from './store';
-import { addPWAEventListeners, addPWAMetaTags } from './utils/pwa';
+import { addPWAEventListeners, addPWAMetaTags, forcePWAModeDetection } from './utils/pwa';
+import { registerServiceWorker } from './utils/serviceWorker';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -22,6 +23,12 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 // Initialize PWA features
 addPWAMetaTags();
 addPWAEventListeners();
+forcePWAModeDetection();
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+    registerServiceWorker();
+}
 
 root.render(
     <React.StrictMode>

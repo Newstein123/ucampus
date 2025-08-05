@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
+import { PWALoading } from './components/PWALoading';
 import { HomeProvider } from './contexts/HomeContext';
 import { PWAProvider } from './contexts/PWAContext';
 import { store } from './store';
@@ -88,7 +89,8 @@ const App: React.FC = () => {
                     <CssBaseline />
                     <PWAProvider>
                         <HomeProvider>
-                            <BrowserRouter>
+                            <PWALoading>
+                                <BrowserRouter>
                                 <Routes>
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/register" element={<Register />} />
@@ -229,6 +231,7 @@ const App: React.FC = () => {
                                     <Route path="*" element={<Navigate to="/" replace />} />
                                 </Routes>
                             </BrowserRouter>
+                        </PWALoading>
                         </HomeProvider>
                     </PWAProvider>
                 </ThemeProvider>
