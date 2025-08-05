@@ -53,14 +53,37 @@ const Login: React.FC = () => {
                     console.log(response.data.first_login);
                     dispatch(setUser({ user: response.data.user as unknown as LoginUser }));
 
-                    // Use PWA-aware navigation
-                    if (response.data.first_login) {
-                        console.log('First Login - navigating to onboarding');
-                        pwaNavigate('/onboarding', { replace: true });
-                    } else {
-                        console.log('Not First Login - navigating to home');
-                        pwaNavigate('/', { replace: true });
-                    }
+                    // Use PWA-aware navigation with fallback
+                    const targetPath = response.data.first_login ? '/onboarding' : '/';
+                    console.log(`Navigating to: ${targetPath}`);
+                    
+                    // Small delay to ensure Redux state is updated
+                    setTimeout(() => {
+                        // Try PWA navigation first, fallback to regular navigation
+                        try {
+                            pwaNavigate(targetPath, { replace: true });
+                            
+                            // Add a timeout fallback in case PWA navigation fails
+                            setTimeout(() => {
+                                // Check if we're still on the login page
+                                if (window.location.pathname === '/login') {
+                                    console.log('PWA navigation failed, using fallback');
+                                    navigate(targetPath, { replace: true });
+                                }
+                            }, 1000);
+                            
+                            // Additional immediate fallback
+                            setTimeout(() => {
+                                if (window.location.pathname === '/login') {
+                                    console.log('Force navigation using window.location');
+                                    window.location.replace(targetPath);
+                                }
+                            }, 2000);
+                        } catch (error) {
+                            console.error('PWA navigation error:', error);
+                            navigate(targetPath, { replace: true });
+                        }
+                    }, 100);
                 },
                 onError: (error: AxiosError<ErrorResponse>) => {
                     if (error.response?.data.errors) {

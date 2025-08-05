@@ -7,11 +7,15 @@
     <meta name="theme-color" content="#1F8505" />
     <meta name="description" content="A collaborative platform for Myanmar youth to share and develop social good ideas" />
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}" />
+    
     <!-- iOS PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="UCampus" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     
     <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}" />

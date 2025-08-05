@@ -157,3 +157,33 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* iOS PWA specific styles */
+.ios-pwa {
+    /* Prevent zoom on iOS PWA */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.pwa-standalone {
+    /* Additional styles for standalone PWA mode */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+/* Hide Safari UI elements in PWA mode */
+@media (display-mode: standalone) {
+    body {
+        /* Prevent Safari from showing the address bar */
+        -webkit-overflow-scrolling: touch;
+    }
+}

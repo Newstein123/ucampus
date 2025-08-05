@@ -13,16 +13,19 @@ export const isIOS = (): boolean => {
 };
 
 export const isPWA = (): boolean => {
-    return isStandalone() || isIOS();
+    return isStandalone() || (isIOS() && window.matchMedia('(display-mode: standalone)').matches);
 };
 
 export const navigateInPWA = (url: string): void => {
     if (isPWA()) {
         // For iOS PWA, use window.location.href to maintain standalone mode
-        // Add a small delay to ensure the loading indicator shows
-        setTimeout(() => {
+        // Ensure we're in the same origin to maintain PWA context
+        if (url.startsWith('/') || url.startsWith(window.location.origin)) {
             window.location.href = url;
-        }, 50);
+        } else {
+            // For external links, open in new tab to maintain PWA context
+            window.open(url, '_blank');
+        }
     } else {
         // Use regular navigation for browser mode
         window.location.href = url;
@@ -32,10 +35,13 @@ export const navigateInPWA = (url: string): void => {
 export const replaceInPWA = (url: string): void => {
     if (isPWA()) {
         // For iOS PWA, use window.location.replace to maintain standalone mode
-        // Add a small delay to ensure the loading indicator shows
-        setTimeout(() => {
+        // Ensure we're in the same origin to maintain PWA context
+        if (url.startsWith('/') || url.startsWith(window.location.origin)) {
             window.location.replace(url);
-        }, 50);
+        } else {
+            // For external links, open in new tab to maintain PWA context
+            window.open(url, '_blank');
+        }
     } else {
         // Use regular replace for browser mode
         window.location.replace(url);
@@ -63,6 +69,15 @@ export const addPWAMetaTags = (): void => {
         }
         appleMeta.setAttribute('content', 'yes');
 
+        // Add apple-mobile-web-app-title meta tag
+        let appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+        if (!appleTitleMeta) {
+            appleTitleMeta = document.createElement('meta');
+            appleTitleMeta.setAttribute('name', 'apple-mobile-web-app-title');
+            document.head.appendChild(appleTitleMeta);
+        }
+        appleTitleMeta.setAttribute('content', 'UCampus');
+
         // Add apple-mobile-web-app-status-bar-style meta tag
         let statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
         if (!statusBarMeta) {
@@ -71,6 +86,46 @@ export const addPWAMetaTags = (): void => {
             document.head.appendChild(statusBarMeta);
         }
         statusBarMeta.setAttribute('content', 'default');
+    }
+};
+
+// Handle PWA navigation for React Router
+export const handlePWARouterNavigation = (to: string, replace = false): void => {
+    if (isPWA()) {
+        // In PWA mode, use window.location to maintain standalone mode
+        if (replace) {
+            window.location.replace(to);
+        } else {
+            window.location.href = to;
+        }
+    } else {
+        // In browser mode, let React Router handle navigation
+        // This will be handled by the calling component
+    }
+};
+
+// Force PWA mode detection for iOS
+export const forcePWAModeDetection = (): void => {
+    if (isIOS()) {
+        // Add a class to body for iOS PWA styling
+        document.body.classList.add('ios-pwa');
+        
+        // Check if we're in standalone mode
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            document.body.classList.add('pwa-standalone');
+        }
+        
+        // Listen for display mode changes
+        const mediaQuery = window.matchMedia('(display-mode: standalone)');
+        const handleChange = (e: MediaQueryListEvent) => {
+            if (e.matches) {
+                document.body.classList.add('pwa-standalone');
+            } else {
+                document.body.classList.remove('pwa-standalone');
+            }
+        };
+        
+        mediaQuery.addEventListener('change', handleChange);
     }
 };
 
