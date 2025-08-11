@@ -1,7 +1,7 @@
 import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '../../components/BackButton';
+import SinglePageLayout from '../../components/SinglePageLayout';
 
 const ideas = [
     {
@@ -49,21 +49,7 @@ function formatDate(date: Date): string {
 const MyIdeasAndQuestions: React.FC = () => {
     const navigate = useNavigate();
     return (
-        <Box
-            sx={{
-                maxWidth: 600,
-                mx: 'auto',
-                minHeight: '100vh',
-                bgcolor: '#f7fafd',
-                p: 0,
-                pt: 2,
-            }}
-        >
-            {/* Header */}
-            <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }}>
-                <BackButton />
-                <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#1F8505', flex: 1 }}>My ideas and questions</Typography>
-            </Box>
+        <SinglePageLayout title="My ideas and questions">
             <Paper elevation={0} sx={{ bgcolor: '#fafdff', borderRadius: 3, p: 0, boxShadow: 'none' }}>
                 {/* Section: Ideas */}
                 <Typography sx={{ fontWeight: 700, fontSize: 16, px: 2, pt: 2, pb: 1 }}>Ideas</Typography>
@@ -129,7 +115,7 @@ const MyIdeasAndQuestions: React.FC = () => {
                     ))}
                 </List>
             </Paper>
-        </Box>
+        </SinglePageLayout>
     );
 };
 

@@ -11,4 +11,8 @@ export const contributionApi = {
         const response = await apiClient.getClient().post<CreateContributionResponse>(endpoints.contribution_create, data);
         return response.data;
     },
+    async interest(contributionId: number): Promise<{ success: boolean; message: string; data: { is_interested: boolean } }> {
+        const response = await apiClient.getClient().post<{ success: boolean; message: string; data: { is_interested: boolean } }>(`${endpoints.contribution_interest}/${contributionId}/interest`);
+        return response.data;
+    },
 };

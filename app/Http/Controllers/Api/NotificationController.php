@@ -44,4 +44,24 @@ class NotificationController extends Controller
             'unread_count' => $unreadCount,
         ], 'Unread count fetched successfully');
     }
+
+    public function testNotification(Request $request)
+    {
+        $userId = Auth::user()->id;
+
+        // Create a test notification
+        $notification = $this->notificationService->create([
+            'user_id' => $userId,
+            'type' => 'test',
+            'message' => 'This is a test notification from ' . now()->format('H:i:s'),
+            'data' => [
+                'test' => true,
+                'timestamp' => now()->toISOString(),
+            ],
+        ]);
+
+        return $this->response([
+            'notification' => $notification,
+        ], 'Test notification created successfully');
+    }
 }

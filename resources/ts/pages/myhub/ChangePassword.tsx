@@ -6,7 +6,7 @@ import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '../../components/BackButton';
+import SinglePageLayout from '../../components/SinglePageLayout';
 import { ErrorResponse } from '../../hooks';
 import usePasswordUpdateMutation from '../../hooks/auth/usePasswordUpdateMutation';
 import { ChangePasswordFormData, changePasswordSchema } from '../../schemas/auth';
@@ -47,11 +47,7 @@ const ChangePassword: React.FC = () => {
         );
     };
     return (
-        <Box sx={{ maxWidth: 600, mx: 'auto', minHeight: '100vh', bgcolor: '#f7fafd', p: 0 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pt: 2, pb: 1, position: 'sticky', top: 0, bgcolor: '#f7fafd', zIndex: 10 }}>
-                <BackButton />
-                <Typography sx={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, textAlign: 'center', mr: 4 }}>Change password</Typography>
-            </Box>
+        <SinglePageLayout title="Change password">
             <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, m: 2, p: 3 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2 }}>Change password</Typography>
                 <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -177,7 +173,7 @@ const ChangePassword: React.FC = () => {
                     </Button>
                 </Box>
             </Paper>
-        </Box>
+        </SinglePageLayout>
     );
 };
 

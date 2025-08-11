@@ -10,6 +10,16 @@ Content-Type: application/json
   "password": "password123"
 }
 
+### Login (by another user)
+# @name login
+POST http://localhost/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "jolie.hermann@example.com",
+  "password": "password"
+}
+
 ### List contributions
 # @name listContributions
 GET http://localhost/api/contributions
@@ -58,8 +68,8 @@ Content-Type: application/json
 
 ### Interest contribution
 # @name interestContribution
-POST http://localhost/api/contributions/1/interest
-Authorization: Bearer gbgJPExxKFruJ6x1xvxVs2yOcVtqv7P8CnIoJWzr6abe04e6
+POST http://localhost/api/contributions/101/interest
+Authorization: Bearer 7P49jdDt83eUZQk0M7ZjGwOvKmJPjUlQUICwWGYX0be75beb
 Content-Type: application/json
 
 ### Show contribution

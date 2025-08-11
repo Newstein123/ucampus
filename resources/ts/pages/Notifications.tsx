@@ -5,10 +5,11 @@ import PersonIcon from '@mui/icons-material/Person';
 import { Avatar, Badge, Box, Button, Divider, List, ListItem, ListItemAvatar, ListItemText, Paper, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import BackButton from '../components/BackButton';
+import SinglePageLayout from '../components/SinglePageLayout';
 import useNotificationListQuery from '../hooks/notification/useNotificationListQuery';
 import useNotificationReadMutation from '../hooks/notification/useNotificationReadMutation';
 import { Notification as NotificationType } from '../types/notification';
+import NotificationTest from '../components/NotificationTest';
 
 // Using the API Notification type instead of local interface
 
@@ -58,19 +59,13 @@ const Notifications: React.FC = () => {
     };
 
     return (
-        <Box sx={{ maxWidth: 600, mx: 'auto', minHeight: '100vh', bgcolor: '#f7fafd', p: 0 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pt: 2, pb: 1, position: 'sticky', top: 0, bgcolor: '#f7fafd', zIndex: 10 }}>
-                <BackButton />
-                <Typography sx={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, textAlign: 'center', mr: 4 }}>
-                    {t('Notifications')}
-                </Typography>
-            </Box>
+        <SinglePageLayout title={t('Notifications')}>
+            {/* Test Component - Remove in production */}
+            {/* <NotificationTest /> */}
 
-            <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, m: 2, p: 0 }}>
-                <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2 }}>{t('Notifications')}</Typography>
-
+            <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, m: 0, p: 2 }}>
                 {/* Tabs */}
-                <Paper sx={{ mb: 2, borderRadius: 2 }}>
+                <Paper sx={{ mb: 2, borderRadius: '20px', boxShadow: 'none', p: 0, backgroundColor: '#f0f8f0' }}>
                     <Tabs
                         value={activeTab}
                         onChange={handleTabChange}
@@ -81,20 +76,28 @@ const Notifications: React.FC = () => {
                                 fontWeight: 500,
                                 fontSize: '14px',
                                 color: '#666',
+                                border: 'none',
+                                outline: 'none',
+                                borderRadius: '20px',
                                 '&.Mui-selected': {
-                                    color: '#1F8505',
-                                    backgroundColor: '#f0f8f0',
+                                    color: '#fff',
+                                    backgroundColor: '#1F8505',
+                                    border: 'none',
+                                },
+                                '&:focus': {
+                                    border: 'none',
+                                    outline: 'none',
                                 },
                             },
                             '& .MuiTabs-indicator': {
-                                backgroundColor: '#1F8505',
+                                display: 'none',
                             },
                         }}
                     >
-                        <Tab label={`${t('All')} (${notifications.length})`} sx={{ borderRadius: '20px', mx: 1, my: 1 }} />
+                        <Tab label={`${t('All')} (${notifications.length})`} sx={{ mx: 1, my: 1, border: 'none', outline: 'none' }} />
                         <Tab
                             label={`${t('Unread')} (${notifications.filter((n) => !n.is_read).length})`}
-                            sx={{ borderRadius: '20px', mx: 1, my: 1 }}
+                            sx={{ mx: 1, my: 1, border: 'none', outline: 'none' }}
                         />
                     </Tabs>
                 </Paper>
@@ -247,7 +250,7 @@ const Notifications: React.FC = () => {
                     </List>
                 )}
             </Paper>
-        </Box>
+        </SinglePageLayout>
     );
 };
 

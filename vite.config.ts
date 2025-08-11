@@ -107,7 +107,7 @@ export default defineConfig({
       host: '0.0.0.0',
       port: 5173,
       hmr: {
-        host: '172.20.10.12' // your local IP
+        host: '192.168.1.100' // your local IP
       }
     },
     esbuild: {

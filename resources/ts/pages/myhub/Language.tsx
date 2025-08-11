@@ -1,7 +1,7 @@
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Radio, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import BackButton from '../../components/BackButton';
+import SinglePageLayout from '../../components/SinglePageLayout';
 import i18n from '../../i18n';
 
 const languages = [
@@ -19,11 +19,7 @@ const Language: React.FC = () => {
         localStorage.setItem('lang', lang);
     };
     return (
-        <Box sx={{ maxWidth: 600, mx: 'auto', minHeight: '100vh', bgcolor: '#f7fafd', p: 0 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pt: 2, pb: 1, position: 'sticky', top: 0, bgcolor: '#f7fafd', zIndex: 10 }}>
-                <BackButton />
-                <Typography sx={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, textAlign: 'center', mr: 4 }}>{t('Language')}</Typography>
-            </Box>
+        <SinglePageLayout title={t('Language')}>
             <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, m: 2, p: 3 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2 }}>{t('Select the app language')}</Typography>
                 <List>
@@ -39,7 +35,7 @@ const Language: React.FC = () => {
                     ))}
                 </List>
             </Paper>
-        </Box>
+        </SinglePageLayout>
     );
 };
 

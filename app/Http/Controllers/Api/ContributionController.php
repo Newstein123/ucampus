@@ -49,7 +49,7 @@ class ContributionController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = Auth::user()->id;
-        $this->contributionService->interested($data);
-        return $this->response(null, 'Contribution interest added successfully');
+        $result = $this->contributionService->interested($data);
+        return $this->response($result, $result['message']);
     }
 }

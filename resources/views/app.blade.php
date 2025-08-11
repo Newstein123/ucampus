@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#1F8505" />
     <meta name="description" content="A collaborative platform for Myanmar youth to share and develop social good ideas" />
-    
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <!-- PWA Manifest -->
     <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}" />
     

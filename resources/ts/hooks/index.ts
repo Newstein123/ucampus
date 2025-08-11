@@ -18,6 +18,7 @@ export * from './auth/useUserRegisterMutation';
 export * from './contribution/useContributionListInfiniteQuery';
 export * from './contribution/useContributionListQuery';
 export * from './contribution/useCreateContributionMutation';
+export * from './contribution/useContributionInterestMutation';
 
 // Notification hooks
 export * from './notification/useNotificationListQuery';

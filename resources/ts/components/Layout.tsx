@@ -5,11 +5,13 @@ import NotificationIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 import ExploreIcon from '@mui/icons-material/TravelExplore';
 import { AppBar, Badge, BottomNavigation, BottomNavigationAction, Box, Paper, Toolbar } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useHomeContext } from '../contexts/HomeContext';
 import useNotificationUnreadCountQuery from '../hooks/notification/useNotificationUnreadCountQuery';
+import { useNotificationListener } from '../hooks/useNotificationListener';
+import { useSelector } from 'react-redux';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { t } = useTranslation();
@@ -18,6 +20,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const { triggerHomeRestart } = useHomeContext();
     const { data: unreadCountData } = useNotificationUnreadCountQuery();
+
+    useNotificationListener({
+        onNotification: (notification) => {
+            console.log('notification created', notification);
+        },
+        onError: (error) => {
+            console.error('Notification listener error:', error);
+        },
+    });
+
     const handleHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (location.pathname === '/') {

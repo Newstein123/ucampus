@@ -8,11 +8,13 @@ export const endpoints = Object.freeze({
     // Contribution endpoints
     contribution_list: '/contributions',
     contribution_create: '/contributions',
+    contribution_interest: '/contributions',
 
     // Notification endpoints
     notification_list: '/notifications',
     notification_read: '/notifications',
     notification_unread_count: '/notifications/unread-count',
+    notification_test: '/notifications/test',
 
     //   auth_google_login: '/api/auth/login/google',
     //   auth_google_callback: '/api/auth/login/google/callback',
