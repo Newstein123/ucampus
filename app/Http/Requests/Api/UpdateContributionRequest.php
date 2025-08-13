@@ -2,13 +2,43 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\Contribution;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateContributionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $contributionId = $this->route('id');
+        $contribution = Contribution::find($contributionId);
+
+        if (!$contribution) {
+            return false;
+        }
+
+        return $contribution->user_id === Auth::id();
+    }
+
+    protected function failedAuthorization()
+    {
+        $contributionId = $this->route('id');
+        $contribution = Contribution::find($contributionId);
+
+        if (!$contribution) {
+            throw new HttpResponseException(
+                response()->json([
+                    'message' => 'Contribution not found'
+                ], 404)
+            );
+        }
+
+        throw new HttpResponseException(
+            response()->json([
+                'message' => 'You are not authorized to update this contribution'
+            ], 403)
+        );
     }
 
     public function rules(): array

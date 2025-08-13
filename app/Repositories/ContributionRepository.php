@@ -33,9 +33,6 @@ class ContributionRepository implements ContributionRepositoryInterface
     public function update(int $id, array $data = [])
     {
         $contribution = $this->find($id);
-        if (!$contribution) {
-            throw new \Exception('Contribution not found');
-        }
         $contribution->update($data);
         return $contribution;
     }
@@ -43,9 +40,6 @@ class ContributionRepository implements ContributionRepositoryInterface
     public function delete(int $id)
     {
         $contribution = $this->find($id);
-        if (!$contribution) {
-            throw new \Exception('Contribution not found');
-        }
         return $contribution->delete();
     }
 }

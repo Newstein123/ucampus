@@ -9,6 +9,7 @@ use App\Http\Requests\ContributionController\InterestRequest;
 use App\Http\Requests\ContributionController\ShowRequest;
 use App\Http\Resources\ContributionResource;
 use App\Http\Requests\Api\UpdateContributionRequest;
+use App\Http\Requests\Api\DeleteContributionRequest;
 use App\Services\ContributionServiceInterface;
 use Illuminate\Support\Facades\Auth;
 
@@ -56,53 +57,17 @@ class ContributionController extends Controller
 
     public function update(UpdateContributionRequest $request, int $id)
     {
-        try {
-            $data = $request->validated();
-            $data['id'] = $id;
-            $data['user_id'] = Auth::user()->id;
-            $contribution = $this->contributionService->update($data);
-            $resource = new ContributionResource($contribution);
-            return $this->response($resource, 'Contribution updated successfully');
-        } catch (\Exception $e) {
-            if ($e->getMessage() === 'Unauthorized to update this contribution') {
-                return response()->json([
-                    'message' => 'You are not authorized to update this contribution'
-                ], 403);
-            }
-
-            if ($e->getMessage() === 'Contribution not found') {
-                return response()->json([
-                    'message' => 'Contribution not found'
-                ], 404);
-            }
-
-            return response()->json([
-                'message' => 'An error occurred while updating the contribution'
-            ], 500);
-        }
+        $data = $request->validated();
+        $data['id'] = $id;
+        $data['user_id'] = Auth::user()->id;
+        $contribution = $this->contributionService->update($data);
+        $resource = new ContributionResource($contribution);
+        return $this->response($resource, 'Contribution updated successfully');
     }
 
-    public function destroy(int $id)
+    public function destroy(DeleteContributionRequest $request, int $id)
     {
-        try {
-            $this->contributionService->delete($id);
-            return $this->response(null, 'Contribution deleted successfully');
-        } catch (\Exception $e) {
-            if ($e->getMessage() === 'Unauthorized to delete this contribution') {
-                return response()->json([
-                    'message' => 'You are not authorized to delete this contribution'
-                ], 403);
-            }
-
-            if ($e->getMessage() === 'Contribution not found') {
-                return response()->json([
-                    'message' => 'Contribution not found'
-                ], 404);
-            }
-
-            return response()->json([
-                'message' => 'An error occurred while deleting the contribution'
-            ], 500);
-        }
+        $this->contributionService->delete($id);
+        return $this->response(null, 'Contribution deleted successfully');
     }
 }

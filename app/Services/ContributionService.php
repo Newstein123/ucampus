@@ -40,30 +40,18 @@ class ContributionService implements ContributionServiceInterface
         try {
             $id = $data['id'];
             unset($data['id']);
-            
-            // Find the contribution first
-            $contribution = $this->contributionRepository->find($id);
-            
-            if (!$contribution) {
-                throw new \Exception('Contribution not found');
-            }
 
-            // Check if the authenticated user owns this contribution
-            if ($contribution->user_id !== $data['user_id']) {
-                throw new \Exception('Unauthorized to update this contribution');
-            }
-            
             if (isset($data['content'])) {
                 $data['content'] = json_encode($data['content']);
             }
-            
+
             $contribution = $this->contributionRepository->update($id, $data);
-            
+
             if (isset($data['tags'])) {
                 $tagIds = $this->tagRepository->createMany($data['tags']);
                 $contribution->tags()->sync($tagIds);
             }
-            
+
             return $contribution;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
@@ -71,17 +59,6 @@ class ContributionService implements ContributionServiceInterface
     }    public function delete(int $id)
     {
         try {
-            $contribution = $this->contributionRepository->find($id);
-            
-            if (!$contribution) {
-                throw new \Exception('Contribution not found');
-            }
-
-            // Check if the authenticated user owns this contribution
-            if ($contribution->user_id !== auth()->id()) {
-                throw new \Exception('Unauthorized to delete this contribution');
-            }
-
             return $this->contributionRepository->delete($id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
