@@ -65,7 +65,25 @@ class ContributionController extends Controller
 
     public function destroy(int $id)
     {
-        $this->contributionService->delete($id);
-        return $this->response(null, 'Contribution deleted successfully');
+        try {
+            $this->contributionService->delete($id);
+            return $this->response(null, 'Contribution deleted successfully');
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'Unauthorized to delete this contribution') {
+                return response()->json([
+                    'message' => 'You are not authorized to delete this contribution'
+                ], 403);
+            }
+
+            if ($e->getMessage() === 'Contribution not found') {
+                return response()->json([
+                    'message' => 'Contribution not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'An error occurred while deleting the contribution'
+            ], 500);
+        }
     }
 }
