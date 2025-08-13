@@ -56,11 +56,30 @@ class ContributionController extends Controller
 
     public function update(UpdateContributionRequest $request, int $id)
     {
-        $data = $request->validated();
-        $data['id'] = $id;
-        $contribution = $this->contributionService->update($data);
-        $resource = new ContributionResource($contribution);
-        return $this->response($resource, 'Contribution updated successfully');
+        try {
+            $data = $request->validated();
+            $data['id'] = $id;
+            $data['user_id'] = Auth::user()->id;
+            $contribution = $this->contributionService->update($data);
+            $resource = new ContributionResource($contribution);
+            return $this->response($resource, 'Contribution updated successfully');
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'Unauthorized to update this contribution') {
+                return response()->json([
+                    'message' => 'You are not authorized to update this contribution'
+                ], 403);
+            }
+
+            if ($e->getMessage() === 'Contribution not found') {
+                return response()->json([
+                    'message' => 'Contribution not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'An error occurred while updating the contribution'
+            ], 500);
+        }
     }
 
     public function destroy(int $id)
