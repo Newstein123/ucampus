@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             ContributionSeeder::class,
+            DiscussionSeeder::class,
         ]);
 
         // connect tags to contributions

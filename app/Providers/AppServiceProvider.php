@@ -39,6 +39,14 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\NotificationServiceInterface::class,
             \App\Services\NotificationService::class
         );
+        $this->app->bind(
+            \App\Repositories\DiscussionRepositoryInterface::class,
+            \App\Repositories\DiscussionRepository::class
+        );
+        $this->app->bind(
+            \App\Services\DiscussionServiceInterface::class,
+            \App\Services\DiscussionService::class
+        );
     }
 
     /**
