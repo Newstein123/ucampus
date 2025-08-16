@@ -33,6 +33,32 @@ Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 
 Route::get('auth/{provider}/login', [SocialAuthController::class, 'redirectToProvider']);
 Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
 
+// Fallback route for popup success (when COOP blocks window.close)
+Route::get('auth/success', function () {
+    return view('auth.popup-success');
+});
+
+// Test route to verify callback is working
+Route::get('auth/test-callback', function (Request $request) {
+    \Log::info('Test callback route hit', [
+        'method' => $request->method(),
+        'url' => $request->fullUrl(),
+        'params' => $request->all()
+    ]);
+    return response()->json(['message' => 'Test callback working']);
+});
+
+// Test Google callback route specifically
+Route::get('auth/google/callback', function (Request $request) {
+    \Log::info('Google callback route hit', [
+        'method' => $request->method(),
+        'url' => $request->fullUrl(),
+        'query_params' => $request->query(),
+        'all_params' => $request->all()
+    ]);
+    return response()->json(['message' => 'Google callback route working']);
+});
+
 Route::prefix('contributions')->group(function () {
     Route::get('/', [ContributionController::class, 'index']);
     Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum')->name('contributions.show');

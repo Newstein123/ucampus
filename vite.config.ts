@@ -103,19 +103,19 @@ export default defineConfig({
     //     '/api': 'https://localhost',
     //   },
     // },
-    server: {
-      host: '0.0.0.0',
-      port: 5173,
-      hmr: {
-        host: '192.168.1.100' // your local IP
-      }
-    },
-    esbuild: {
-        jsx: 'automatic',
-    },
-    resolve: {
-        alias: {
-            'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
-        },
-    },
+    // server: {
+    //   host: '0.0.0.0',
+    //   port: 5173,
+    //   hmr: {
+    //     host: '192.168.1.100' // your local IP
+    //   }
+    // },
+    // esbuild: {
+    //     jsx: 'automatic',
+    // },
+    // resolve: {
+    //     alias: {
+    //         'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
+    //     },
+    // },
 });

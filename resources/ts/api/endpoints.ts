@@ -16,8 +16,7 @@ export const endpoints = Object.freeze({
     notification_unread_count: '/notifications/unread-count',
     notification_test: '/notifications/test',
 
-    //   auth_google_login: '/api/auth/login/google',
-    //   auth_google_callback: '/api/auth/login/google/callback',
+    auth_social_login: '/auth/{provider}/login',
     auth_forgot_password: '/auth/forgot-password',
     auth_reset_password: '/auth/reset-password',
     //   auth_verify_email: '/api/auth/verify-email',

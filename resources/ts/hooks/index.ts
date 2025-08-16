@@ -7,6 +7,7 @@ export interface ErrorResponse {
 
 // Auth hooks
 export * from './auth/useForgotPasswordMutation';
+export * from './auth/useSocialAuthQuery';
 export * from './auth/usePasswordUpdateMutation';
 export * from './auth/useResetPasswordMutation';
 export * from './auth/useUserLoginMuatation';

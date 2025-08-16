@@ -1,6 +1,7 @@
 import type {
     ForgotPasswordRequest,
     ForgotPasswordResponse,
+    SocialAuthResponse,
     LoginRequest,
     LoginResponse,
     LogoutResponse,
@@ -53,6 +54,11 @@ export const authApi = {
 
     async resetPassword(passwordData: ResetPasswordRequest): Promise<ResetPasswordResponse> {
         const response = await apiClient.getClient().post<ResetPasswordResponse>(endpoints.auth_reset_password, passwordData);
+        return response.data;
+    },
+
+    async socialAuth(provider: string): Promise<SocialAuthResponse> {
+        const response = await apiClient.getClient().get<SocialAuthResponse>(endpoints.auth_social_login.replace('{provider}', provider));
         return response.data;
     },
 };
