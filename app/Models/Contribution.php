@@ -46,16 +46,6 @@ class Contribution extends Model
         return $this->hasMany(ContributionParticipant::class);
     }
 
-    public function tasks(): HasMany
-    {
-        return $this->hasMany(ProjectTask::class);
-    }
-
-    public function progressUpdates(): HasMany
-    {
-        return $this->hasMany(ProgressUpdate::class);
-    }
-
     public function interests()
     {
         return $this->belongsToMany(User::class, 'contribution_interest', 'contribution_id', 'user_id');

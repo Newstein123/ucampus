@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\TagRepositoryInterface::class,
             \App\Repositories\TagRepository::class
         );
-        
+
         $this->app->bind(
             \App\Repositories\CollaborationRepositoryInterface::class,
             \App\Repositories\CollaborationRepository::class
@@ -39,24 +39,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             \App\Services\CollaborationServiceInterface::class,
             \App\Services\CollaborationService::class
-        );
-        
-        $this->app->bind(
-            \App\Repositories\TaskRepositoryInterface::class,
-            \App\Repositories\TaskRepository::class
-        );
-        $this->app->bind(
-            \App\Services\TaskServiceInterface::class,
-            \App\Services\TaskService::class
-        );
-        
-        $this->app->bind(
-            \App\Repositories\ProgressRepositoryInterface::class,
-            \App\Repositories\ProgressRepository::class
-        );
-        $this->app->bind(
-            \App\Services\ProgressServiceInterface::class,
-            \App\Services\ProgressService::class
         );
         $this->app->bind(
             \App\Repositories\NotificationRepositoryInterface::class,
