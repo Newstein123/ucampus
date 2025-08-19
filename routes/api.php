@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
+use App\Http\Controllers\Api\CollaborationController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\ProgressController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
 use App\Models\Notification;
@@ -66,6 +69,13 @@ Route::prefix('contributions')->group(function () {
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');
+});
+
+// Project Collaboration Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/project/request', [CollaborationController::class, 'request']);
+    Route::post('/project/action', [CollaborationController::class, 'action']);
+    Route::get('/project/collaboration', [CollaborationController::class, 'list']);
 });
 
 Route::prefix('notifications')->group(function () {
