@@ -35,6 +35,36 @@ class ContributionService implements ContributionServiceInterface
         }
     }
 
+    public function update(array $data = [])
+    {
+        try {
+            $id = $data['id'];
+            unset($data['id']);
+
+            if (isset($data['content'])) {
+                $data['content'] = json_encode($data['content']);
+            }
+
+            $contribution = $this->contributionRepository->update($id, $data);
+
+            if (isset($data['tags'])) {
+                $tagIds = $this->tagRepository->createMany($data['tags']);
+                $contribution->tags()->sync($tagIds);
+            }
+
+            return $contribution;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }    public function delete(int $id)
+    {
+        try {
+            return $this->contributionRepository->delete($id);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
     public function interested(array $data = [])
     {
         try {

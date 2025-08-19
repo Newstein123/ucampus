@@ -8,6 +8,8 @@ use App\Http\Requests\ContributionController\CreateRequest;
 use App\Http\Requests\ContributionController\InterestRequest;
 use App\Http\Requests\ContributionController\ShowRequest;
 use App\Http\Resources\ContributionResource;
+use App\Http\Requests\Api\UpdateContributionRequest;
+use App\Http\Requests\Api\DeleteContributionRequest;
 use App\Services\ContributionServiceInterface;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,5 +53,21 @@ class ContributionController extends Controller
         $data['user_id'] = Auth::user()->id;
         $result = $this->contributionService->interested($data);
         return $this->response($result, $result['message']);
+    }
+
+    public function update(UpdateContributionRequest $request, int $id)
+    {
+        $data = $request->validated();
+        $data['id'] = $id;
+        $data['user_id'] = Auth::user()->id;
+        $contribution = $this->contributionService->update($data);
+        $resource = new ContributionResource($contribution);
+        return $this->response($resource, 'Contribution updated successfully');
+    }
+
+    public function destroy(DeleteContributionRequest $request, int $id)
+    {
+        $this->contributionService->delete($id);
+        return $this->response(null, 'Contribution deleted successfully');
     }
 }
