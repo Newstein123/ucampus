@@ -14,10 +14,14 @@ class CollaborationController extends Controller
         private CollaborationServiceInterface $collaborationService
     ) {}
 
-    public function requestCollaboration(Request $request, int $contributionId): JsonResponse
+    /**
+     * Send request for project contribution
+     */
+    public function request(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'message' => 'required|string|min:10|max:500'
+            'contribution_id' => 'required|exists:contributions,id',
+            'reason' => 'required|string|min:10|max:500'
         ]);
 
         if ($validator->fails()) {
@@ -28,16 +32,16 @@ class CollaborationController extends Controller
         }
 
         try {
-            $result = $this->collaborationService->requestCollaboration(
-                $contributionId,
+            $result = $this->collaborationService->sendRequest(
+                $request->contribution_id,
                 $request->user()->id,
-                $request->message
+                $request->reason
             );
 
             return response()->json([
-                'message' => 'Collaboration request sent successfully',
+                'message' => 'Request sent successfully',
                 'data' => $result
-            ], 201);
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -45,18 +49,63 @@ class CollaborationController extends Controller
         }
     }
 
-    public function getCollaborators(int $contributionId): JsonResponse
+    /**
+     * Project leader response on project collaboration request
+     */
+    public function action(Request $request): JsonResponse
     {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:0,1,2'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         try {
-            $collaborators = $this->collaborationService->getCollaborators($contributionId);
-            $allRequests = $this->collaborationService->getAllCollaborationRequests($contributionId);
+            $result = $this->collaborationService->handleAction($request->status);
 
             return response()->json([
-                'message' => 'Collaborators retrieved successfully',
-                'data' => $collaborators,
-                'debug' => [
-                    'all_requests' => $allRequests,
-                    'contribution_id' => $contributionId
+                'message' => 'Success',
+                'data' => $result
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Get project collaboration list
+     */
+    public function list(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'nullable|in:0,1,2',
+            'user_id' => 'nullable|exists:users,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $collaborations = $this->collaborationService->getList(
+                $request->get('status'),
+                $request->get('user_id')
+            );
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => [
+                    'collaborations' => $collaborations
                 ]
             ]);
         } catch (\Exception $e) {
@@ -65,46 +114,4 @@ class CollaborationController extends Controller
             ], 400);
         }
     }
-
-    public function approveCollaboration(Request $request, int $contributionId, int $userId): JsonResponse
-    {
-        try {
-            if (!$this->collaborationService->canUserManageCollaboration($contributionId, $request->user()->id)) {
-                return response()->json([
-                    'message' => 'Unauthorized to manage collaboration'
-                ], 403);
-            }
-
-            $result = $this->collaborationService->approveCollaboration($contributionId, $userId);
-
-            return response()->json([
-                'message' => $result['message']
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 400);
-        }
-    }
-
-    public function rejectCollaboration(Request $request, int $contributionId, int $userId): JsonResponse
-    {
-        try {
-            if (!$this->collaborationService->canUserManageCollaboration($contributionId, $request->user()->id)) {
-                return response()->json([
-                    'message' => 'Unauthorized to manage collaboration'
-                ], 403);
-            }
-
-            $result = $this->collaborationService->rejectCollaboration($contributionId, $userId);
-
-            return response()->json([
-                'message' => $result['message']
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 400);
-        }
-    }
-} 
+}

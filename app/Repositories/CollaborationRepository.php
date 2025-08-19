@@ -8,40 +8,57 @@ use App\Models\User;
 
 class CollaborationRepository implements CollaborationRepositoryInterface
 {
-    public function createCollaborationRequest(int $contributionId, int $userId, string $message): array
+    public function createRequest(array $data): array
     {
+        $statusMap = [
+            0 => 'pending',
+            1 => 'accepted',
+            2 => 'rejected'
+        ];
+
         $participant = ContributionParticipant::create([
-            'contribution_id' => $contributionId,
-            'user_id' => $userId,
-            'reason' => $message,
-            'status' => 'pending'
+            'contribution_id' => $data['contribution_id'],
+            'user_id' => $data['user_id'],
+            'reason' => $data['reason'],
+            'status' => $statusMap[$data['status']] ?? 'pending'
         ]);
 
         return $participant->toArray();
     }
 
-    public function getCollaborators(int $contributionId): array
+    public function updateRequestStatus(int $status): array
     {
-        return ContributionParticipant::with('user')
-            ->where('contribution_id', $contributionId)
-            ->whereIn('status', ['active', 'accepted'])
-            ->get()
-            ->toArray();
+        $statusMap = [
+            0 => 'pending',
+            1 => 'accepted',
+            2 => 'rejected'
+        ];
+
+        $collaborationRequest = ContributionParticipant::findOrFail(request('request_id'));
+        $collaborationRequest->status = $statusMap[$status];
+        $collaborationRequest->save();
+
+        return $collaborationRequest->toArray();
     }
 
-    public function getAllCollaborationRequests(int $contributionId): array
+    public function getCollaborations(array $filters): array
     {
-        return ContributionParticipant::with('user')
-            ->where('contribution_id', $contributionId)
-            ->get()
-            ->toArray();
-    }
+        $query = ContributionParticipant::with(['user', 'contribution']);
 
-    public function updateCollaborationStatus(int $contributionId, int $userId, string $status): bool
-    {
-        return ContributionParticipant::where('contribution_id', $contributionId)
-            ->where('user_id', $userId)
-            ->update(['status' => $status]);
+        if (isset($filters['status'])) {
+            $statusMap = [
+                0 => 'pending',
+                1 => 'accepted',
+                2 => 'rejected'
+            ];
+            $query->where('status', $statusMap[$filters['status']]);
+        }
+
+        if (isset($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        return $query->get()->toArray();
     }
 
     public function checkIfUserIsCollaborator(int $contributionId, int $userId): bool
@@ -58,4 +75,4 @@ class CollaborationRepository implements CollaborationRepositoryInterface
             ->where('user_id', $userId)
             ->exists();
     }
-} 
+}
