@@ -8,13 +8,25 @@ interface BackButtonProps {
     color?: string;
     size?: 'small' | 'medium' | 'large';
     sx?: object;
+    onClick?: () => void;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ to, color = '#1F8505', size = 'small', sx }) => {
+const BackButton: React.FC<BackButtonProps> = ({ to, color = '#1F8505', size = 'small', sx, onClick }) => {
     const navigate = useNavigate();
+
+    const handleClick = () => {
+        if (onClick) {
+            onClick();
+        } else if (to) {
+            navigate(to);
+        } else {
+            navigate(-1);
+        }
+    };
+
     return (
         <IconButton
-            onClick={() => (to ? navigate(to) : navigate(-1))}
+            onClick={handleClick}
             size={size}
             sx={{ mr: 1, ...sx, color: '#1F8505', '&:hover': { color: '#1F8505' }, padding: '20px' }}
         >

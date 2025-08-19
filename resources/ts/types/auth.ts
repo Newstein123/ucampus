@@ -107,3 +107,11 @@ export interface ResetPasswordResponse {
     message: string;
     data: null;
 }
+
+export interface SocialAuthResponse {
+    success: boolean;
+    message: string;
+    data: {
+        url: string;
+    };
+}

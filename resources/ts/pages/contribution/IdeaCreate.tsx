@@ -406,6 +406,7 @@ const IdeaCreate: React.FC = () => {
                 minHeight: '100vh',
                 bgcolor: '#f7fafd',
                 p: 2,
+                pt: 5,
                 borderRadius: 0,
                 position: 'relative',
             }}

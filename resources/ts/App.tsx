@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
+import { PWALoading } from './components/PWALoading';
 import { HomeProvider } from './contexts/HomeContext';
 import { PWAProvider } from './contexts/PWAContext';
 import { store } from './store';
@@ -16,6 +17,7 @@ import IdeaCreate from './pages/contribution/IdeaCreate';
 import ProjectCreate from './pages/contribution/ProjectCreate';
 import ProjectDetails from './pages/contribution/ProjectDetails';
 import QuestionCreate from './pages/contribution/QuestionCreate';
+import Thread from './pages/contribution/Thread';
 import Explore from './pages/Explore';
 import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
@@ -88,147 +90,157 @@ const App: React.FC = () => {
                     <CssBaseline />
                     <PWAProvider>
                         <HomeProvider>
-                            <BrowserRouter>
-                                <Routes>
-                                    <Route path="/login" element={<Login />} />
-                                    <Route path="/register" element={<Register />} />
-                                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                                    <Route path="/reset-password" element={<ResetPassword />} />
+                            <PWALoading>
+                                <BrowserRouter>
+                                    <Routes>
+                                        <Route path="/login" element={<Login />} />
+                                        <Route path="/register" element={<Register />} />
+                                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                                        <Route path="/reset-password" element={<ResetPassword />} />
 
-                                    <Route
-                                        path="/"
-                                        element={
-                                            <ProtectedRoute>
-                                                <Home />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Home />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route
-                                        path="/myhub"
-                                        element={
-                                            <ProtectedRoute>
-                                                <MyProfile />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/myhub"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <MyProfile />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route
-                                        path="/my-ideas-and-questions"
-                                        element={
-                                            <ProtectedRoute>
-                                                <MyIdeasAndQuestions />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/my-ideas-and-questions"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <MyIdeasAndQuestions />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route
-                                        path="/terms-and-conditions"
-                                        element={
-                                            <ProtectedRoute>
-                                                <TermsAndConditions />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/terms-and-conditions"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <TermsAndConditions />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route
-                                        path="/contact-us"
-                                        element={
-                                            <ProtectedRoute>
-                                                <ContactUs />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/contact-us"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ContactUs />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route
-                                        path="/language"
-                                        element={
-                                            <ProtectedRoute>
-                                                <Language />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/language"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Language />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route
-                                        path="/change-password"
-                                        element={
-                                            <ProtectedRoute>
-                                                <ChangePassword />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/change-password"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ChangePassword />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route
-                                        path="/contribution/create"
-                                        element={
-                                            <ProtectedRoute>
-                                                <Create />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                        <Route
+                                            path="/contribution/create"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Create />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    <Route path="/onboarding" element={<Onboarding />} />
+                                        <Route path="/onboarding" element={<Onboarding />} />
 
-                                    {/* Contribution routes */}
-                                    <Route
-                                        path="/contribution/create-idea"
-                                        element={
-                                            <ProtectedRoute>
-                                                <IdeaCreate />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/contribution/create-question"
-                                        element={
-                                            <ProtectedRoute>
-                                                <QuestionCreate />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/contribution/create-project"
-                                        element={
-                                            <ProtectedRoute>
-                                                <ProjectCreate />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/projects"
-                                        element={
-                                            <ProtectedRoute>
-                                                <Projects />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/explore"
-                                        element={
-                                            <ProtectedRoute>
-                                                <Explore />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/notifications"
-                                        element={
-                                            <ProtectedRoute>
-                                                <Notifications />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/project-details/:id"
-                                        element={
-                                            <ProtectedRoute>
-                                                <ProjectDetails />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route path="*" element={<Navigate to="/" replace />} />
-                                </Routes>
-                            </BrowserRouter>
+                                        {/* Contribution routes */}
+                                        <Route
+                                            path="/contribution/create-idea"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <IdeaCreate />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/contribution/create-question"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <QuestionCreate />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/contribution/create-project"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProjectCreate />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/projects"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Projects />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/explore"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Explore />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/notifications"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Notifications />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/projects/:id"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProjectDetails />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/projects/:id/thread"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Thread />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route path="*" element={<Navigate to="/" replace />} />
+                                    </Routes>
+                                </BrowserRouter>
+                            </PWALoading>
                         </HomeProvider>
                     </PWAProvider>
                 </ThemeProvider>

@@ -1,8 +1,8 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, CardMedia, IconButton, Paper, Typography } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { useNavigate } from 'react-router-dom';
 
 const ownProjects = [
     {
@@ -35,8 +35,13 @@ const collabProjects = [
     },
 ];
 
+
+
 const ProjectCard: React.FC<{ title: string; subtitle: string; image: string }> = ({ title, subtitle, image }) => {
     const navigate = useNavigate();
+    const handleNavigate = (title: string) => {
+        navigate(`/projects/${title.toLowerCase().replace(/\s+/g, '-')}`);
+    };
     return (
         <Paper
             sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1.5, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0', boxShadow: 0 }}
@@ -46,7 +51,7 @@ const ProjectCard: React.FC<{ title: string; subtitle: string; image: string }> 
                 <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{title}</Typography>
                 <Typography sx={{ color: '#888', fontSize: 13 }}>{subtitle}</Typography>
             </Box>
-            <IconButton onClick={() => navigate(`/projects/${title.toLowerCase().replace(/\s+/g, '-')}`)}>
+            <IconButton onClick={() => handleNavigate(title)}>
                 <ChevronRightIcon sx={{ color: '#bdbdbd' }} />
             </IconButton>
         </Paper>

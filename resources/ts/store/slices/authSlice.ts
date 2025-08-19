@@ -51,5 +51,6 @@ export const { setUser, logout, setLoading, setError } = authSlice.actions;
 // Use proper typing for selectors
 export const selectUser = (state: { auth: AuthState }) => state.auth.user;
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
+export const useAuth = (state: { auth: AuthState }) => state.auth.user;
 
 export default authSlice.reducer;

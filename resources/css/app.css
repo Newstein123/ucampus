@@ -157,3 +157,52 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* iOS PWA specific styles */
+.ios-pwa {
+    /* Prevent zoom on iOS PWA */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide Safari UI elements in PWA mode */
+@media (display-mode: standalone) {
+    @supports (-webkit-touch-callout: none) {
+        body {
+            /* Prevent Safari from showing the address bar */
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0;
+            height: -webkit-fill-available;
+        }
+
+        /* Fix header to top with safe area */
+        .header-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding-top: env(safe-area-inset-top);
+            z-index: 100;
+            background: var(--background);
+            transform: translateZ(0); /* Force GPU acceleration */
+            -webkit-transform: translateZ(0);
+        }
+
+        /* Fix bottom nav with safe area */
+        .bottom-navigation {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--background);
+            z-index: 99;
+        }
+    }
+}
+
+

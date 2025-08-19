@@ -32,6 +32,7 @@ class NotificationCreated implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
+        \Log::info('Notification created: ' . $this->notification->recipient_user_id);
         return [
             new PrivateChannel('notifications.' . $this->notification->recipient_user_id),
         ];

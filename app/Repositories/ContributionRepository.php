@@ -35,4 +35,16 @@ class ContributionRepository implements ContributionRepositoryInterface
         $contribution = Contribution::find($id);
         return $contribution ? $contribution->toArray() : null;
     }
+    public function update(int $id, array $data = [])
+    {
+        $contribution = $this->find($id);
+        $contribution->update($data);
+        return $contribution;
+    }
+
+    public function delete(int $id)
+    {
+        $contribution = $this->find($id);
+        return $contribution->delete();
+    }
 }

@@ -1,6 +1,10 @@
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import SendIcon from '@mui/icons-material/Send';
+import MailIcon from '@mui/icons-material/Mail';
 import {
     Avatar,
     Box,
@@ -15,9 +19,13 @@ import {
     ListItemText,
     TextField,
     Typography,
+    Paper,
 } from '@mui/material';
-import React from 'react';
-import Layout from '../../components/Layout';
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import SinglePageLayout from '../../components/SinglePageLayout';
+import { useTranslation } from 'react-i18next';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 
 const mockProject = {
     id: 1,
@@ -47,34 +55,95 @@ const mockProject = {
     likes: 123,
     comments: 123,
     views: 123,
+    teamMembers: [
+        { name: 'Adom Shafi', avatar: '', role: 'Frontend Developer' },
+        { name: 'Sarah Chen', avatar: '', role: 'UI/UX Designer' },
+        { name: 'Mike Johnson', avatar: '', role: 'Backend Developer' },
+        { name: 'Lisa Wang', avatar: '', role: 'Product Manager' },
+    ],
 };
 
 const mockDiscussion = [
     {
         id: 1,
-        user: { name: 'Alice', avatar: '' },
-        comment: 'This is a great idea! Would love to join as a designer.',
-        postedAgo: '1d ago',
+        user: { name: 'Adom Shafi', avatar: '' },
+        comment: 'This is a great idea! Would love to join as a designer. The concept of peer-to-peer learning really resonates with me.',
+        postedAgo: '2d ago',
+        likes: 124,
+        replies: 123,
+        isLiked: true,
     },
     {
         id: 2,
-        user: { name: 'Bob', avatar: '' },
-        comment: 'Can you share more about the tech stack?',
+        user: { name: 'Sarah Chen', avatar: '' },
+        comment: 'Can you share more about the tech stack? I\'m particularly interested in the real-time features for study sessions.',
+        postedAgo: '1d ago',
+        likes: 123,
+        replies: 123,
+        isLiked: false,
+    },
+    {
+        id: 3,
+        user: { name: 'Mike Johnson', avatar: '' },
+        comment: 'The problem statement is spot on. I struggled with this exact issue during my university years.',
         postedAgo: '12h ago',
+        likes: 123,
+        replies: 123,
+        isLiked: false,
     },
 ];
 
 const ProjectDetails: React.FC = () => {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
+    const [comment, setComment] = useState('');
+    const [discussion, setDiscussion] = useState(mockDiscussion);
+
+    const handleLikeComment = (commentId: number) => {
+        setDiscussion(prev =>
+            prev.map(d =>
+                d.id === commentId
+                    ? { ...d, isLiked: !d.isLiked, likes: d.isLiked ? d.likes - 1 : d.likes + 1 }
+                    : d
+            )
+        );
+    };
+
+    const handlePostComment = () => {
+        if (comment.trim()) {
+            const newComment = {
+                id: Date.now(),
+                user: { name: 'You', avatar: '' },
+                comment: comment.trim(),
+                postedAgo: 'Just now',
+                likes: 0,
+                replies: 0,
+                isLiked: false,
+            };
+            setDiscussion(prev => [newComment, ...prev]);
+            setComment('');
+        }
+    };
+
+    const handleOpenThread = () => {
+        navigate(`/projects/${id}/thread`);
+    };
+
     return (
-        <Layout>
-            <Box sx={{ maxWidth: 600, mx: 'auto', bgcolor: '#f7fafd', minHeight: '100vh', p: 2 }}>
-                {/* Tags */}
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-                    {mockProject.tags.map((tag) => (
-                        <Chip key={tag} label={tag} sx={{ bgcolor: '#e8f5e9', color: '#1F8505', fontWeight: 600, fontSize: 13 }} />
-                    ))}
-                </Box>
-                {/* Title & Author */}
+        <SinglePageLayout
+            title={t('Project Details')}
+            rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}
+        >
+            {/* Tags */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1, p: 2 }}>
+                {mockProject.tags.map((tag) => (
+                    <Chip key={tag} label={tag} sx={{ bgcolor: '#e8f5e9', color: '#1F8505', fontWeight: 600, fontSize: 13 }} />
+                ))}
+            </Box>
+
+            {/* Title & Author */}
+            <Box sx={{ p: 2, pb: 1 }}>
                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, lineHeight: 1.3 }}>
                     {mockProject.title}
                 </Typography>
@@ -85,26 +154,35 @@ const ProjectDetails: React.FC = () => {
                         <Typography sx={{ color: '#888', fontSize: 13 }}>{mockProject.user.postedAgo}</Typography>
                     </Box>
                 </Box>
-                {/* Description */}
+            </Box>
+
+            {/* Thumbnail */}
+            <CardMedia
+                component="img"
+                image={mockProject.thumbnail}
+                alt={mockProject.title}
+                sx={{ width: '100%', borderRadius: 0, mb: 2, maxHeight: 200, objectFit: 'cover' }}
+            />
+
+            {/* Description */}
+            <Box sx={{ p: 2, pb: 1 }}>
                 <Typography sx={{ color: '#222', fontSize: 15, mb: 2 }}>{mockProject.description}</Typography>
-                {/* Thumbnail */}
-                <CardMedia
-                    component="img"
-                    image={mockProject.thumbnail}
-                    alt={mockProject.title}
-                    sx={{ width: '100%', borderRadius: 2, mb: 2, maxHeight: 180, objectFit: 'cover' }}
-                />
+            </Box>
+
+            {/* Project Details Sections */}
+            <Box sx={{ p: 2, pt: 0 }}>
                 {/* Problem & Solution */}
-                <Box sx={{ border: '1px dashed #b2dfdb', borderRadius: 2, p: 2, mb: 2 }}>
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
                     <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Problem</Typography>
-                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{mockProject.problem}</Typography>
+                    <Typography sx={{ color: '#444', fontSize: 14, mb: 2 }}>{mockProject.problem}</Typography>
                     <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Solution</Typography>
-                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{mockProject.solution}</Typography>
+                    <Typography sx={{ color: '#444', fontSize: 14, mb: 2 }}>{mockProject.solution}</Typography>
                     <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Who Benefits</Typography>
                     <Typography sx={{ color: '#444', fontSize: 14 }}>{mockProject.whoBenefits}</Typography>
-                </Box>
+                </Paper>
+
                 {/* Resources */}
-                <Box sx={{ border: '1px dashed #b2dfdb', borderRadius: 2, p: 2, mb: 2 }}>
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
                     <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Resources</Typography>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {mockProject.resources.map((r, i) => (
@@ -113,9 +191,10 @@ const ProjectDetails: React.FC = () => {
                             </li>
                         ))}
                     </ul>
-                </Box>
+                </Paper>
+
                 {/* Attachments */}
-                <Box sx={{ border: '1px dashed #b2dfdb', borderRadius: 2, p: 2, mb: 2 }}>
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
                     <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Attachments</Typography>
                     <List dense>
                         {mockProject.attachments.map((file) => (
@@ -136,9 +215,10 @@ const ProjectDetails: React.FC = () => {
                             </ListItem>
                         ))}
                     </List>
-                </Box>
+                </Paper>
+
                 {/* Next Steps */}
-                <Box sx={{ border: '1px dashed #b2dfdb', borderRadius: 2, p: 2, mb: 2 }}>
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
                     <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Next Steps</Typography>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {mockProject.nextSteps.map((step, i) => (
@@ -147,63 +227,168 @@ const ProjectDetails: React.FC = () => {
                             </li>
                         ))}
                     </ul>
+                </Paper>
+            </Box>
+
+
+            {/* Team Members Section */}
+            <Box sx={{ p: 2, pb: 1 }}>
+                <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2, textAlign: 'center' }}>Team Members</Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
+                    {mockProject.teamMembers.map((member, index) => (
+                        <Box key={index} sx={{ textAlign: 'center' }}>
+                            <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>
+                                {member.name[0]}
+                            </Avatar>
+                            <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{member.name}</Typography>
+                        </Box>
+                    ))}
                 </Box>
-                {/* Stats */}
-                <Box
+                <Button
+                    variant="contained"
                     sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        px: 1,
-                        py: 1,
-                        borderRadius: 2,
-                        border: '1px solid #e0e0e0',
-                        mb: 2,
+                        bgcolor: '#1F8505',
+                        color: '#fff',
+                        borderRadius: '25px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        fontSize: 16,
+                        py: 1.5,
+                        px: 4,
+                        width: '100%',
+                        position: 'relative',
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <FavoriteBorderIcon fontSize="small" sx={{ color: '#1F8505' }} />
-                        <Typography sx={{ fontSize: 14 }}>{mockProject.likes}</Typography>
+                    Join this team
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            right: -8,
+                            top: -8,
+                            bgcolor: '#1F8505',
+                            color: '#fff',
+                            borderRadius: '50%',
+                            width: 24,
+                            height: 24,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            border: '2px solid #fff',
+                        }}
+                    >
+                        <MailIcon sx={{ fontSize: 14 }} />
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <ChatBubbleOutlineIcon fontSize="small" sx={{ color: '#1F8505' }} />
-                        <Typography sx={{ fontSize: 14 }}>{mockProject.comments}</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography sx={{ fontSize: 14, color: '#888' }}>{mockProject.views} views</Typography>
-                    </Box>
+                </Button>
+            </Box>
+
+            {/* Engagement Metrics */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, p: 2, pb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <FavoriteBorderIcon sx={{ color: '#666', fontSize: 20 }} />
+                    <Typography sx={{ fontSize: 14, color: '#666' }}>{mockProject.likes}</Typography>
                 </Box>
-                {/* Discussion Section */}
-                <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, bgcolor: '#fff', mb: 2 }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Discussion</Typography>
-                    <List>
-                        {mockDiscussion.map((d) => (
-                            <ListItem key={d.id} alignItems="flex-start">
-                                <ListItemAvatar>
-                                    <Avatar sx={{ bgcolor: '#e8f5e9', color: '#1F8505', width: 32, height: 32 }}>{d.user.name[0]}</Avatar>
-                                </ListItemAvatar>
-                                <ListItemText
-                                    primary={
-                                        <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
-                                            {d.user.name} <span style={{ color: '#888', fontWeight: 400, fontSize: 12 }}>· {d.postedAgo}</span>
-                                        </Typography>
-                                    }
-                                    secondary={<Typography sx={{ color: '#444', fontSize: 14 }}>{d.comment}</Typography>}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                    <Divider sx={{ my: 1 }} />
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar sx={{ width: 32, height: 32, bgcolor: '#e8f5e9', color: '#1F8505' }}>U</Avatar>
-                        <TextField size="small" placeholder="Add a comment..." fullWidth sx={{ bgcolor: '#f7fafd', borderRadius: 2 }} disabled />
-                        <Button variant="contained" sx={{ bgcolor: '#1F8505', color: '#fff', borderRadius: 2, fontWeight: 600 }} disabled>
-                            Post
-                        </Button>
-                    </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <VisibilityIcon sx={{ color: '#666', fontSize: 20 }} />
+                    <Typography sx={{ fontSize: 14, color: '#666' }}>{mockProject.views}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 20 }} />
+                    <Typography sx={{ fontSize: 14, color: '#666' }}>{mockProject.comments}</Typography>
                 </Box>
             </Box>
-        </Layout>
+
+            {/* Comment Input */}
+            <Box sx={{ p: 2, pb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505' }}>U</Avatar>
+                    <TextField
+                        size="small"
+                        placeholder="Discuss your opinion"
+                        fullWidth
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        sx={{
+                            bgcolor: '#f8f9fa',
+                            borderRadius: '25px',
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '25px',
+                                '& fieldset': {
+                                    borderColor: '#e0e0e0',
+                                },
+                            },
+                        }}
+                    />
+                    <IconButton
+                        onClick={handlePostComment}
+                        disabled={!comment.trim()}
+                        sx={{
+                            bgcolor: comment.trim() ? '#1F8505' : '#e0e0e0',
+                            color: '#fff',
+                            '&:hover': {
+                                bgcolor: comment.trim() ? '#1a7a04' : '#e0e0e0',
+                            },
+                        }}
+                    >
+                        <SendIcon />
+                    </IconButton>
+                </Box>
+            </Box>
+
+            {/* Comments List */}
+            <Box sx={{ p: 2, pt: 1 }}>
+                {discussion.map((d, index) => (
+                    <Box key={d.id} sx={{ mb: 2 }}>
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                                {d.user.name[0]}
+                            </Avatar>
+                            <Box sx={{ flex: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                    <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
+                                        {d.user.name}
+                                    </Typography>
+                                    <Typography sx={{ color: '#888', fontSize: 12 }}>
+                                        Posted {d.postedAgo}
+                                    </Typography>
+                                </Box>
+                                <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>
+                                    {d.comment}
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => handleLikeComment(d.id)}
+                                            sx={{ p: 0 }}
+                                        >
+                                            {d.isLiked ? (
+                                                <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
+                                            ) : (
+                                                <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                            )}
+                                        </IconButton>
+                                        <Typography sx={{ fontSize: 12, color: '#666' }}>{d.likes}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
+                                        <Typography sx={{ fontSize: 12, color: '#666' }}>{d.replies} replies</Typography>
+                                    </Box>
+                                    <Typography
+                                        sx={{ fontSize: 12, color: '#1F8505', fontWeight: 600, cursor: 'pointer' }}
+                                        onClick={handleOpenThread}
+                                    >
+                                        Open Thread
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                        {index < discussion.length - 1 && <Divider sx={{ mt: 2, opacity: 0.3 }} />}
+                    </Box>
+                ))}
+            </Box>
+        </SinglePageLayout>
     );
 };
 

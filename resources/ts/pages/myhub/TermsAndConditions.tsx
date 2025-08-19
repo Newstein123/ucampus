@@ -1,13 +1,9 @@
 import { Box, Paper, Typography } from '@mui/material';
 import React from 'react';
-import BackButton from '../../components/BackButton';
+import SinglePageLayout from '../../components/SinglePageLayout';
 
 const TermsAndConditions: React.FC = () => (
-    <Box sx={{ maxWidth: 600, mx: 'auto', minHeight: '100vh', bgcolor: '#f7fafd', p: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pt: 2, pb: 1, position: 'sticky', top: 0, bgcolor: '#f7fafd', zIndex: 10 }}>
-            <BackButton />
-            <Typography sx={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, textAlign: 'center', mr: 4 }}>Terms & Conditions</Typography>
-        </Box>
+    <SinglePageLayout title="Terms & Conditions">
         <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, m: 2, p: 3, fontSize: 15 }}>
             <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 1 }}>U Campus – Terms and Conditions</Typography>
             <Typography sx={{ color: '#888', fontSize: 13, mb: 2 }}>Last updated: June 25, 2025</Typography>
@@ -42,7 +38,7 @@ const TermsAndConditions: React.FC = () => (
             </Typography>
             <Typography sx={{ color: '#aaa', fontSize: 12, mt: 2 }}>Last updated: June 25, 2025</Typography>
         </Paper>
-    </Box>
+    </SinglePageLayout>
 );
 
 export default TermsAndConditions;

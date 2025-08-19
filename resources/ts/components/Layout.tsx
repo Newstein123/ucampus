@@ -5,11 +5,13 @@ import NotificationIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 import ExploreIcon from '@mui/icons-material/TravelExplore';
 import { AppBar, Badge, BottomNavigation, BottomNavigationAction, Box, Paper, Toolbar } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useHomeContext } from '../contexts/HomeContext';
 import useNotificationUnreadCountQuery from '../hooks/notification/useNotificationUnreadCountQuery';
+import { useNotificationListener } from '../hooks/useNotificationListener';
+import { useSelector } from 'react-redux';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { t } = useTranslation();
@@ -18,6 +20,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const { triggerHomeRestart } = useHomeContext();
     const { data: unreadCountData } = useNotificationUnreadCountQuery();
+
+    useNotificationListener({
+        onNotification: (notification) => {
+            console.log('notification created', notification);
+        },
+        onError: (error) => {
+            console.error('Notification listener error:', error);
+        },
+    });
+
     const handleHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (location.pathname === '/') {
@@ -49,6 +61,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
+                '@media (display-mode: standalone)': {
+                    '@supports (-webkit-touch-callout: none)': {
+                        height: '-webkit-fill-available',
+                    }
+                }
             }}
         >
             {/* Navbar */}
@@ -56,10 +73,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 position="sticky"
                 color="transparent"
                 elevation={0}
-                sx={{ borderBottom: '1px solid #eee', px: 2, top: 0, zIndex: 1100, bgcolor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(8px)' }}
+                className="header-fixed"
+                sx={{
+                    borderBottom: '1px solid #eee',
+                    px: 2,
+                    top: 0,
+                    zIndex: 1100,
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(8px)',
+                    '@media (display-mode: standalone)': {
+                        '@supports (-webkit-touch-callout: none)': {
+                            position: 'fixed',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '100%',
+                            maxWidth: 600,
+                        }
+                    }
+                }}
             >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
-                    <Toolbar>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px' }}>
+                    <Toolbar sx={{ p: 0 }}>
                         <img src="/assets/images/logo.png" alt="logo" width={70} height={70} />
                     </Toolbar>
                     <Badge badgeContent={unreadCountData?.data?.unread_count || 0} color="success" sx={{ mr: 2 }}>
@@ -69,7 +103,35 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </AppBar>
 
             {/* Main Content */}
-            <Box sx={{ flex: 1, p: 2, pb: 8 }}>{children}</Box>
+            <Box
+                className="pwa-main-content"
+                sx={{
+                    flex: 1,
+                    p: 2,
+                    pb: 8,
+                    '@media (display-mode: standalone)': {
+                        '@supports (-webkit-touch-callout: none)': {
+                            mt: 'calc(60px + env(safe-area-inset-top))',
+                            mb: 'env(safe-area-inset-bottom)',
+                            overflowY: 'auto',
+                            '-webkit-overflow-scrolling': 'touch',
+                            WebkitScrollbarWidth: 'none',
+                            scrollbarWidth: 'none',
+                            '::-webkit-scrollbar': {
+                                display: 'none'
+                            },
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 'auto'
+                        }
+                    }
+                }}
+            >
+                {children}
+            </Box>
 
             {/* Footer */}
             <Paper
@@ -83,8 +145,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     borderTop: '1px solid #eee',
                     bgcolor: '#fff',
                     padding: '5px 0px 20px 0px',
+                    '@media (display-mode: standalone)': {
+                        '@supports (-webkit-touch-callout: none)': {
+                            paddingBottom: 'env(safe-area-inset-bottom)'
+                        }
+                    }
                 }}
                 elevation={3}
+                className="bottom-navigation"
             >
                 <BottomNavigation
                     showLabels

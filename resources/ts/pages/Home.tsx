@@ -1,6 +1,7 @@
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Avatar, Box, Card, CardContent, CardMedia, CircularProgress, Divider, IconButton, Tab, Tabs, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -8,6 +9,7 @@ import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
 import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
+import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
 
 const tabLabels = ['All Contributions', 'Idea', 'Question'];
 
@@ -22,6 +24,18 @@ const Home: React.FC = () => {
 
     const { onHomeRestart } = useHomeContext();
 
+    // Interest mutation
+    const interestMutation = useContributionInterestMutation({
+        onSuccess: (data) => {
+            console.log('Interest updated successfully:', data.message);
+            // You can add a toast notification here if you have one
+        },
+        onError: (error) => {
+            console.error('Failed to update interest:', error);
+            // You can add an error toast notification here
+        },
+    });
+
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
 
@@ -33,6 +47,10 @@ const Home: React.FC = () => {
         if (hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
         }
+    };
+
+    const handleInterest = (contributionId: number) => {
+        interestMutation.mutate(contributionId);
     };
 
     const handleHomeRestart = useCallback(() => {
@@ -94,7 +112,7 @@ const Home: React.FC = () => {
                                 </Typography>
                             </Box>
                             {/* Created at time */}
-                            <Typography sx={{ color: '#aaa', fontSize: 12, mb: 0.5, ml: 5 }}>{new Date(item.created_at).toLocaleString()}</Typography>
+                            <Typography sx={{ color: '#aaa', fontSize: 12, mb: 0.5, ml: 5 }}>{item.created_at}</Typography>
                             <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>
                                 {item.type === 'idea' ? item.content.description : item.content.answer}
                             </Typography>
@@ -144,8 +162,22 @@ const Home: React.FC = () => {
                             </Box>
                         )}
                         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }}>
-                            <IconButton size="small">
-                                <FavoriteBorderIcon fontSize="small" />
+                            <IconButton
+                                size="small"
+                                onClick={() => handleInterest(item.id)}
+                                disabled={interestMutation.isPending}
+                                sx={{
+                                    color: item.is_interested ? '#e91e63' : 'inherit',
+                                    '&:hover': {
+                                        color: item.is_interested ? '#c2185b' : '#e91e63',
+                                    }
+                                }}
+                            >
+                                {item.is_interested ? (
+                                    <FavoriteIcon fontSize="small" />
+                                ) : (
+                                    <FavoriteBorderIcon fontSize="small" />
+                                )}
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.likes_count}</Typography>
                             <IconButton size="small">

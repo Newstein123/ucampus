@@ -55,45 +55,89 @@ class AuthService implements AuthServiceInterface
 
     public function socialLogin($provider)
     {
-        $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
-        return [
-            'url' => $url
-        ];
+        try {
+            $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+            return [
+                'url' => $url
+            ];
+        } catch (\Exception $e) {
+            \Log::error('AuthService socialLogin ERROR', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function socialLoginCallback($provider, $request)
     {
-        $socialUser = Socialite::driver($provider)->stateless()->user();
-        $user = $this->users->findByEmail($socialUser->getEmail());
-        if (!$user) {
-            // Use full email as username
-            $username = $socialUser->getEmail();
-            $user = $this->users->create([
-                'name' => $socialUser->getName() ?? $socialUser->getNickname(),
-                'username' => $username,
-                'email' => $socialUser->getEmail(),
-                'password' => Hash::make(Str::random(16)),
-                'dob' => null,
-                'location' => null,
-                'phone' => null,
-            ]);
-        }
-        $account = SocialAccount::updateOrCreate(
-            [
-                'provider' => $provider,
-                'provider_user_id' => $socialUser->getId(),
-            ],
-            [
+        try {
+            $socialUser = Socialite::driver($provider)->stateless()->user();
+
+            $user = $this->users->findByEmail($socialUser->getEmail());
+            $isNewUser = false;
+
+            if (!$user) {
+                // Use full email as username
+                $username = $socialUser->getEmail();
+                $user = $this->users->create([
+                    'name' => $socialUser->getName() ?? $socialUser->getNickname(),
+                    'username' => $username,
+                    'email' => $socialUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                    'dob' => null,
+                    'location' => null,
+                    'phone' => null,
+                ]);
+                $isNewUser = true;
+            } else {
+                \Log::info('AuthService socialLoginCallback EXISTING USER FOUND', [
+                    'user_id' => $user->id,
+                    'email' => $user->email
+                ]);
+            }
+            // Update or create social account
+            SocialAccount::updateOrCreate(
+                [
+                    'provider' => $provider,
+                    'provider_user_id' => $socialUser->getId(),
+                ],
+                [
+                    'user_id' => $user->id,
+                    'token' => $socialUser->token,
+                ]
+            );
+
+            Auth::login($user);
+
+            // Update last login time
+            $user->last_login_at = now();
+            $user->save();
+
+            $token = $user->createToken($provider . '-login')->plainTextToken;
+
+            $result = [
+                'user' => $user,
+                'token' => $token,
+                'first_login' => $isNewUser || !$user->last_login_at,
+            ];
+
+            \Log::info('AuthService socialLoginCallback SUCCESS', [
                 'user_id' => $user->id,
-                'token' => $socialUser->token,
-            ]
-        );
-        Auth::login($user);
-        $token = $user->createToken($provider . '-login')->plainTextToken;
-        return [
-            'user' => $user,
-            'token' => $token,
-        ];
+                'has_token' => !empty($token),
+                'first_login' => $result['first_login']
+            ]);
+
+            return $result;
+        } catch (\Exception $e) {
+            \Log::error('AuthService socialLoginCallback ERROR', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function logout($user)
