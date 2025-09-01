@@ -3,37 +3,19 @@
 namespace App\Services;
 
 use App\Repositories\CollaborationRepositoryInterface;
-use App\Repositories\ContributionRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
 class CollaborationService implements CollaborationServiceInterface
 {
     public function __construct(
-        private CollaborationRepositoryInterface $collaborationRepository,
-        private ContributionRepositoryInterface $contributionRepository
+        private CollaborationRepositoryInterface $collaborationRepository
     ) {}
 
     public function sendRequest(int $contributionId, int $userId, string $reason): array
     {
         try {
             DB::beginTransaction();
-
-            // Verify the contribution exists
-            $contribution = $this->contributionRepository->findById($contributionId);
-            if (!$contribution || !$contribution['allow_collab']) {
-                throw new Exception('Contribution does not allow collaboration');
-            }
-
-            // Verify user is not already a collaborator
-            if ($this->collaborationRepository->checkIfUserIsCollaborator($contributionId, $userId)) {
-                throw new Exception('User is already a collaborator');
-            }
-
-            // Verify user is not the owner
-            if ($this->collaborationRepository->checkIfUserIsOwner($contributionId, $userId)) {
-                throw new Exception('Project owner cannot request collaboration');
-            }
 
             // Create collaboration request
             $result = $this->collaborationRepository->createRequest([

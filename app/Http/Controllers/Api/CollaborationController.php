@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\CollaborationServiceInterface;
+use App\Http\Requests\Api\CollaborationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
 
 class CollaborationController extends Controller
 {
@@ -17,20 +17,8 @@ class CollaborationController extends Controller
     /**
      * Send request for project contribution
      */
-    public function request(Request $request): JsonResponse
+    public function request(CollaborationRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'contribution_id' => 'required|exists:contributions,id',
-            'reason' => 'required|string|min:10|max:500'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
             $result = $this->collaborationService->sendRequest(
                 $request->contribution_id,
