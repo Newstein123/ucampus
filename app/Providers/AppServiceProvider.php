@@ -31,6 +31,15 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\TagRepositoryInterface::class,
             \App\Repositories\TagRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\CollaborationRepositoryInterface::class,
+            \App\Repositories\CollaborationRepository::class
+        );
+        $this->app->bind(
+            \App\Services\CollaborationServiceInterface::class,
+            \App\Services\CollaborationService::class
+        );
         $this->app->bind(
             \App\Repositories\NotificationRepositoryInterface::class,
             \App\Repositories\NotificationRepository::class
