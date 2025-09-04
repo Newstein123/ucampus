@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Discussion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DiscussionResource extends JsonResource
+class ResponseResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,12 +19,10 @@ class DiscussionResource extends JsonResource
                 'username' => $this->user->username,
                 'avatar' => $this->user->avatar,
             ],
-            'content' => $this->content,
+            'content' => json_decode($this->content),
             'contribution_id' => $this->contribution_id,
-            'is_edited' => $this->is_edited,
-            'interests' => $this->interests,
             'parent_id' => $this->parent_id,
-            'responses' => DiscussionResource::collection(
+            'responses' => ResponseResource::collection(
                 $this->whenLoaded('replies')
             ),
         ];

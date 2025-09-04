@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('content');
             $table->integer('upvotes')->default(0);
             $table->integer('downvotes')->default(0);
-
+            $table->integer('interests')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

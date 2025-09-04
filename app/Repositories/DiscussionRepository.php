@@ -17,9 +17,15 @@ class DiscussionRepository implements DiscussionRepositoryInterface
         return $discussion;
     }
 
-    public function findByContributionId(int $id)
+    public function findByContributionId(int $id, array $data = [])
     {
-        return Discussion::with(['user', 'replies.user'])->where('contribution_id', $id)->get();
+        $limit = $data['per_page'] ?? 10;
+        $page = $data['page'] ?? 1;
+
+        return Discussion::with(['user', 'replies'])
+            ->where('contribution_id', $id)
+            ->whereNull('parent_id')
+            ->paginate($limit, ['*'], 'page', $page);
     }
 
     public function create(array $data = [])
@@ -52,5 +58,15 @@ class DiscussionRepository implements DiscussionRepositoryInterface
             throw new \Exception('Discussion not found');
         }
         return $discussion->delete();
+    }
+
+    public function updateInterest(int $id, int $amount = 1 /* give negative value to decrease */)
+    {
+        $discussion = $this->findById($id);
+        if (!$discussion) {
+            throw new \Exception('Discussion not found');
+        }
+        $discussion->increment('interests', $amount);
+        return $discussion;
     }
 }

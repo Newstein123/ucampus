@@ -102,4 +102,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::put('/{id}/discussion', [DiscussionController::class, 'update']);
     Route::delete('/{id}/discussion', [DiscussionController::class, 'delete']);
+    Route::post('/{id}/discussion/interest', [DiscussionController::class, 'updateInterest']);
 });

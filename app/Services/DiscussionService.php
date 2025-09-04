@@ -11,9 +11,9 @@ class DiscussionService implements DiscussionServiceInterface
         protected DiscussionRepositoryInterface $discussionRepository
     ) {}
 
-    public function getAllParentDiscussions(int $id)
+    public function getAllParentDiscussions(int $id, array $data = [])
     {
-        $discussion = $this->discussionRepository->findByContributionId($id);
+        $discussion = $this->discussionRepository->findByContributionId($id, $data);
         if (!$discussion) {
             throw new \Exception('Discussion not found');
         }
@@ -54,6 +54,15 @@ class DiscussionService implements DiscussionServiceInterface
     {
         try {
             return $this->discussionRepository->delete($id);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function updateInterest(int $id)
+    {
+        try {
+            return $this->discussionRepository->updateInterest($id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
