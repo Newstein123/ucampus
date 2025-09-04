@@ -21,6 +21,7 @@ return new class extends Migration
             $table->boolean('is_public')->default(true);
             $table->enum('status', ['draft', 'active', 'completed'])->default('draft');
             $table->integer('views_count')->default(0);
+            $table->integer('likes_count')->default(0);
             $table->string('thumbnail_url')->nullable();
             $table->timestamps();
         });

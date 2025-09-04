@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
+use App\Http\Controllers\Api\DiscussionController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\CollaborationController;
@@ -128,3 +129,14 @@ Route::post('/broadcasting/debug', function (Request $request) {
         'body' => $request->all(),
     ]);
 })->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('discussions')->group(function () {
+        Route::get('/', [DiscussionController::class, 'getAllParentDiscussions']);
+        Route::get('/{id}/responses', [DiscussionController::class, 'getAllResponses']);
+        Route::post('/', [DiscussionController::class, 'store']);
+    });
+    Route::put('/{id}/discussion', [DiscussionController::class, 'update']);
+    Route::delete('/{id}/discussion', [DiscussionController::class, 'delete']);
+    Route::post('/{id}/discussion/interest', [DiscussionController::class, 'updateInterest']);
+});
