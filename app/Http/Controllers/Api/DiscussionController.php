@@ -50,6 +50,8 @@ class DiscussionController extends Controller
     public function store(CreateRequest $request)
     {
         $data = $request->validated();
+        // Ensure user_id is set from the authenticated user
+        $data['user_id'] = auth()->id();
         $discussion = $this->discussionService->create($data);
         $resource['discussions'] = new DiscussionResource($discussion);
         return $this->response($resource, 'Discussion created successfully');

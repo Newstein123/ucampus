@@ -16,6 +16,7 @@ class DiscussionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'user' => [
                 'username' => $this->user->username,
                 'avatar' => $this->user->avatar,
@@ -23,8 +24,10 @@ class DiscussionResource extends JsonResource
             'content' => $this->content,
             'contribution_id' => $this->contribution_id,
             'is_edited' => $this->is_edited,
-            'interests' => $this->interests,
+            'interests' => $this->interests ?? 0,
             'parent_id' => $this->parent_id,
+            'created_at' => $this->created_at?->toISOString(),
+            'updated_at' => $this->updated_at?->toISOString(),
             'responses' => DiscussionResource::collection(
                 $this->whenLoaded('replies')
             ),

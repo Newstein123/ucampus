@@ -13,66 +13,58 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
+import { useDiscussions } from '../../hooks/useDiscussions';
+import { Discussion } from '../../types/discussion';
 
-const mockThreadPosts = [
-    {
-        id: 1,
-        user: { name: 'Adom Shafi', avatar: '' },
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
-        postedAgo: '2d ago',
-        likes: 124,
-        comments: 123,
-        isLiked: true,
-    },
-    {
-        id: 2,
-        user: { name: 'Min Thurein', avatar: '' },
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
-        postedAgo: '1hr ago',
-        likes: 124,
-        comments: 0,
-        isLiked: false,
-    },
-    {
-        id: 3,
-        user: { name: 'Min Thet Paing', avatar: '' },
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
-        postedAgo: '2hr ago',
-        likes: 124,
-        comments: 0,
-        isLiked: false,
-    },
-];
+// Helper function to format time ago
+const formatTimeAgo = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    return date.toLocaleDateString();
+};
 
 const Thread: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
-    const [posts, setPosts] = useState(mockThreadPosts);
     const [newPost, setNewPost] = useState('');
 
-    const handleLikePost = (postId: number) => {
-        setPosts(prev =>
-            prev.map(post =>
-                post.id === postId
-                    ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 }
-                    : post
-            )
-        );
+    // Use the discussions hook
+    const {
+        discussions,
+        loading,
+        error,
+        createDiscussion,
+        updateInterest
+    } = useDiscussions({
+        contributionId: parseInt(id || '1'),
+        perPage: 20,
+        page: 1
+    });
+
+    const handleLikePost = async (postId: number) => {
+        try {
+            await updateInterest({ discussion_id: postId });
+        } catch (err) {
+            console.error('Failed to update interest:', err);
+        }
     };
 
-    const handlePostComment = () => {
+    const handlePostComment = async () => {
         if (newPost.trim()) {
-            const newThreadPost = {
-                id: Date.now(),
-                user: { name: 'You', avatar: '' },
-                content: newPost.trim(),
-                postedAgo: 'Just now',
-                likes: 0,
-                comments: 0,
-                isLiked: false,
-            };
-            setPosts(prev => [newThreadPost, ...prev]);
-            setNewPost('');
+            try {
+                await createDiscussion({
+                    content: newPost.trim(),
+                });
+                setNewPost('');
+            } catch (err) {
+                console.error('Failed to create discussion:', err);
+            }
         }
     };
 
@@ -84,50 +76,60 @@ const Thread: React.FC = () => {
 
             {/* Thread Posts */}
             <Box sx={{ p: 2, pb: 0 }}>
-                {posts.map((post, index) => (
-                    <Box key={post.id} sx={{ mb: 3 }}>
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
-                                {post.user.name[0]}
-                            </Avatar>
-                            <Box sx={{ flex: 1 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                    <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
-                                        {post.user.name}
-                                    </Typography>
-                                    <Typography sx={{ color: '#888', fontSize: 12 }}>
-                                        Posted {post.postedAgo}
-                                    </Typography>
-                                </Box>
-                                <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
-                                    {post.content}
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => handleLikePost(post.id)}
-                                            sx={{ p: 0 }}
-                                        >
-                                            {post.isLiked ? (
-                                                <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
-                                            ) : (
-                                                <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
-                                            )}
-                                        </IconButton>
-                                        <Typography sx={{ fontSize: 12, color: '#666' }}>{post.likes}</Typography>
+                {loading ? (
+                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
+                        Loading discussions...
+                    </Typography>
+                ) : error ? (
+                    <Typography sx={{ textAlign: 'center', color: 'error.main', py: 2 }}>
+                        Error: {error}
+                    </Typography>
+                ) : discussions.length === 0 ? (
+                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
+                        No discussions yet. Be the first to comment!
+                    </Typography>
+                ) : (
+                    discussions.map((post, index) => (
+                        <Box key={post.id} sx={{ mb: 3 }}>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                                    {post.user.username[0]?.toUpperCase() || 'U'}
+                                </Avatar>
+                                <Box sx={{ flex: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                        <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
+                                            {post.user.username}
+                                        </Typography>
+                                        <Typography sx={{ color: '#888', fontSize: 12 }}>
+                                            Posted {formatTimeAgo(post.created_at)}
+                                        </Typography>
                                     </Box>
-                                    {post.comments > 0 && (
+                                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
+                                        {post.content}
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
-                                            <Typography sx={{ fontSize: 12, color: '#666' }}>{post.comments}</Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleLikePost(post.id)}
+                                                sx={{ p: 0 }}
+                                            >
+                                                <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                            </IconButton>
+                                            <Typography sx={{ fontSize: 12, color: '#666' }}>{post.interests}</Typography>
                                         </Box>
-                                    )}
+                                        {post.responses && post.responses.length > 0 && (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                <Typography sx={{ fontSize: 12, color: '#666' }}>{post.responses.length}</Typography>
+                                            </Box>
+                                        )}
+                                    </Box>
                                 </Box>
                             </Box>
                         </Box>
-                    </Box>
-                ))}
+                    ))
+                )}
             </Box>
 
             {/* Bottom Input Area */}

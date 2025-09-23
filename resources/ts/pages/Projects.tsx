@@ -1,46 +1,21 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, CardMedia, IconButton, Paper, Typography } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { useNavigate } from 'react-router-dom';
+import { contributionApi } from '../api/contribution';
+import { Contribution } from '../types/contribution';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../store/slices/authSlice';
 
-const ownProjects = [
-    {
-        title: 'U Campus Platform',
-        subtitle: 'A digital hub for Myanmar youth',
-        image: '/assets/images/idea-sample.png',
-    },
-    {
-        title: 'Green Future',
-        subtitle: 'Sustainability awareness campaign',
-        image: '/assets/images/idea-sample.png',
-    },
-];
-
-const collabProjects = [
-    {
-        title: 'Tech for All',
-        subtitle: 'Open source learning tools',
-        image: '/assets/images/idea-sample.png',
-    },
-    {
-        title: 'Art Connect',
-        subtitle: 'Connecting artists and communities',
-        image: '/assets/images/idea-sample.png',
-    },
-    {
-        title: 'Health Bridge',
-        subtitle: 'Community health initiative',
-        image: '/assets/images/idea-sample.png',
-    },
-];
+const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
 
 
-const ProjectCard: React.FC<{ title: string; subtitle: string; image: string }> = ({ title, subtitle, image }) => {
+const ProjectCard: React.FC<{ id: number; title: string; subtitle?: string; image: string }> = ({ id, title, subtitle, image }) => {
     const navigate = useNavigate();
-    const handleNavigate = (title: string) => {
-        navigate(`/projects/${title.toLowerCase().replace(/\s+/g, '-')}`);
+    const handleNavigate = (projectId: number) => {
+        navigate(`/projects/${projectId}`);
     };
     return (
         <Paper
@@ -49,9 +24,11 @@ const ProjectCard: React.FC<{ title: string; subtitle: string; image: string }> 
             <CardMedia component="img" image={image} alt={title} sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: '#e8f5e9', mr: 2 }} />
             <Box sx={{ flex: 1 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{title}</Typography>
-                <Typography sx={{ color: '#888', fontSize: 13 }}>{subtitle}</Typography>
+                {subtitle && subtitle !== title && (
+                    <Typography sx={{ color: '#888', fontSize: 13 }}>{subtitle}</Typography>
+                )}
             </Box>
-            <IconButton onClick={() => handleNavigate(title)}>
+            <IconButton onClick={() => handleNavigate(id)}>
                 <ChevronRightIcon sx={{ color: '#bdbdbd' }} />
             </IconButton>
         </Paper>
@@ -59,18 +36,31 @@ const ProjectCard: React.FC<{ title: string; subtitle: string; image: string }> 
 };
 
 const Projects: React.FC = () => {
+    const [ownProjects, setOwnProjects] = useState<Contribution[]>([]);
+    const user = useSelector(selectUser);
+
+    useEffect(() => {
+        // Fetch own projects (type=project)
+        contributionApi
+            .list({ owner: 'me', type: 'project', per_page: 20 })
+            .then((res) => setOwnProjects(res.data))
+            .catch(() => setOwnProjects([]));
+
+    }, [user?.id]);
+
     return (
         <Layout>
             <Box sx={{ px: 2, pt: 3, pb: 2 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 18, textAlign: 'center', mb: 3 }}>Projects</Typography>
                 <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Your own projects</Typography>
-                {ownProjects.map((p, idx) => (
-                    <ProjectCard key={idx} title={p.title} subtitle={p.subtitle} image={p.image} />
-                ))}
-                <Typography sx={{ fontWeight: 700, fontSize: 15, mt: 3, mb: 1 }}>Projects you collaborate</Typography>
-                {collabProjects.map((p, idx) => (
-                    <ProjectCard key={idx} title={p.title} subtitle={p.subtitle} image={p.image} />
-                ))}
+                {ownProjects.length === 0 ? (
+                    <Typography sx={{ color: '#777', mb: 2 }}>No projects yet.</Typography>
+                ) : (
+                    ownProjects.map((p) => (
+                        <ProjectCard key={p.id} id={p.id} title={p.title} subtitle={p.content?.description || ''} image={p.thumbnail_url || DEFAULT_IMAGE} />
+                    ))
+                )}
+                {/* Collaboration section removed per requirement to only show own projects */}
             </Box>
         </Layout>
     );
