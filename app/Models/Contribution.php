@@ -55,4 +55,10 @@ class Contribution extends Model
     {
         return $this->interests->count();
     }
+
+    public function bookmarkedBy()
+    {
+        return $this->belongsToMany(User::class, 'contribution_bookmarks', 'contribution_id', 'user_id')
+            ->withTimestamps();
+    }
 }

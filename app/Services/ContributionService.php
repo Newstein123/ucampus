@@ -117,4 +117,19 @@ class ContributionService implements ContributionServiceInterface
     {
         return $this->contributionRepository->find($id);
     }
+
+    public function bookmark(int $userId, int $contributionId): void
+    {
+        $this->contributionRepository->addBookmark($userId, $contributionId);
+    }
+
+    public function unbookmark(int $userId, int $contributionId): void
+    {
+        $this->contributionRepository->removeBookmark($userId, $contributionId);
+    }
+
+    public function listBookmarks(int $userId, ?string $type = null, int $perPage = 10, int $page = 1)
+    {
+        return $this->contributionRepository->listBookmarks($userId, $type, $perPage, $page);
+    }
 }

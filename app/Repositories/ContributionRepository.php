@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Contribution;
+use Illuminate\Database\Eloquent\Builder;
 
 class ContributionRepository implements ContributionRepositoryInterface
 {
@@ -46,5 +47,32 @@ class ContributionRepository implements ContributionRepositoryInterface
     {
         $contribution = $this->find($id);
         return $contribution->delete();
+    }
+
+    public function addBookmark(int $userId, int $contributionId): void
+    {
+        $contribution = Contribution::findOrFail($contributionId);
+        $contribution->bookmarkedBy()->syncWithoutDetaching([$userId]);
+    }
+
+    public function removeBookmark(int $userId, int $contributionId): void
+    {
+        $contribution = Contribution::findOrFail($contributionId);
+        $contribution->bookmarkedBy()->detach([$userId]);
+    }
+
+    public function listBookmarks(int $userId, ?string $type = null, int $perPage = 10, int $page = 1)
+    {
+        $query = Contribution::with(['user', 'tags'])
+            ->whereHas('bookmarkedBy', function (Builder $q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->orderBy('created_at', 'desc');
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 }
