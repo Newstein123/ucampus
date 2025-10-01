@@ -52,4 +52,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function bookmarkedContributions()
+    {
+        return $this->belongsToMany(Contribution::class, 'contribution_bookmarks', 'user_id', 'contribution_id')
+            ->withTimestamps();
+    }
 }

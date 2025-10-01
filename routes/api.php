@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\CollaborationController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\ProgressController;
+use App\Http\Controllers\Api\BookmarkController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
 use App\Models\Notification;
@@ -70,6 +71,12 @@ Route::prefix('contributions')->group(function () {
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('contribution/{id}/bookmarks', [BookmarkController::class, 'store']);
+    Route::delete('contribution/{id}/bookmarks', [BookmarkController::class, 'destroy']);
+    Route::get('contribution/bookmarks', [BookmarkController::class, 'index']);
 });
 
 // Project Collaboration Routes
