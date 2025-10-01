@@ -33,6 +33,14 @@ import { Contribution } from '../../types/contribution';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
+// Mock team members (UI-only; backend not wired yet)
+const mockTeamMembers = [
+    { name: 'Adom Shafi', avatar: '', role: 'Frontend Developer' },
+    { name: 'Sarah Chen', avatar: '', role: 'UI/UX Designer' },
+    { name: 'Mike Johnson', avatar: '', role: 'Backend Developer' },
+    { name: 'Lisa Wang', avatar: '', role: 'Product Manager' },
+];
+
 // Helper function to format time ago
 const formatTimeAgo = (dateString: string): string => {
     const date = new Date(dateString);
@@ -211,9 +219,14 @@ const ProjectDetails: React.FC = () => {
             <Box sx={{ p: 2, pb: 1 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2, textAlign: 'center' }}>Team Members</Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
-                    <Typography sx={{ gridColumn: '1 / -1', color: '#777', textAlign: 'center' }}>
-                        Team member data will be connected soon.
-                    </Typography>
+                    {mockTeamMembers.map((member, index) => (
+                        <Box key={index} sx={{ textAlign: 'center' }}>
+                            <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>
+                                {member.name[0]}
+                            </Avatar>
+                            <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{member.name}</Typography>
+                        </Box>
+                    ))}
                 </Box>
                 <Button
                     variant="contained"
@@ -326,12 +339,12 @@ const ProjectDetails: React.FC = () => {
                         <Box key={d.id} sx={{ mb: 2 }}>
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
-                                    {d.user.username[0]?.toUpperCase() || 'U'}
+                                    {d.user.profileName[0]?.toUpperCase() || 'U'}
                                 </Avatar>
                                 <Box sx={{ flex: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
                                         <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
-                                            {d.user.username}
+                                            {d.user.profileName}
                                         </Typography>
                                         <Typography sx={{ color: '#888', fontSize: 12 }}>
                                             Posted {formatTimeAgo(d.created_at)}

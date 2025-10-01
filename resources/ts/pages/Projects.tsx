@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { useNavigate } from 'react-router-dom';
 import { contributionApi } from '../api/contribution';
+import { authApi } from '../api/auth';
 import { Contribution } from '../types/contribution';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
@@ -40,9 +41,12 @@ const Projects: React.FC = () => {
     const user = useSelector(selectUser);
 
     useEffect(() => {
-        // Fetch own projects (type=project)
-        contributionApi
-            .list({ owner: 'me', type: 'project', per_page: 20 })
+        // Fetch own projects (by user_id)
+        authApi.getProfile()
+            .then((profile) => {
+                const uid = profile.data.id;
+                return contributionApi.list({ user_id: uid, type: 'project', per_page: 20 });
+            })
             .then((res) => setOwnProjects(res.data))
             .catch(() => setOwnProjects([]));
 

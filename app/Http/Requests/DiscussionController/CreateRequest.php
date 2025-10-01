@@ -23,6 +23,7 @@ class CreateRequest extends FormRequest
     {
         return [
             'content' => 'required|string',
+            'user_id' => 'required|exists:users,id',
             'contribution_id' => 'required|exists:contributions,id',
             'parent_id' => 'nullable|exists:discussions,id',
         ];

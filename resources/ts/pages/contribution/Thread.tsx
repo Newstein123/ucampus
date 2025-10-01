@@ -9,12 +9,13 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { Discussion } from '../../types/discussion';
+import { authApi } from '../../api/auth';
 
 // Helper function to format time ago
 const formatTimeAgo = (dateString: string): string => {
@@ -33,6 +34,7 @@ const Thread: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const [newPost, setNewPost] = useState('');
+    const [profileName, setProfileName] = useState<string>('');
 
     // Use the discussions hook
     const {
@@ -46,6 +48,13 @@ const Thread: React.FC = () => {
         perPage: 20,
         page: 1
     });
+
+    useEffect(() => {
+        authApi
+            .getProfile()
+            .then((res) => setProfileName(res.data.name || res.data.username || ''))
+            .catch(() => setProfileName(''));
+    }, []);
 
     const handleLikePost = async (postId: number) => {
         try {
@@ -71,7 +80,7 @@ const Thread: React.FC = () => {
     return (
         <SinglePageLayout
             title={t('Thread')}
-            rightElement={<Typography sx={{ fontWeight: 600, fontSize: 14, color: '#666' }}>Adom Shafi</Typography>}
+            rightElement={<Typography sx={{ fontWeight: 600, fontSize: 14, color: '#666' }}>{profileName}</Typography>}
         >
 
             {/* Thread Posts */}
@@ -93,12 +102,12 @@ const Thread: React.FC = () => {
                         <Box key={post.id} sx={{ mb: 3 }}>
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
-                                    {post.user.username[0]?.toUpperCase() || 'U'}
+                                    {post.user.profileName?.[0]?.toUpperCase() || post.user.username?.[0]?.toUpperCase() || 'U'}
                                 </Avatar>
                                 <Box sx={{ flex: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
                                         <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
-                                            {post.user.username}
+                                            {post.user.profileName || post.user.username}
                                         </Typography>
                                         <Typography sx={{ color: '#888', fontSize: 12 }}>
                                             Posted {formatTimeAgo(post.created_at)}

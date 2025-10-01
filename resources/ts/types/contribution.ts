@@ -30,7 +30,6 @@ export interface ContributionListRequest {
     type?: string;
     per_page?: number;
     page?: number;
-    owner?: 'me' | 'all';
     user_id?: number;
 }
 

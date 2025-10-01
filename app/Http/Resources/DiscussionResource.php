@@ -19,6 +19,7 @@ class DiscussionResource extends JsonResource
             'id' => $this->id,
             'user' => [
                 'username' => $this->user->username,
+                'profileName' => $this->user->name,
                 'avatar' => $this->user->avatar,
             ],
             'content' => $this->content,

@@ -1,5 +1,6 @@
 export interface DiscussionUser {
     username: string;
+    profileName: string;
     avatar: string;
 }
 

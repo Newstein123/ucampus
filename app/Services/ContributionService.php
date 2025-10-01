@@ -17,10 +17,6 @@ class ContributionService implements ContributionServiceInterface
 
     public function list(array $data = [])
     {
-        // Map "owner=me" to the authenticated user's id for repository filtering
-        if (($data['owner'] ?? null) === 'me') {
-            $data['user_id'] = auth()->id();
-        }
         return $this->contributionRepository->list($data);
     }
 
