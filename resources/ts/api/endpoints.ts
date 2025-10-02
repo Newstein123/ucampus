@@ -9,12 +9,24 @@ export const endpoints = Object.freeze({
     contribution_list: '/contributions',
     contribution_create: '/contributions',
     contribution_interest: '/contributions',
+    contribution_show: '/contributions/{id}',
 
     // Notification endpoints
     notification_list: '/notifications',
     notification_read: '/notifications',
     notification_unread_count: '/notifications/unread-count',
     notification_test: '/notifications/test',
+
+    // Discussion endpoints
+    discussion_list: '/discussions',
+    discussion_responses: '/discussions/{id}/responses',
+    discussion_create: '/discussions',
+    discussion_update: '/{id}/discussion',
+    discussion_delete: '/{id}/discussion',
+    discussion_interest: '/{id}/discussion/interest',
+
+    // Collaboration endpoints
+    collaboration_list: '/project/collaboration',
 
     auth_social_login: '/auth/{provider}/login',
     auth_forgot_password: '/auth/forgot-password',

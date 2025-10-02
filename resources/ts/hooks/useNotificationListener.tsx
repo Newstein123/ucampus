@@ -46,6 +46,14 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
             if (!token) {
                 return;
             }
+            const appKey = ((import.meta as any).env.VITE_REVERB_APP_KEY as string) || '';
+            const host = ((import.meta as any).env.VITE_REVERB_HOST as string) || window.location.hostname;
+            const port = ((import.meta as any).env.VITE_REVERB_PORT as unknown as number) ?? 8080;
+
+            if (!appKey) {
+                console.warn('Reverb app key is missing. Set VITE_REVERB_APP_KEY in your environment.');
+            }
+
             window.Echo = new Echo({
                 broadcaster: 'reverb',
                 authorizer: (channel: any, options: any) => {
@@ -74,19 +82,20 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
                         },
                     };
                 },
-                key: (import.meta as any).env.VITE_REVERB_APP_KEY as string || 'your-reverb-key',
-                wsHost: (import.meta as any).env.VITE_REVERB_HOST as string || 'localhost',
-                wsPort: ((import.meta as any).env.VITE_REVERB_PORT as unknown as number) ?? 8080,
-                wssPort: ((import.meta as any).env.VITE_REVERB_PORT as unknown as number) ?? 8080,
+                key: appKey,
+                wsHost: host,
+                wsPort: port,
+                wssPort: port,
                 forceTLS: false,
-                enabledTransports: ['ws'],
+                enabledTransports: ['ws', 'wss'],
             });
         }
 
         echoRef.current = window.Echo;
         console.log('echoRef.current', user?.id);
         // Listen for notifications
-        const channel = echoRef.current.private('notifications.' + user.id);
+        const channelName = 'notifications.' + user.id;
+        const channel = echoRef.current.private(channelName);
         console.log('channel', channel);
         channel.listen('.notification.created', (data: NotificationData) => {
             console.log('New notification received:', data);
@@ -100,10 +109,10 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
 
         return () => {
             if (window.Echo) {
-                window.Echo.leave('notifications');
+                window.Echo.leave('private-' + channelName);
             }
         };
-    }, [onNotification, onError]);
+    }, [onNotification, onError, user?.id]);
 
     return {
         echo: window.Echo,
