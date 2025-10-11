@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\ContributionRepositoryInterface;
 use App\Repositories\TagRepositoryInterface;
 use App\Services\NotificationServiceInterface;
+use App\Services\FileService;
 
 class ContributionService implements ContributionServiceInterface
 {
@@ -12,7 +13,8 @@ class ContributionService implements ContributionServiceInterface
     public function __construct(
         protected ContributionRepositoryInterface $contributionRepository,
         protected TagRepositoryInterface $tagRepository,
-        protected NotificationServiceInterface $notificationService
+        protected NotificationServiceInterface $notificationService,
+        protected FileService $fileService
     ) {}
 
     public function list(array $data = [])
@@ -30,6 +32,15 @@ class ContributionService implements ContributionServiceInterface
             }
             if (isset($data['is_public'])) {
                 $data['is_public'] = filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN);
+            }
+
+            // Handle file uploads
+            if (isset($data['thumbnail_url']) && $data['thumbnail_url'] instanceof \Illuminate\Http\UploadedFile) {
+                $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
+            }
+
+            if (isset($data['attachments']) && is_array($data['attachments'])) {
+                $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
             }
             
             $contribution = $this->contributionRepository->create($data);
@@ -53,6 +64,26 @@ class ContributionService implements ContributionServiceInterface
                 $data['content'] = json_encode($data['content']);
             }
 
+            // Get existing contribution to handle file deletions
+            $existingContribution = $this->contributionRepository->find($id);
+
+            // Handle file uploads and deletions
+            if (isset($data['thumbnail_url']) && $data['thumbnail_url'] instanceof \Illuminate\Http\UploadedFile) {
+                // Delete old thumbnail if exists
+                if ($existingContribution->thumbnail_url) {
+                    $this->fileService->deleteFile($existingContribution->thumbnail_url);
+                }
+                $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
+            }
+
+            if (isset($data['attachments']) && is_array($data['attachments'])) {
+                // Delete old attachments if they exist
+                if ($existingContribution->attachments) {
+                    $this->fileService->deleteFiles($existingContribution->attachments);
+                }
+                $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
+            }
+
             $contribution = $this->contributionRepository->update($id, $data);
 
             if (isset($data['tags'])) {
@@ -67,6 +98,18 @@ class ContributionService implements ContributionServiceInterface
     }    public function delete(int $id)
     {
         try {
+            // Get contribution to delete associated files
+            $contribution = $this->contributionRepository->find($id);
+            
+            // Delete associated files
+            if ($contribution->thumbnail_url) {
+                $this->fileService->deleteFile($contribution->thumbnail_url);
+            }
+            
+            if ($contribution->attachments) {
+                $this->fileService->deleteFiles($contribution->attachments);
+            }
+            
             return $this->contributionRepository->delete($id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

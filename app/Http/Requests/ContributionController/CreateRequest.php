@@ -29,6 +29,9 @@ class CreateRequest extends FormRequest
             'is_public' => 'boolean',
             'tags' => 'nullable|array',
             'tags.*' => 'nullable|string|max:255',
+            'thumbnail_url' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'attachments' => 'nullable|array|max:5',
+            'attachments.*' => 'nullable|file|mimes:png,jpg,jpeg,webp,pdf,xls,xlsx,doc,docx,txt|max:5120',
         ];
     }
 }
