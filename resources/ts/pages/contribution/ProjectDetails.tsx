@@ -110,8 +110,8 @@ const ProjectDetails: React.FC = () => {
         }
     };
 
-    const handleOpenThread = () => {
-        navigate(`/projects/${id}/thread`);
+    const handleOpenThread = (discussionId: number) => {
+        navigate(`/threads/${discussionId}`);
     };
 
     return (
@@ -372,7 +372,7 @@ const ProjectDetails: React.FC = () => {
                                         </Box>
                                         <Typography
                                             sx={{ fontSize: 12, color: '#1F8505', fontWeight: 600, cursor: 'pointer' }}
-                                            onClick={handleOpenThread}
+                                            onClick={() => handleOpenThread(d.id)}
                                         >
                                             Open Thread
                                         </Typography>

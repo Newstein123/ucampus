@@ -13,9 +13,10 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
-import { useDiscussions } from '../../hooks/useDiscussions';
 import { Discussion } from '../../types/discussion';
 import { authApi } from '../../api/auth';
+import { useLocation } from 'react-router-dom';
+import { discussionApi } from '../../api/discussion';
 
 // Helper function to format time ago
 const formatTimeAgo = (dateString: string): string => {
@@ -32,22 +33,50 @@ const formatTimeAgo = (dateString: string): string => {
 
 const Thread: React.FC = () => {
     const { t } = useTranslation();
-    const { id } = useParams<{ id: string }>();
+    const { id, discussionId } = useParams<{ id?: string; discussionId?: string }>();
+    const location = useLocation();
     const [newPost, setNewPost] = useState('');
     const [profileName, setProfileName] = useState<string>('');
+    const [parentDiscussion, setParentDiscussion] = useState<Discussion | null>(null);
+    const [threadDiscussions, setThreadDiscussions] = useState<Discussion[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    // Use the discussions hook
-    const {
-        discussions,
-        loading,
-        error,
-        createDiscussion,
-        updateInterest
-    } = useDiscussions({
-        contributionId: parseInt(id || '1'),
-        perPage: 20,
-        page: 1
-    });
+    // Determine discussion id from either new route /threads/:discussionId or legacy query param parent_id
+    const searchParams = new URLSearchParams(location.search);
+    const legacyParentId = searchParams.get('parent_id');
+    const resolvedParentId = discussionId || legacyParentId || null;
+
+    // Fetch thread discussions
+    useEffect(() => {
+        if (!resolvedParentId) return;
+
+        const parentIdNum = parseInt(resolvedParentId);
+        if (Number.isNaN(parentIdNum)) {
+            setError('Invalid thread id');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        discussionApi
+            .getResponses({ discussion_id: parentIdNum })
+            .then((response) => {
+                if (response.data.responses) {
+                    const parent = response.data.responses;
+                    setParentDiscussion(parent);
+                    setThreadDiscussions(parent.responses || []);
+                }
+            })
+            .catch((err) => {
+                console.error('Failed to fetch thread responses:', err);
+                setError('Failed to fetch thread');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [resolvedParentId]);
 
     useEffect(() => {
         authApi
@@ -58,22 +87,33 @@ const Thread: React.FC = () => {
 
     const handleLikePost = async (postId: number) => {
         try {
-            await updateInterest({ discussion_id: postId });
+            await discussionApi.updateInterest({ discussion_id: postId });
         } catch (err) {
             console.error('Failed to update interest:', err);
         }
     };
 
     const handlePostComment = async () => {
-        if (newPost.trim()) {
-            try {
-                await createDiscussion({
-                    content: newPost.trim(),
-                });
-                setNewPost('');
-            } catch (err) {
-                console.error('Failed to create discussion:', err);
+        if (!newPost.trim() || !resolvedParentId || !parentDiscussion) return;
+        const parentIdNum = parseInt(resolvedParentId);
+        if (Number.isNaN(parentIdNum)) return;
+        try {
+            await discussionApi.create({
+                content: newPost.trim(),
+                contribution_id: parentDiscussion.contribution_id,
+                parent_id: parentIdNum,
+            });
+            setNewPost('');
+
+            // Refresh thread discussions
+            const refreshed = await discussionApi.getResponses({ discussion_id: parentIdNum });
+            if (refreshed.data.responses) {
+                const parent = refreshed.data.responses;
+                setParentDiscussion(parent);
+                setThreadDiscussions(parent.responses || []);
             }
+        } catch (err) {
+            console.error('Failed to create discussion:', err);
         }
     };
 
@@ -87,57 +127,89 @@ const Thread: React.FC = () => {
             <Box sx={{ p: 2, pb: 0 }}>
                 {loading ? (
                     <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
-                        Loading discussions...
+                        Loading thread...
                     </Typography>
                 ) : error ? (
                     <Typography sx={{ textAlign: 'center', color: 'error.main', py: 2 }}>
                         Error: {error}
                     </Typography>
-                ) : discussions.length === 0 ? (
-                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
-                        No discussions yet. Be the first to comment!
-                    </Typography>
                 ) : (
-                    discussions.map((post, index) => (
-                        <Box key={post.id} sx={{ mb: 3 }}>
-                            <Box sx={{ display: 'flex', gap: 2 }}>
-                                <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
-                                    {post.user.profileName?.[0]?.toUpperCase() || post.user.username?.[0]?.toUpperCase() || 'U'}
-                                </Avatar>
-                                <Box sx={{ flex: 1 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                        <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
-                                            {post.user.profileName || post.user.username}
-                                        </Typography>
-                                        <Typography sx={{ color: '#888', fontSize: 12 }}>
-                                            Posted {formatTimeAgo(post.created_at)}
-                                        </Typography>
-                                    </Box>
-                                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
-                                        {post.content}
-                                    </Typography>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handleLikePost(post.id)}
-                                                sx={{ p: 0 }}
-                                            >
-                                                <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
-                                            </IconButton>
-                                            <Typography sx={{ fontSize: 12, color: '#666' }}>{post.interests}</Typography>
+                    <>
+                        {parentDiscussion && (
+                            <Box key={parentDiscussion.id} sx={{ mb: 4 }}>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                                        {parentDiscussion.user.profileName?.[0]?.toUpperCase() || parentDiscussion.user.username?.[0]?.toUpperCase() || 'U'}
+                                    </Avatar>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                            <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
+                                                {parentDiscussion.user.profileName || parentDiscussion.user.username}
+                                            </Typography>
+                                            <Typography sx={{ color: '#888', fontSize: 12 }}>
+                                                Posted {formatTimeAgo(parentDiscussion.created_at)}
+                                            </Typography>
                                         </Box>
-                                        {post.responses && post.responses.length > 0 && (
+                                        <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
+                                            {parentDiscussion.content}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
-                                                <Typography sx={{ fontSize: 12, color: '#666' }}>{post.responses.length}</Typography>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleLikePost(parentDiscussion.id)}
+                                                    sx={{ p: 0 }}
+                                                >
+                                                    <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                </IconButton>
+                                                <Typography sx={{ fontSize: 12, color: '#666' }}>{parentDiscussion.interests}</Typography>
                                             </Box>
-                                        )}
+                                        </Box>
                                     </Box>
                                 </Box>
                             </Box>
-                        </Box>
-                    ))
+                        )}
+                        {threadDiscussions.length === 0 ? (
+                            <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
+                                No replies yet. Be the first to reply!
+                            </Typography>
+                        ) : (
+                            threadDiscussions.map((post) => (
+                                <Box key={post.id} sx={{ mb: 3, ml: 4 }}>
+                                    <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                                            {post.user.profileName?.[0]?.toUpperCase() || post.user.username?.[0]?.toUpperCase() || 'U'}
+                                        </Avatar>
+                                        <Box sx={{ flex: 1 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                                <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
+                                                    {post.user.profileName || post.user.username}
+                                                </Typography>
+                                                <Typography sx={{ color: '#888', fontSize: 12 }}>
+                                                    Posted {formatTimeAgo(post.created_at)}
+                                                </Typography>
+                                            </Box>
+                                            <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
+                                                {post.content}
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleLikePost(post.id)}
+                                                        sx={{ p: 0 }}
+                                                    >
+                                                        <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                    </IconButton>
+                                                    <Typography sx={{ fontSize: 12, color: '#666' }}>{post.interests}</Typography>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            ))
+                        )}
+                    </>
                 )}
             </Box>
 
