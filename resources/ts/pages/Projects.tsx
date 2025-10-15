@@ -8,6 +8,7 @@ import { authApi } from '../api/auth';
 import { Contribution } from '../types/contribution';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
+import EmptyProjects from '../components/EmptyProjects';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -54,11 +55,11 @@ const Projects: React.FC = () => {
 
     return (
         <Layout>
-            <Box sx={{ px: 2, pt: 3, pb: 2 }}>
-                <Typography sx={{ fontWeight: 700, fontSize: 18, textAlign: 'center', mb: 3 }}>Projects</Typography>
-                <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Your own projects</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: 18, textAlign: 'center', mb: 3 }}>Projects</Typography>
+            <Box sx={{ px: 2, pt: 3, pb: 2, alignItems: 'center', justifyContent: 'center'}}>
+                
                 {ownProjects.length === 0 ? (
-                    <Typography sx={{ color: '#777', mb: 2 }}>No projects yet.</Typography>
+                    <EmptyProjects />
                 ) : (
                     ownProjects.map((p) => (
                         <ProjectCard key={p.id} id={p.id} title={p.title} subtitle={p.content?.description || ''} image={p.thumbnail_url || DEFAULT_IMAGE} />
