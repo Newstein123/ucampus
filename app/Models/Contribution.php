@@ -20,11 +20,13 @@ class Contribution extends Model
         'status',
         'views_count',
         'thumbnail_url',
+        'attachments',
         'likes_count'
     ];
 
     protected $casts = [
         'content' => 'array',
+        'attachments' => 'array',
         'views_count' => 'integer',
         'likes_count' => 'integer',
         'allow_collab' => 'boolean',
