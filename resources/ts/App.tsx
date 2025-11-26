@@ -237,6 +237,14 @@ const App: React.FC = () => {
                                                 </ProtectedRoute>
                                             }
                                         />
+                                        <Route
+                                            path="/threads/:discussionId"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Thread />
+                                                </ProtectedRoute>
+                                            }
+                                        />
                                         <Route path="*" element={<Navigate to="/" replace />} />
                                     </Routes>
                                 </BrowserRouter>
