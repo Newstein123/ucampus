@@ -20,7 +20,21 @@ class ContributionResource extends JsonResource
 
         // Get full URLs for files
         $thumbnailUrl = $this->thumbnail_url ? $fileService->getFileUrl($this->thumbnail_url) : null;
-        $attachmentUrls = $this->attachments ? $fileService->getFileUrls($this->attachments) : [];
+        
+        // Legacy attachments from JSON field
+        $legacyAttachmentUrls = $this->attachments ? $fileService->getFileUrls($this->attachments) : [];
+        
+        // New attachments from contribution_attachments table
+        $newAttachments = $this->contributionAttachments->map(function ($attachment) {
+            return [
+                'id' => $attachment->id,
+                'url' => $attachment->url,
+                'path' => $attachment->file_path,
+                'name' => $attachment->file_name,
+                'type' => $attachment->file_type,
+                'size' => $attachment->file_size,
+            ];
+        })->toArray();
 
         return [
             'id' => $this->id,
@@ -35,7 +49,13 @@ class ContributionResource extends JsonResource
             'likes_count' => $this->interests_count,
             'is_interested' => $user ? $this->interests()->where('user_id', $user->id)->exists() : false,
             'thumbnail_url' => $thumbnailUrl,
-            'attachments' => $attachmentUrls,
+            
+            // Legacy attachments (for backward compatibility)
+            'attachments' => $legacyAttachmentUrls,
+            
+            // New attachments with metadata
+            'attachment_files' => $newAttachments,
+            
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

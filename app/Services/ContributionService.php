@@ -34,20 +34,46 @@ class ContributionService implements ContributionServiceInterface
                 $data['is_public'] = filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN);
             }
 
-            // Handle file uploads
+            // Handle file uploads (backward compatibility)
             if (isset($data['thumbnail_url']) && $data['thumbnail_url'] instanceof \Illuminate\Http\UploadedFile) {
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
 
-            if (isset($data['attachments']) && is_array($data['attachments'])) {
-                $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
+            // Handle old attachments array (backward compatibility)
+            if (isset($data['attachments']) && is_array($data['attachments']) && !empty($data['attachments'])) {
+                $firstAttachment = $data['attachments'][0] ?? null;
+                if ($firstAttachment instanceof \Illuminate\Http\UploadedFile) {
+                    $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
+                }
             }
             
+            // Extract attachment_paths before creating contribution
+            $attachmentPaths = $data['attachment_paths'] ?? [];
+            unset($data['attachment_paths']);
+            
             $contribution = $this->contributionRepository->create($data);
+            
+            // Handle tags
             if (isset($data['tags'])) {
                 $tagIds = $this->tagRepository->createMany($data['tags']);
                 $contribution->tags()->attach($tagIds);
             }
+            
+            // Create attachment records from paths
+            if (!empty($attachmentPaths) && is_array($attachmentPaths)) {
+                foreach ($attachmentPaths as $attachmentData) {
+                    if (is_array($attachmentData) && isset($attachmentData['path'])) {
+                        \App\Models\ContributionAttachment::create([
+                            'contribution_id' => $contribution->id,
+                            'file_path' => $attachmentData['path'],
+                            'file_name' => $attachmentData['name'] ?? basename($attachmentData['path']),
+                            'file_type' => $attachmentData['type'] ?? null,
+                            'file_size' => $attachmentData['size'] ?? null,
+                        ]);
+                    }
+                }
+            }
+            
             return $contribution;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
@@ -174,5 +200,32 @@ class ContributionService implements ContributionServiceInterface
     public function listBookmarks(int $userId, ?string $type = null, int $perPage = 10, int $page = 1)
     {
         return $this->contributionRepository->listBookmarks($userId, $type, $perPage, $page);
+    }
+
+    /**
+     * Upload a single attachment file to MinIO
+     * 
+     * @param \Illuminate\Http\UploadedFile $file
+     * @return array ['url' => string, 'path' => string, 'name' => string, 'type' => string, 'size' => int]
+     */
+    public function uploadAttachment($file): array
+    {
+        try {
+            // Upload file to MinIO and get relative path
+            $relativePath = $this->fileService->uploadFile($file, 'contributions/attachments');
+            
+            // Get full URL
+            $fullUrl = $this->fileService->getFileUrl($relativePath);
+            
+            return [
+                'url' => $fullUrl,
+                'path' => $relativePath,
+                'name' => $file->getClientOriginalName(),
+                'type' => $file->getMimeType(),
+                'size' => $file->getSize(),
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to upload attachment: ' . $e->getMessage());
+        }
     }
 }

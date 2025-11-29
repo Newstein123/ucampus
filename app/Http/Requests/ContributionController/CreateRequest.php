@@ -30,8 +30,17 @@ class CreateRequest extends FormRequest
             'tags' => 'nullable|array',
             'tags.*' => 'nullable|string|max:255',
             'thumbnail_url' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            
+            // Support both old and new attachment methods
             'attachments' => 'nullable|array|max:5',
             'attachments.*' => 'nullable|file|mimes:png,jpg,jpeg,webp,pdf,xls,xlsx,doc,docx,txt|max:5120',
+            
+            // New attachment_paths for pre-uploaded files
+            'attachment_paths' => 'nullable|array|max:5',
+            'attachment_paths.*.path' => 'required|string',
+            'attachment_paths.*.name' => 'required|string',
+            'attachment_paths.*.type' => 'nullable|string',
+            'attachment_paths.*.size' => 'nullable|integer',
         ];
     }
 }

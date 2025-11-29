@@ -63,4 +63,12 @@ class Contribution extends Model
         return $this->belongsToMany(User::class, 'contribution_bookmarks', 'contribution_id', 'user_id')
             ->withTimestamps();
     }
+
+    /**
+     * Get the attachments for the contribution
+     */
+    public function contributionAttachments()
+    {
+        return $this->hasMany(ContributionAttachment::class);
+    }
 }

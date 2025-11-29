@@ -7,6 +7,7 @@ use App\Http\Requests\ContributionController\ListRequest;
 use App\Http\Requests\ContributionController\CreateRequest;
 use App\Http\Requests\ContributionController\InterestRequest;
 use App\Http\Requests\ContributionController\ShowRequest;
+use App\Http\Requests\ContributionController\UploadAttachmentRequest;
 use App\Http\Resources\ContributionResource;
 use App\Http\Requests\Api\UpdateContributionRequest;
 use App\Http\Requests\Api\DeleteContributionRequest;
@@ -69,5 +70,18 @@ class ContributionController extends Controller
     {
         $this->contributionService->delete($id);
         return $this->response(null, 'Contribution deleted successfully');
+    }
+
+    /**
+     * Upload a single attachment file
+     * 
+     * @param UploadAttachmentRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function uploadAttachment(UploadAttachmentRequest $request)
+    {
+        $file = $request->file('file');
+        $result = $this->contributionService->uploadAttachment($file);
+        return $this->response($result, 'Attachment uploaded successfully');
     }
 }
