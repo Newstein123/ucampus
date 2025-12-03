@@ -5,6 +5,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Avatar, Box, Card, CardContent, CardMedia, CircularProgress, Divider, IconButton, Tab, Tabs, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
@@ -19,6 +20,7 @@ const Home: React.FC = () => {
     const [tab, setTab] = useState(0);
     const type = tab === 0 ? undefined : tabLabels[tab].toLowerCase();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useContributionListInfiniteQuery({ type, perPage: 10 });
 
@@ -39,6 +41,32 @@ const Home: React.FC = () => {
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
 
+    const getContributionTitle = (item: any) => {
+        switch (item?.type) {
+            case 'idea':
+                return item?.title;
+            case 'question':
+                return item?.content?.question || item?.title;
+            case 'project':
+                return item?.title;
+            default:
+                return item?.title;
+        }
+    };
+
+    const getContributionDescription = (item: any) => {
+        switch (item?.type) {
+            case 'idea':
+                return item?.content?.description;
+            case 'question':
+                return item?.content?.answer;
+            case 'project':
+                return item?.content?.description;
+            default:
+                return item?.content?.description ?? '';
+        }
+    };
+
     const handleTabChange = (_: any, idx: number) => {
         setTab(idx);
     };
@@ -51,6 +79,17 @@ const Home: React.FC = () => {
 
     const handleInterest = (contributionId: number) => {
         interestMutation.mutate(contributionId);
+    };
+
+    const navigateToDetails = (id: number, contributionType: string) => {
+        if (contributionType === 'idea') {
+            navigate(`/ideas/${id}`);
+        } else if (contributionType === 'question') {
+            navigate(`/questions/${id}`);
+        } else {
+            // Fallback to project details if type is project or unknown
+            navigate(`/projects/${id}`);
+        }
     };
 
     const handleHomeRestart = useCallback(() => {
@@ -106,18 +145,21 @@ const Home: React.FC = () => {
                     <Card key={item.id} sx={{ mb: 3, boxShadow: 0, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0' }}>
                         <CardContent sx={{ pb: 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <Avatar sx={{ bgcolor: '#48b74d', width: 32, height: 32, mr: 1 }}>{item.user.name[0]}</Avatar>
-                                <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
-                                    {item.type === 'idea' ? item.title : item.content.question}
-                                </Typography>
+                                <Avatar sx={{ bgcolor: '#48b74d', width: 32, height: 32, mr: 1 }}>{item?.user?.name?.[0] || 'U'}</Avatar>
+                                <Box>
+                                    <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+                                        {getContributionTitle(item)}
+                                    </Typography>
+                                    <Typography sx={{ color: '#666', fontSize: 12 }}>{item?.user?.name}</Typography>
+                                </Box>
                             </Box>
                             {/* Created at time */}
                             <Typography sx={{ color: '#aaa', fontSize: 12, mb: 0.5, ml: 5 }}>{item.created_at}</Typography>
                             <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>
-                                {item.type === 'idea' ? item.content.description : item.content.answer}
+                                {getContributionDescription(item)}
                             </Typography>
                         </CardContent>
-                        {item.type === 'idea' && item.thumbnail_url && (
+                        {(item.type === 'idea' || item.type === 'project') && item.thumbnail_url && (
                             <CardMedia
                                 component="img"
                                 image={item.thumbnail_url}
@@ -156,6 +198,25 @@ const Home: React.FC = () => {
                                         display: 'inline-block',
                                         ':hover': { textDecoration: 'underline' },
                                     }}
+                                    onClick={() => navigateToDetails(item.id, item.type)}
+                                >
+                                    ... See details
+                                </Typography>
+                            </Box>
+                        )}
+                        {/* Details link for Question type */}
+                        {item.type === 'question' && (
+                            <Box sx={{ px: 2, pb: 1 }}>
+                                <Typography
+                                    sx={{
+                                        color: '#1F8505',
+                                        fontWeight: 600,
+                                        fontSize: 14,
+                                        cursor: 'pointer',
+                                        display: 'inline-block',
+                                        ':hover': { textDecoration: 'underline' },
+                                    }}
+                                    onClick={() => navigateToDetails(item.id, item.type)}
                                 >
                                     ... See details
                                 </Typography>
@@ -180,7 +241,7 @@ const Home: React.FC = () => {
                                 )}
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.likes_count}</Typography>
-                            <IconButton size="small">
+                            <IconButton size="small" onClick={() => navigateToDetails(item.id, item.type)}>
                                 <ChatBubbleOutlineIcon fontSize="small" />
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.views_count}</Typography>

@@ -5,6 +5,7 @@ import SendIcon from '@mui/icons-material/Send';
 import {
     Avatar,
     Box,
+    Divider,
     IconButton,
     TextField,
     Typography,
@@ -23,7 +24,7 @@ const formatTimeAgo = (dateString: string): string => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (diffInSeconds < 60) return 'Just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
@@ -164,18 +165,23 @@ const Thread: React.FC = () => {
                                                 </IconButton>
                                                 <Typography sx={{ fontSize: 12, color: '#666' }}>{parentDiscussion.interests}</Typography>
                                             </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                <Typography sx={{ fontSize: 12, color: '#666' }}>{threadDiscussions.length}</Typography>
+                                            </Box>
                                         </Box>
                                     </Box>
                                 </Box>
                             </Box>
                         )}
+                        <Divider sx={{ my: 2 }} />
                         {threadDiscussions.length === 0 ? (
                             <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
                                 No replies yet. Be the first to reply!
                             </Typography>
                         ) : (
                             threadDiscussions.map((post) => (
-                                <Box key={post.id} sx={{ mb: 3, ml: 4 }}>
+                                <Box key={post.id} sx={{ mb: 3 }}>
                                     <Box sx={{ display: 'flex', gap: 2 }}>
                                         <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
                                             {post.user.profileName?.[0]?.toUpperCase() || post.user.username?.[0]?.toUpperCase() || 'U'}
