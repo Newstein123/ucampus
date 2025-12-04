@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Discussion;
+use Illuminate\Database\Seeder;
 
 class DiscussionSeeder extends Seeder
 {
@@ -18,7 +18,7 @@ class DiscussionSeeder extends Seeder
                 ->count(rand(1, 3))
                 ->create([
                     'contribution_id' => $parent->contribution_id,
-                    'parent_id'       => $parent->id,
+                    'parent_id' => $parent->id,
                 ]);
 
             $children->each(function ($child) {
@@ -26,7 +26,7 @@ class DiscussionSeeder extends Seeder
                     Discussion::factory()
                         ->create([
                             'contribution_id' => $child->contribution_id,
-                            'parent_id'       => $child->id,
+                            'parent_id' => $child->id,
                         ]);
                 }
             });

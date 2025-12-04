@@ -1,13 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { discussionApi } from '../api/discussion';
-import { 
-    Discussion, 
-    DiscussionListRequest, 
-    CreateDiscussionRequest, 
-    UpdateDiscussionRequest,
-    DeleteDiscussionRequest,
-    InterestUpdateRequest
-} from '../types/discussion';
+import { CreateDiscussionRequest, DeleteDiscussionRequest, Discussion, InterestUpdateRequest, UpdateDiscussionRequest } from '../types/discussion';
 
 interface UseDiscussionsOptions {
     contributionId: number;
@@ -34,7 +27,7 @@ interface UseDiscussionsReturn {
 
 export const useDiscussions = (options: UseDiscussionsOptions): UseDiscussionsReturn => {
     const { contributionId, perPage = 10, page = 1 } = options;
-    
+
     const [discussions, setDiscussions] = useState<Discussion[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -48,14 +41,14 @@ export const useDiscussions = (options: UseDiscussionsOptions): UseDiscussionsRe
     const fetchDiscussions = useCallback(async () => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const response = await discussionApi.list({
                 contribution_id: contributionId,
                 per_page: perPage,
-                page: page
+                page: page,
             });
-            
+
             setDiscussions(response.data.discussions);
             setPagination(response.data.pagination);
         } catch (err) {
@@ -65,33 +58,30 @@ export const useDiscussions = (options: UseDiscussionsOptions): UseDiscussionsRe
         }
     }, [contributionId, perPage, page]);
 
-    const createDiscussion = useCallback(async (data: Omit<CreateDiscussionRequest, 'contribution_id'>) => {
-        try {
-            const response = await discussionApi.create({
-                ...data,
-                contribution_id: contributionId
-            });
-            
-            // Add the new discussion to the list
-            setDiscussions(prev => [response.data.discussions, ...prev]);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to create discussion');
-            throw err;
-        }
-    }, [contributionId]);
+    const createDiscussion = useCallback(
+        async (data: Omit<CreateDiscussionRequest, 'contribution_id'>) => {
+            try {
+                const response = await discussionApi.create({
+                    ...data,
+                    contribution_id: contributionId,
+                });
+
+                // Add the new discussion to the list
+                setDiscussions((prev) => [response.data.discussions, ...prev]);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to create discussion');
+                throw err;
+            }
+        },
+        [contributionId],
+    );
 
     const updateDiscussion = useCallback(async (data: UpdateDiscussionRequest) => {
         try {
             const response = await discussionApi.update(data);
-            
+
             // Update the discussion in the list
-            setDiscussions(prev => 
-                prev.map(discussion => 
-                    discussion.id === data.discussion_id 
-                        ? response.data.discussion 
-                        : discussion
-                )
-            );
+            setDiscussions((prev) => prev.map((discussion) => (discussion.id === data.discussion_id ? response.data.discussion : discussion)));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to update discussion');
             throw err;
@@ -101,11 +91,9 @@ export const useDiscussions = (options: UseDiscussionsOptions): UseDiscussionsRe
     const deleteDiscussion = useCallback(async (data: DeleteDiscussionRequest) => {
         try {
             await discussionApi.delete(data);
-            
+
             // Remove the discussion from the list
-            setDiscussions(prev => 
-                prev.filter(discussion => discussion.id !== data.discussion_id)
-            );
+            setDiscussions((prev) => prev.filter((discussion) => discussion.id !== data.discussion_id));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete discussion');
             throw err;
@@ -115,14 +103,12 @@ export const useDiscussions = (options: UseDiscussionsOptions): UseDiscussionsRe
     const updateInterest = useCallback(async (data: InterestUpdateRequest) => {
         try {
             await discussionApi.updateInterest(data);
-            
+
             // Update the interests count in the discussion
-            setDiscussions(prev => 
-                prev.map(discussion => 
-                    discussion.id === data.discussion_id 
-                        ? { ...discussion, interests: discussion.interests + 1 }
-                        : discussion
-                )
+            setDiscussions((prev) =>
+                prev.map((discussion) =>
+                    discussion.id === data.discussion_id ? { ...discussion, interests: discussion.interests + 1 } : discussion,
+                ),
             );
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to update interest');
@@ -147,7 +133,6 @@ export const useDiscussions = (options: UseDiscussionsOptions): UseDiscussionsRe
         updateDiscussion,
         deleteDiscussion,
         updateInterest,
-        refreshDiscussions
+        refreshDiscussions,
     };
 };
-

@@ -21,13 +21,6 @@ const ideaStep2Schema = z.object({
     solution: z.string().min(1, 'Solution is required'),
     impact: z.string().min(1, 'Impact is required'),
 });
-const ideaStep3Schema = z.object({
-    resources: z.string().min(1, 'Resources needed is required'),
-    attachments: z.array(z.any()).optional(),
-    tags: z.array(z.string()).optional(),
-    allowContributions: z.boolean(),
-    publicVisibility: z.boolean(),
-});
 
 const defaultValues: IdeaForm = {
     thumbnail: null,
@@ -107,7 +100,7 @@ const ProjectCreate: React.FC = () => {
     const handleRemoveAttachment = (idx: number) => {
         setValue(
             'attachments',
-            (getValues('attachments') || []).filter((_: any, i: number) => i !== idx),
+            (getValues('attachments') || []).filter((_attachment: File, i: number) => i !== idx),
         );
     };
 
@@ -118,7 +111,7 @@ const ProjectCreate: React.FC = () => {
             setActiveStep(1);
         } else {
             result.error.errors.forEach((err) => {
-                setError(err.path[0] as any, { message: err.message });
+                setError(err.path[0] as keyof IdeaForm, { message: err.message });
             });
         }
     };
@@ -128,7 +121,7 @@ const ProjectCreate: React.FC = () => {
             setActiveStep(2);
         } else {
             result.error.errors.forEach((err) => {
-                setError(err.path[0] as any, { message: err.message });
+                setError(err.path[0] as keyof IdeaForm, { message: err.message });
             });
         }
     };
@@ -415,7 +408,7 @@ const ProjectCreate: React.FC = () => {
                     },
                 }}
             >
-                {steps.map((label, idx) => (
+                {steps.map((label) => (
                     <Step key={label}>
                         <StepLabel>{label}</StepLabel>
                     </Step>

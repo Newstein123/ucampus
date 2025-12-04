@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\Api;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Repositories\CollaborationRepositoryInterface;
 use App\Repositories\ContributionRepositoryInterface;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CollaborationRequest extends FormRequest
 {
@@ -32,7 +32,7 @@ class CollaborationRequest extends FormRequest
     {
         return [
             'contribution_id' => 'required|exists:contributions,id',
-            'reason' => 'required|string|min:10|max:500'
+            'reason' => 'required|string|min:10|max:500',
         ];
     }
 
@@ -62,8 +62,9 @@ class CollaborationRequest extends FormRequest
 
             // Verify the contribution exists and allows collaboration
             $contribution = $this->contributionRepository->findById($contributionId);
-            if (!$contribution || !$contribution['allow_collab']) {
+            if (! $contribution || ! $contribution['allow_collab']) {
                 $validator->errors()->add('contribution_id', 'Contribution does not allow collaboration');
+
                 return;
             }
 
@@ -87,7 +88,7 @@ class CollaborationRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

@@ -16,11 +16,11 @@ class ContributionParticipant extends Model
         'reason',
         'response',
         'status',
-        'joined_at'
+        'joined_at',
     ];
 
     protected $casts = [
-        'joined_at' => 'datetime'
+        'joined_at' => 'datetime',
     ];
 
     public function contribution(): BelongsTo
@@ -32,4 +32,4 @@ class ContributionParticipant extends Model
     {
         return $this->belongsTo(User::class);
     }
-} 
+}

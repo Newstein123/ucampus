@@ -1,4 +1,4 @@
-import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Radio, Typography } from '@mui/material';
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Radio, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SinglePageLayout from '../../components/SinglePageLayout';

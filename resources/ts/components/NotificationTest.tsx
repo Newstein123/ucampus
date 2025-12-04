@@ -1,4 +1,4 @@
-import { Button, Box, Typography, Paper } from '@mui/material';
+import { Button, Paper, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { apiClient } from '../api/client';
 import { endpoints } from '../api/endpoints';
@@ -32,7 +32,7 @@ const NotificationTest: React.FC = () => {
                 sx={{
                     bgcolor: '#1F8505',
                     mb: 2,
-                    '&:hover': { bgcolor: '#1a7a04' }
+                    '&:hover': { bgcolor: '#1a7a04' },
                 }}
             >
                 {isLoading ? 'Sending...' : 'Send Test Notification'}

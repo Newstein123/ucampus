@@ -6,11 +6,12 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import useUserLogoutMutation from '../hooks/auth/useUserLogoutMutation';
 import useUserProfileQuery from '../hooks/auth/useUserProfileQuery';
+import { AppDispatch } from '../store';
 import { logout } from '../store/slices/authSlice';
 
 const MyProfile: React.FC = () => {
     const { t } = useTranslation();
-    const dispatch = useDispatch<any>();
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const userLogoutMutation = useUserLogoutMutation();
     const { data: user } = useUserProfileQuery();

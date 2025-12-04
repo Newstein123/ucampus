@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\CollaborationServiceInterface;
 use App\Http\Requests\Api\CollaborationRequest;
-use Illuminate\Http\Request;
+use App\Services\CollaborationServiceInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CollaborationController extends Controller
 {
@@ -28,11 +28,11 @@ class CollaborationController extends Controller
 
             return response()->json([
                 'message' => 'Request sent successfully',
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -43,13 +43,13 @@ class CollaborationController extends Controller
     public function action(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:0,1,2'
+            'status' => 'required|in:0,1,2',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -58,11 +58,11 @@ class CollaborationController extends Controller
 
             return response()->json([
                 'message' => 'Success',
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -74,13 +74,13 @@ class CollaborationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'status' => 'nullable|in:0,1,2',
-            'user_id' => 'nullable|exists:users,id'
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -93,12 +93,12 @@ class CollaborationController extends Controller
             return response()->json([
                 'message' => 'Success',
                 'data' => [
-                    'collaborations' => $collaborations
-                ]
+                    'collaborations' => $collaborations,
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }

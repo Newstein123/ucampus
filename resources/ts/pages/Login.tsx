@@ -8,15 +8,15 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../api/client';
 import { ErrorResponse } from '../hooks';
-import useUserLoginMutation from '../hooks/auth/useUserLoginMuatation';
 import useSocialAuthQuery from '../hooks/auth/useSocialAuthQuery';
+import useUserLoginMutation from '../hooks/auth/useUserLoginMuatation';
 import { usePWANavigation } from '../hooks/usePWANavigation';
 import { loginSchema, type LoginFormData } from '../schemas/auth';
 import { setUser } from '../store/slices/authSlice';
 import { LoginUser } from '../types/auth';
 import { addPWAMetaTags } from '../utils/pwa';
-import { apiClient } from '../api/client';
 
 const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -162,11 +162,7 @@ const Login: React.FC = () => {
             const top = window.screenY + (window.outerHeight - height) / 2;
 
             // Open popup window
-            const popup = window.open(
-                authUrl,
-                'socialAuth',
-                `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
-            );
+            const popup = window.open(authUrl, 'socialAuth', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
 
             if (popup) {
                 // Use a more reliable approach that doesn't rely on window.closed
@@ -248,7 +244,6 @@ const Login: React.FC = () => {
                         localStorage.removeItem('social_auth_token');
                         localStorage.removeItem('social_auth_user');
 
-                        const { apiClient } = require('../api/client');
                         apiClient.setAuthToken(token);
 
                         try {
@@ -292,7 +287,6 @@ const Login: React.FC = () => {
                     window.removeEventListener('storage', handleStorageChange);
                     cleanup();
                 }, 300000);
-
             } else {
                 // Popup blocked, fallback to redirect
                 console.log('Popup blocked, using redirect fallback');

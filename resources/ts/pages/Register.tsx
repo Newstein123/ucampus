@@ -33,7 +33,7 @@ const Register: React.FC = () => {
         mode: 'onTouched',
     });
 
-    const handleStep1 = (data: Step1Form) => {
+    const handleStep1 = () => {
         setStep(2);
     };
 
