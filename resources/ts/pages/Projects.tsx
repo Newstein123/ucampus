@@ -1,8 +1,14 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, CardMedia, IconButton, Paper, Typography } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { authApi } from '../api/auth';
+import { contributionApi } from '../api/contribution';
+import EmptyProjects from '../components/EmptyProjects';
 import Layout from '../components/Layout';
+import { selectUser } from '../store/slices/authSlice';
+import { Contribution } from '../types/contribution';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
