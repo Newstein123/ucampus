@@ -37,7 +37,7 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                     position: 'sticky',
                     top: 0,
                     bgcolor: bgColor,
-                    zIndex: 10
+                    zIndex: 10,
                 }}
             >
                 {showBackButton ? (
@@ -52,22 +52,16 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                         color: '#222',
                         flex: 1,
                         textAlign: 'center',
-                        mr: showBackButton ? 4 : 0
+                        mr: showBackButton ? 4 : 0,
                     }}
                 >
                     {title}
                 </Typography>
-                {rightElement && (
-                    <Box sx={{ width: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {rightElement}
-                    </Box>
-                )}
+                {rightElement && <Box sx={{ width: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{rightElement}</Box>}
             </Box>
 
             {/* Content */}
-            <Box sx={{ bgcolor: contentBgColor, minHeight: 'calc(100vh - 60px)' }}>
-                {children}
-            </Box>
+            <Box sx={{ bgcolor: contentBgColor, minHeight: 'calc(100vh - 60px)' }}>{children}</Box>
         </Box>
     );
 };

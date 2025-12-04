@@ -30,7 +30,7 @@ class LoginRequest extends FormRequest
     public function after(): array
     {
         return [
-            new CredentialsCheck($this->input('login'), $this->input('password'))
+            new CredentialsCheck($this->input('login'), $this->input('password')),
         ];
     }
 }

@@ -4,7 +4,6 @@ namespace App\Http\Requests\ContributionController;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class BookmarkRequest extends FormRequest
 {
@@ -31,7 +30,7 @@ class BookmarkRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return;
             }
 
@@ -45,11 +44,9 @@ class BookmarkRequest extends FormRequest
                 $validator->errors()->add('contribution_id', 'Contribution already bookmarked.');
             }
 
-            if ($this->isMethod('delete') && !$hasBookmark) {
+            if ($this->isMethod('delete') && ! $hasBookmark) {
                 $validator->errors()->add('contribution_id', 'Bookmark does not exist.');
             }
         });
     }
 }
-
-

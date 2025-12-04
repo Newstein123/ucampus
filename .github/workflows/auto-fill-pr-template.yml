@@ -1,0 +1,86 @@
+name: Auto Fill PR Template with AI
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  autofill-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v46
+
+      - name: Generate and Update PR description with AI
+        uses: actions/github-script@v7
+        env:
+          # yamllint disable-line rule:truthy
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CHANGED_FILES: ${{ steps.files.outputs.all_changed_files }}
+        with:
+          script: |
+            const changedFiles = process.env.CHANGED_FILES || '';
+
+            if (!changedFiles) {
+              console.log('No changed files found');
+              return;
+            }
+
+            const template = `📌 What does this PR do?
+            {{summary}}
+
+            📝 Changes made
+            {{changes}}
+
+            ✅ How to test
+            {{testing}}
+
+            📸 Screenshots (if UI changes)
+            N/A`;
+
+            const prompt = `Fill in the template based on these changed files: ${changedFiles}. Use short, concise, developer-style explanations. Template:\n${template}`;
+
+            // Call OpenAI API
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.7
+              })
+            });
+
+            if (!response.ok) {
+              console.error('OpenAI API error:', await response.text());
+              return;
+            }
+
+            const data = await response.json();
+            const description = data.choices[0]?.message?.content;
+
+            if (!description) {
+              console.log('Failed to generate PR description');
+              return;
+            }
+
+            // Update PR description
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: description
+            });
+
+            console.log('PR description updated successfully');

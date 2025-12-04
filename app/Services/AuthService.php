@@ -2,18 +2,16 @@
 
 namespace App\Services;
 
-use Illuminate\Http\UploadedFile;
+use App\Jobs\SendResetPasswordEmail;
+use App\Models\SocialAccount;
 use App\Repositories\UserRepository;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Queue;
-use App\Jobs\SendResetPasswordEmail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use App\Models\SocialAccount;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthService implements AuthServiceInterface
 {
@@ -57,14 +55,15 @@ class AuthService implements AuthServiceInterface
     {
         try {
             $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+
             return [
-                'url' => $url
+                'url' => $url,
             ];
         } catch (\Exception $e) {
             \Log::error('AuthService socialLogin ERROR', [
                 'provider' => $provider,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -78,7 +77,7 @@ class AuthService implements AuthServiceInterface
             $user = $this->users->findByEmail($socialUser->getEmail());
             $isNewUser = false;
 
-            if (!$user) {
+            if (! $user) {
                 // Use full email as username
                 $username = $socialUser->getEmail();
                 $user = $this->users->create([
@@ -94,7 +93,7 @@ class AuthService implements AuthServiceInterface
             } else {
                 \Log::info('AuthService socialLoginCallback EXISTING USER FOUND', [
                     'user_id' => $user->id,
-                    'email' => $user->email
+                    'email' => $user->email,
                 ]);
             }
             // Update or create social account
@@ -115,18 +114,18 @@ class AuthService implements AuthServiceInterface
             $user->last_login_at = now();
             $user->save();
 
-            $token = $user->createToken($provider . '-login')->plainTextToken;
+            $token = $user->createToken($provider.'-login')->plainTextToken;
 
             $result = [
                 'user' => $user,
                 'token' => $token,
-                'first_login' => $isNewUser || !$user->last_login_at,
+                'first_login' => $isNewUser || ! $user->last_login_at,
             ];
 
             \Log::info('AuthService socialLoginCallback SUCCESS', [
                 'user_id' => $user->id,
-                'has_token' => !empty($token),
-                'first_login' => $result['first_login']
+                'has_token' => ! empty($token),
+                'first_login' => $result['first_login'],
             ]);
 
             return $result;
@@ -134,7 +133,7 @@ class AuthService implements AuthServiceInterface
             \Log::error('AuthService socialLoginCallback ERROR', [
                 'provider' => $provider,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -144,6 +143,7 @@ class AuthService implements AuthServiceInterface
     {
         try {
             $user->currentAccessToken()->delete();
+
             return [
                 'success' => true,
                 'message' => 'Logout successful',
@@ -160,6 +160,7 @@ class AuthService implements AuthServiceInterface
     public function profile()
     {
         $user = Auth::user();
+
         return $user;
     }
 
@@ -183,22 +184,22 @@ class AuthService implements AuthServiceInterface
     {
         $user = $this->users->findByEmail($email);
 
-        if (!$user) {
+        if (! $user) {
             return [
                 'success' => false,
                 'message' => 'User not found',
-                'data' => null
+                'data' => null,
             ];
         }
 
         $token = Password::createToken($user);
-        $resetUrl = env('RESET_PASSWORD_URL') . '?token=' . $token . '&email=' . urlencode($email);
+        $resetUrl = env('RESET_PASSWORD_URL').'?token='.$token.'&email='.urlencode($email);
 
         // Log the reset URL for debugging
         \Illuminate\Support\Facades\Log::info('Forgot password request', [
             'user_email' => $email,
             'reset_url' => $resetUrl,
-            'env_reset_url' => env('RESET_PASSWORD_URL')
+            'env_reset_url' => env('RESET_PASSWORD_URL'),
         ]);
 
         SendResetPasswordEmail::dispatch($user, $resetUrl);
@@ -206,7 +207,7 @@ class AuthService implements AuthServiceInterface
         return [
             'success' => true,
             'message' => 'Reset Url Send Successfully',
-            'data' => ['reset_url' => $resetUrl]
+            'data' => ['reset_url' => $resetUrl],
         ];
     }
 
@@ -217,7 +218,7 @@ class AuthService implements AuthServiceInterface
                 'email' => $email,
                 'token' => $token,
                 'password' => $password,
-                'password_confirmation' => $password
+                'password_confirmation' => $password,
             ],
             function ($user, $password) {
                 $user->password = Hash::make($password);
@@ -229,14 +230,14 @@ class AuthService implements AuthServiceInterface
             return [
                 'success' => true,
                 'message' => 'Password Reset Successfully',
-                'data' => null
+                'data' => null,
             ];
         }
 
         return [
             'success' => false,
             'message' => __($status),
-            'data' => null
+            'data' => null,
         ];
     }
 }

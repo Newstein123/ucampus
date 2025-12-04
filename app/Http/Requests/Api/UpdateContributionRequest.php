@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Api;
 
 use App\Models\Contribution;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateContributionRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class UpdateContributionRequest extends FormRequest
         $contributionId = $this->route('id');
         $contribution = Contribution::find($contributionId);
 
-        if (!$contribution) {
+        if (! $contribution) {
             return false;
         }
 
@@ -26,17 +26,17 @@ class UpdateContributionRequest extends FormRequest
         $contributionId = $this->route('id');
         $contribution = Contribution::find($contributionId);
 
-        if (!$contribution) {
+        if (! $contribution) {
             throw new HttpResponseException(
                 response()->json([
-                    'message' => 'Contribution not found'
+                    'message' => 'Contribution not found',
                 ], 404)
             );
         }
 
         throw new HttpResponseException(
             response()->json([
-                'message' => 'You are not authorized to update this contribution'
+                'message' => 'You are not authorized to update this contribution',
             ], 403)
         );
     }
@@ -54,7 +54,7 @@ class UpdateContributionRequest extends FormRequest
             'attachments' => 'nullable|array|max:5',
             'attachments.*' => 'nullable|file|mimes:png,jpg,jpeg,webp,pdf,xls,xlsx,doc,docx,txt|max:5120',
             'tags' => 'nullable|array',
-            'tags.*' => 'required|string'
+            'tags.*' => 'required|string',
         ];
     }
 }

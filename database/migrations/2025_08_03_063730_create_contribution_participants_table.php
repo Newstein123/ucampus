@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'accepted', 'rejected', 'active'])->default('pending');
             $table->timestamp('joined_at')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['contribution_id', 'user_id']);
         });
     }
@@ -32,4 +32,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('contribution_participants');
     }
-}; 
+};
