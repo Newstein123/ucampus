@@ -1,7 +1,6 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import MailIcon from '@mui/icons-material/Mail';
 import SendIcon from '@mui/icons-material/Send';
@@ -23,13 +22,11 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import SinglePageLayout from '../../components/SinglePageLayout';
 import { useTranslation } from 'react-i18next';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { useDiscussions } from '../../hooks/useDiscussions';
-import { Discussion } from '../../types/discussion';
+import { useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
+import SinglePageLayout from '../../components/SinglePageLayout';
+import { useDiscussions } from '../../hooks/useDiscussions';
 import { Contribution } from '../../types/contribution';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
@@ -47,7 +44,7 @@ const formatTimeAgo = (dateString: string): string => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (diffInSeconds < 60) return 'Just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
@@ -61,30 +58,22 @@ const ProjectDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [comment, setComment] = useState('');
     const [project, setProject] = useState<Contribution | null>(null);
-    const [loadingProject, setLoadingProject] = useState<boolean>(true);
-    
+
     // Use the discussions hook
-    const {
-        discussions,
-        loading,
-        error,
-        createDiscussion,
-        updateInterest
-    } = useDiscussions({
+    const { discussions, loading, error, createDiscussion, updateInterest } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
-        page: 1
+        page: 1,
     });
 
     useEffect(() => {
         const load = async () => {
             if (!id) return;
             try {
-                setLoadingProject(true);
                 const res = await contributionApi.show(parseInt(id));
                 setProject(res.data);
-            } finally {
-                setLoadingProject(false);
+            } catch (err) {
+                console.error('Failed to load project:', err);
             }
         };
         load();
@@ -318,17 +307,11 @@ const ProjectDetails: React.FC = () => {
             {/* Comments List */}
             <Box sx={{ p: 2, pt: 1 }}>
                 {loading ? (
-                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
-                        Loading discussions...
-                    </Typography>
+                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>Loading discussions...</Typography>
                 ) : error ? (
-                    <Typography sx={{ textAlign: 'center', color: 'error.main', py: 2 }}>
-                        Error: {error}
-                    </Typography>
+                    <Typography sx={{ textAlign: 'center', color: 'error.main', py: 2 }}>Error: {error}</Typography>
                 ) : discussions.length === 0 ? (
-                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
-                        No discussions yet. Be the first to comment!
-                    </Typography>
+                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>No discussions yet. Be the first to comment!</Typography>
                 ) : (
                     discussions.map((d, index) => (
                         <Box key={d.id} sx={{ mb: 2 }}>
@@ -338,32 +321,20 @@ const ProjectDetails: React.FC = () => {
                                 </Avatar>
                                 <Box sx={{ flex: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                        <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
-                                            {d.user.profileName}
-                                        </Typography>
-                                        <Typography sx={{ color: '#888', fontSize: 12 }}>
-                                            Posted {formatTimeAgo(d.created_at)}
-                                        </Typography>
+                                        <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>{d.user.profileName}</Typography>
+                                        <Typography sx={{ color: '#888', fontSize: 12 }}>Posted {formatTimeAgo(d.created_at)}</Typography>
                                     </Box>
-                                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>
-                                        {d.content}
-                                    </Typography>
+                                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{d.content}</Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handleLikeComment(d.id)}
-                                                sx={{ p: 0 }}
-                                            >
+                                            <IconButton size="small" onClick={() => handleLikeComment(d.id)} sx={{ p: 0 }}>
                                                 <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
                                             </IconButton>
                                             <Typography sx={{ fontSize: 12, color: '#666' }}>{d.interests}</Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                             <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
-                                            <Typography sx={{ fontSize: 12, color: '#666' }}>
-                                                {d.responses?.length || 0} replies
-                                            </Typography>
+                                            <Typography sx={{ fontSize: 12, color: '#666' }}>{d.responses?.length || 0} replies</Typography>
                                         </Box>
                                         <Typography
                                             sx={{ fontSize: 12, color: '#1F8505', fontWeight: 600, cursor: 'pointer' }}
