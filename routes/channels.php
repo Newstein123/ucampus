@@ -10,7 +10,8 @@ Broadcast::channel('notifications.{userId}', function ($user, $userId) {
     \Log::info('Notification channel authorization attempt', [
         'user_id' => $user->id,
         'requested_user_id' => $userId,
-        'authorized' => (int) $user->id === (int) $userId
+        'authorized' => (int) $user->id === (int) $userId,
     ]);
+
     return (int) $user->id === (int) $userId;
 });

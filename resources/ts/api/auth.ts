@@ -1,7 +1,6 @@
 import type {
     ForgotPasswordRequest,
     ForgotPasswordResponse,
-    SocialAuthResponse,
     LoginRequest,
     LoginResponse,
     LogoutResponse,
@@ -10,6 +9,7 @@ import type {
     RegisterResponse,
     ResetPasswordRequest,
     ResetPasswordResponse,
+    SocialAuthResponse,
     UpdatePasswordRequest,
     UpdatePasswordResponse,
 } from '../types/auth';

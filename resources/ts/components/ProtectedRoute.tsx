@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
-import { usePWANavigation } from '../hooks/usePWANavigation';
 import { selectIsAuthenticated, selectUser } from '../store/slices/authSlice';
 import { isPWA } from '../utils/pwa';
 
@@ -14,7 +13,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, redirectTo = 
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const user = useSelector(selectUser);
     const location = useLocation();
-    const pwaNavigate = usePWANavigation();
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {

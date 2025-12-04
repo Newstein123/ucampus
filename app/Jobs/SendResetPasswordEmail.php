@@ -2,20 +2,21 @@
 
 namespace App\Jobs;
 
-use Exception;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Exception;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class SendResetPasswordEmail
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3; // Add retry attempts
+
     public $backoff = 10; // Wait 10 seconds between retries
 
     /**
@@ -37,7 +38,7 @@ class SendResetPasswordEmail
             // Log the reset URL for debugging
             Log::info('Sending reset password email', [
                 'user_email' => $this->user->email,
-                'reset_url' => $this->resetUrl
+                'reset_url' => $this->resetUrl,
             ]);
 
             Mail::send('emails.reset-password', ['resetUrl' => $this->resetUrl], function ($message) {
@@ -46,12 +47,12 @@ class SendResetPasswordEmail
             });
 
             Log::info('Reset password email sent successfully', [
-                'user_email' => $this->user->email
+                'user_email' => $this->user->email,
             ]);
         } catch (Exception $e) {
             Log::error('Failed to send reset password email', [
                 'user_email' => $this->user->email,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -64,7 +65,7 @@ class SendResetPasswordEmail
     {
         Log::error('Reset password email job failed', [
             'user_email' => $this->user->email,
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
         ]);
     }
 }

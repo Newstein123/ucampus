@@ -1,16 +1,27 @@
+import axios from 'axios';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-import axios from 'axios';
 import { useEffect, useRef } from 'react';
-import { selectUser } from '../store/slices/authSlice';
 import { useSelector } from 'react-redux';
+import { selectUser } from '../store/slices/authSlice';
 
 // Ensure TypeScript recognizes Pusher globally
 declare global {
     interface Window {
         Pusher: typeof Pusher;
-        Echo: any;
+        Echo: Echo | null;
     }
+}
+
+interface EchoChannel {
+    name: string;
+    listen: (event: string, callback: (data: NotificationData) => void) => void;
+    error: (callback: (error: Error) => void) => void;
+}
+
+interface Echo {
+    private: (channel: string) => EchoChannel;
+    leave: (channel: string) => void;
 }
 
 interface NotificationData {
@@ -29,12 +40,12 @@ interface NotificationData {
 
 interface UseNotificationListenerProps {
     onNotification?: (notification: NotificationData) => void;
-    onError?: (error: any) => void;
+    onError?: (error: Error | unknown) => void;
 }
 
 export const useNotificationListener = ({ onNotification, onError }: UseNotificationListenerProps = {}) => {
     const user = useSelector(selectUser);
-    const echoRef = useRef<any>(null);
+    const echoRef = useRef<Echo | null>(null);
 
     useEffect(() => {
         if (!user) return;
@@ -48,21 +59,25 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
             }
             window.Echo = new Echo({
                 broadcaster: 'reverb',
-                authorizer: (channel: any, options: any) => {
-                    const url = (import.meta as any).env.VITE_API_URL + '/broadcasting/auth';
+                authorizer: (channel: { name: string }) => {
+                    const url = import.meta.env.VITE_API_URL + '/broadcasting/auth';
                     console.log('url', url);
                     return {
-                        authorize: (socketId: string, callback: any) => {
+                        authorize: (socketId: string, callback: (error: Error | null, data: unknown) => void) => {
                             console.log('Authorizing channel:', channel.name, 'socket:', socketId);
                             axios
-                                .post(url, {
-                                    socket_id: socketId,
-                                    channel_name: channel.name,
-                                }, {
-                                    headers: {
-                                        Authorization: `Bearer ${token}`,
+                                .post(
+                                    url,
+                                    {
+                                        socket_id: socketId,
+                                        channel_name: channel.name,
                                     },
-                                })
+                                    {
+                                        headers: {
+                                            Authorization: `Bearer ${token}`,
+                                        },
+                                    },
+                                )
                                 .then((response) => {
                                     console.log('Broadcasting auth successful:', response.data);
                                     callback(null, response.data);
@@ -74,10 +89,10 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
                         },
                     };
                 },
-                key: (import.meta as any).env.VITE_REVERB_APP_KEY as string || 'your-reverb-key',
-                wsHost: (import.meta as any).env.VITE_REVERB_HOST as string || 'localhost',
-                wsPort: ((import.meta as any).env.VITE_REVERB_PORT as unknown as number) ?? 8080,
-                wssPort: ((import.meta as any).env.VITE_REVERB_PORT as unknown as number) ?? 8080,
+                key: import.meta.env.VITE_REVERB_APP_KEY || 'your-reverb-key',
+                wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
+                wsPort: Number(import.meta.env.VITE_REVERB_PORT) || 8080,
+                wssPort: Number(import.meta.env.VITE_REVERB_PORT) || 8080,
                 forceTLS: false,
                 enabledTransports: ['ws'],
             });
@@ -93,7 +108,7 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
             onNotification?.(data);
         });
 
-        channel.error((error: any) => {
+        channel.error((error: Error) => {
             console.error('Notification channel error:', error);
             onError?.(error);
         });
@@ -103,7 +118,7 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
                 window.Echo.leave('notifications');
             }
         };
-    }, [onNotification, onError]);
+    }, [onNotification, onError, user]);
 
     return {
         echo: window.Echo,

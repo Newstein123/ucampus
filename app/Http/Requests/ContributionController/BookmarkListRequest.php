@@ -33,7 +33,7 @@ class BookmarkListRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return;
             }
 
@@ -44,11 +44,9 @@ class BookmarkListRequest extends FormRequest
             }
 
             $exists = $query->exists();
-            if (!$exists) {
+            if (! $exists) {
                 $validator->errors()->add('bookmarks', 'No bookmarks found for the given criteria.');
             }
         });
     }
 }
-
-

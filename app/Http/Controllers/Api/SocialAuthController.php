@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\AuthServiceInterface;
+use Illuminate\Http\Request;
 
 class SocialAuthController extends Controller
 {
@@ -19,18 +19,18 @@ class SocialAuthController extends Controller
     {
         try {
             $result = $this->authService->socialLogin($provider);
+
             return $this->response($result, 'Google login successful');
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get OAuth URL: ' . $e->getMessage()
+                'message' => 'Failed to get OAuth URL: '.$e->getMessage(),
             ], 500);
         }
     }
 
     public function handleProviderCallback($provider, Request $request)
     {
-
 
         try {
             $result = $this->authService->socialLoginCallback($provider, $request);
@@ -54,12 +54,12 @@ class SocialAuthController extends Controller
                 return response()->view('auth.popup-callback', [
                     'token' => $token,
                     'user' => json_encode($userData),
-                    'success' => true
+                    'success' => true,
                 ]);
             } else {
                 \Log::warning('SocialAuthController handleProviderCallback MISSING TOKEN OR USER', [
-                    'has_token' => !is_null($token),
-                    'has_user' => !is_null($user)
+                    'has_token' => ! is_null($token),
+                    'has_user' => ! is_null($user),
                 ]);
             }
 
@@ -68,7 +68,7 @@ class SocialAuthController extends Controller
             // Return error response
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication failed: ' . $e->getMessage()
+                'message' => 'Authentication failed: '.$e->getMessage(),
             ], 500);
         }
     }

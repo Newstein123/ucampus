@@ -1,3 +1,4 @@
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -16,17 +17,17 @@ import {
     ListItemAvatar,
     ListItemText,
     Typography,
-    Paper,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
-import { useTranslation } from 'react-i18next';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
 import DiscussionSection from '../../components/DiscussionSection';
 import { useDiscussions } from '../../hooks/useDiscussions';
-import { contributionApi } from '../../api/contribution';
 import { Contribution } from '../../types/contribution';
+import { contributionApi } from '../../api/contribution';
+import { Paper } from '@mui/material';
+
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -43,6 +44,7 @@ const formatTimeAgo = (dateString: string): string => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
 
     if (diffInSeconds < 60) return 'Just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
@@ -63,18 +65,17 @@ const ProjectDetails: React.FC = () => {
     } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
-        page: 1
+        page: 1,
     });
 
     useEffect(() => {
         const load = async () => {
             if (!id) return;
             try {
-                setLoadingProject(true);
                 const res = await contributionApi.show(parseInt(id));
                 setProject(res.data);
-            } finally {
-                setLoadingProject(false);
+            } catch (err) {
+                console.error('Failed to load project:', err);
             }
         };
         load();
@@ -82,10 +83,7 @@ const ProjectDetails: React.FC = () => {
 
 
     return (
-        <SinglePageLayout
-            title={t('Project Details')}
-            rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}
-        >
+        <SinglePageLayout title={t('Project Details')} rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}>
             {/* Tags */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1, p: 2 }}>
                 {project?.tags?.map((tag) => (
@@ -181,16 +179,13 @@ const ProjectDetails: React.FC = () => {
                 </Paper>
             </Box>
 
-
             {/* Team Members Section */}
             <Box sx={{ p: 2, pb: 1 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2, textAlign: 'center' }}>Team Members</Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
                     {mockTeamMembers.map((member, index) => (
                         <Box key={index} sx={{ textAlign: 'center' }}>
-                            <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>
-                                {member.name[0]}
-                            </Avatar>
+                            <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>{member.name[0]}</Avatar>
                             <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{member.name}</Typography>
                         </Box>
                     ))}

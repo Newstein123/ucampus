@@ -9,14 +9,13 @@ import SinglePageLayout from '../components/SinglePageLayout';
 import useNotificationListQuery from '../hooks/notification/useNotificationListQuery';
 import useNotificationReadMutation from '../hooks/notification/useNotificationReadMutation';
 import { Notification as NotificationType } from '../types/notification';
-import NotificationTest from '../components/NotificationTest';
 
 // Using the API Notification type instead of local interface
 
 const Notifications: React.FC = () => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState(0);
-    const [page, setPage] = useState(1);
+    const [page] = useState(1);
 
     const { data: notificationData, isLoading, error } = useNotificationListQuery({ page, per_page: 20 });
     const readMutation = useNotificationReadMutation();

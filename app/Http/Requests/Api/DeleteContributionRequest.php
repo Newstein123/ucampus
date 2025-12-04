@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Api;
 
 use App\Models\Contribution;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 
 class DeleteContributionRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class DeleteContributionRequest extends FormRequest
         $contributionId = $this->route('id');
         $contribution = Contribution::find($contributionId);
 
-        if (!$contribution) {
+        if (! $contribution) {
             return false;
         }
 
@@ -34,17 +34,17 @@ class DeleteContributionRequest extends FormRequest
         $contributionId = $this->route('id');
         $contribution = Contribution::find($contributionId);
 
-        if (!$contribution) {
+        if (! $contribution) {
             throw new HttpResponseException(
                 response()->json([
-                    'message' => 'Contribution not found'
+                    'message' => 'Contribution not found',
                 ], 404)
             );
         }
 
         throw new HttpResponseException(
             response()->json([
-                'message' => 'You are not authorized to delete this contribution'
+                'message' => 'You are not authorized to delete this contribution',
             ], 403)
         );
     }

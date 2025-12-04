@@ -62,9 +62,7 @@ export const PWALoading: React.FC<PWALoadingProps> = ({ children }) => {
                             animation: 'spin 1s linear infinite',
                         }}
                     />
-                    <div style={{ color: '#666', fontSize: '16px', fontWeight: 500 }}>
-                        Loading...
-                    </div>
+                    <div style={{ color: '#666', fontSize: '16px', fontWeight: 500 }}>Loading...</div>
                     <style>
                         {`
                             @keyframes spin {

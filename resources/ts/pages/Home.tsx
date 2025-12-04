@@ -1,7 +1,7 @@
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Avatar, Box, Card, CardContent, CardMedia, CircularProgress, Divider, IconButton, Tab, Tabs, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -9,8 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
-import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
 import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
+import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
 
 const tabLabels = ['All Contributions', 'Idea', 'Question'];
 
@@ -22,7 +22,7 @@ const Home: React.FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
-    const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useContributionListInfiniteQuery({ type, perPage: 10 });
+    const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useContributionListInfiniteQuery({ type, perPage: 10 });
 
     const { onHomeRestart } = useHomeContext();
 
@@ -67,7 +67,7 @@ const Home: React.FC = () => {
         }
     };
 
-    const handleTabChange = (_: any, idx: number) => {
+    const handleTabChange = (_: React.SyntheticEvent, idx: number) => {
         setTab(idx);
     };
 
@@ -231,14 +231,10 @@ const Home: React.FC = () => {
                                     color: item.is_interested ? '#e91e63' : 'inherit',
                                     '&:hover': {
                                         color: item.is_interested ? '#c2185b' : '#e91e63',
-                                    }
+                                    },
                                 }}
                             >
-                                {item.is_interested ? (
-                                    <FavoriteIcon fontSize="small" />
-                                ) : (
-                                    <FavoriteBorderIcon fontSize="small" />
-                                )}
+                                {item.is_interested ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.likes_count}</Typography>
                             <IconButton size="small" onClick={() => navigateToDetails(item.id, item.type)}>

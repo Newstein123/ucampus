@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Contribution;
 use App\Models\ContributionParticipant;
-use App\Models\User;
 
 class CollaborationRepository implements CollaborationRepositoryInterface
 {
@@ -13,14 +12,14 @@ class CollaborationRepository implements CollaborationRepositoryInterface
         $statusMap = [
             0 => 'pending',
             1 => 'accepted',
-            2 => 'rejected'
+            2 => 'rejected',
         ];
 
         $participant = ContributionParticipant::create([
             'contribution_id' => $data['contribution_id'],
             'user_id' => $data['user_id'],
             'reason' => $data['reason'],
-            'status' => $statusMap[$data['status']] ?? 'pending'
+            'status' => $statusMap[$data['status']] ?? 'pending',
         ]);
 
         return $participant->toArray();
@@ -31,7 +30,7 @@ class CollaborationRepository implements CollaborationRepositoryInterface
         $statusMap = [
             0 => 'pending',
             1 => 'accepted',
-            2 => 'rejected'
+            2 => 'rejected',
         ];
 
         $collaborationRequest = ContributionParticipant::findOrFail(request('request_id'));
@@ -49,7 +48,7 @@ class CollaborationRepository implements CollaborationRepositoryInterface
             $statusMap = [
                 0 => 'pending',
                 1 => 'accepted',
-                2 => 'rejected'
+                2 => 'rejected',
             ];
             $query->where('status', $statusMap[$filters['status']]);
         }
