@@ -121,7 +121,9 @@ const Thread: React.FC = () => {
     return (
         <SinglePageLayout
             title={t('Thread')}
-            rightElement={<Typography sx={{ fontWeight: 600, fontSize: 14, color: '#666' }}>{profileName}</Typography>}
+            rightElement={<Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                {parentDiscussion?.user.profileName?.[0]?.toUpperCase() || parentDiscussion?.user.username?.[0]?.toUpperCase() || 'U'}
+            </Avatar>}
         >
 
             {/* Thread Posts */}

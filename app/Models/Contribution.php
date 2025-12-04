@@ -63,4 +63,12 @@ class Contribution extends Model
         return $this->belongsToMany(User::class, 'contribution_bookmarks', 'contribution_id', 'user_id')
             ->withTimestamps();
     }
+
+    /**
+     * Get all discussions (comments) for this contribution
+     */
+    public function discussions()
+    {
+        return $this->hasMany(Discussion::class);
+    }
 }

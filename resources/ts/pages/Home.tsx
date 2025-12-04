@@ -244,7 +244,7 @@ const Home: React.FC = () => {
                             <IconButton size="small" onClick={() => navigateToDetails(item.id, item.type)}>
                                 <ChatBubbleOutlineIcon fontSize="small" />
                             </IconButton>
-                            <Typography sx={{ fontSize: 14, mr: 2 }}>{item.views_count}</Typography>
+                            <Typography sx={{ fontSize: 14, mr: 2 }}>{item.comments_count || 0}</Typography>
                             <Box sx={{ flex: 1 }} />
                             <IconButton size="small">
                                 <BookmarkBorderIcon fontSize="small" />
