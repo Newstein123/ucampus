@@ -9,7 +9,6 @@ import SinglePageLayout from '../components/SinglePageLayout';
 import useNotificationListQuery from '../hooks/notification/useNotificationListQuery';
 import useNotificationReadMutation from '../hooks/notification/useNotificationReadMutation';
 import { Notification as NotificationType } from '../types/notification';
-import NotificationTest from '../components/NotificationTest';
 
 // Using the API Notification type instead of local interface
 

@@ -25,14 +25,12 @@ const useContributionInterestMutation = ({ onSuccess, onError }: UseContribution
                     data: oldData.data.map((contribution: any) =>
                         contribution.id === contributionId
                             ? {
-                                ...contribution,
-                                is_interested: data.data.is_interested,
-                                likes_count: data.data.is_interested
-                                    ? contribution.likes_count + 1
-                                    : Math.max(0, contribution.likes_count - 1)
-                            }
-                            : contribution
-                    )
+                                  ...contribution,
+                                  is_interested: data.data.is_interested,
+                                  likes_count: data.data.is_interested ? contribution.likes_count + 1 : Math.max(0, contribution.likes_count - 1),
+                              }
+                            : contribution,
+                    ),
                 };
             });
 
@@ -47,15 +45,13 @@ const useContributionInterestMutation = ({ onSuccess, onError }: UseContribution
                         data: page.data.map((contribution: any) =>
                             contribution.id === contributionId
                                 ? {
-                                    ...contribution,
-                                    is_interested: data.data.is_interested,
-                                    likes_count: data.data.is_interested
-                                        ? contribution.likes_count + 1
-                                        : Math.max(0, contribution.likes_count - 1)
-                                }
-                                : contribution
-                        )
-                    }))
+                                      ...contribution,
+                                      is_interested: data.data.is_interested,
+                                      likes_count: data.data.is_interested ? contribution.likes_count + 1 : Math.max(0, contribution.likes_count - 1),
+                                  }
+                                : contribution,
+                        ),
+                    })),
                 };
             });
 

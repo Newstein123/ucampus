@@ -12,7 +12,13 @@ export const contributionApi = {
         return response.data;
     },
     async interest(contributionId: number): Promise<{ success: boolean; message: string; data: { is_interested: boolean } }> {
-        const response = await apiClient.getClient().post<{ success: boolean; message: string; data: { is_interested: boolean } }>(`${endpoints.contribution_interest}/${contributionId}/interest`);
+        const response = await apiClient
+            .getClient()
+            .post<{
+                success: boolean;
+                message: string;
+                data: { is_interested: boolean };
+            }>(`${endpoints.contribution_interest}/${contributionId}/interest`);
         return response.data;
     },
 };

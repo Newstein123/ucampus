@@ -1,0 +1,46 @@
+name: Auto Fill PR Template with AI
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+
+jobs:
+  autofill-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v46
+
+      - name: Generate PR content with AI
+        id: ai
+        # Note: OPENAI_API_KEY secret must be configured in repository settings
+        run: |
+          FILES="${{ steps.files.outputs.all_changed_files }}"
+
+          TEMPLATE=$'📌 What does this PR do?\n{{summary}}\n\n📝 Changes made\n{{changes}}\n\n✅ How to test\n{{testing}}\n\n📸 Screenshots (if UI changes)\nN/A'
+
+          PROMPT="Fill in the template based on these changed files: $FILES. Use short, concise, developer-style explanations. Template:\n$TEMPLATE"
+
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -d '{
+              "model": "gpt-4.1-mini",
+              "messages": [{"role": "user", "content": "'"$PROMPT"'"}]
+            }' | jq -r '.choices[0].message.content')
+
+          echo "content=$RESPONSE" >> $GITHUB_OUTPUT
+        env:
+          # yamllint disable-line rule:truthy
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Update PR description
+        uses: actions-ecosystem/action-update-comment@v1
+        with:
+          body: ${{ steps.ai.outputs.content }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

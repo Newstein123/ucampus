@@ -5,13 +5,12 @@ import NotificationIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 import ExploreIcon from '@mui/icons-material/TravelExplore';
 import { AppBar, Badge, BottomNavigation, BottomNavigationAction, Box, Paper, Toolbar } from '@mui/material';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useHomeContext } from '../contexts/HomeContext';
 import useNotificationUnreadCountQuery from '../hooks/notification/useNotificationUnreadCountQuery';
 import { useNotificationListener } from '../hooks/useNotificationListener';
-import { useSelector } from 'react-redux';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { t } = useTranslation();
@@ -64,8 +63,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 '@media (display-mode: standalone)': {
                     '@supports (-webkit-touch-callout: none)': {
                         height: '-webkit-fill-available',
-                    }
-                }
+                    },
+                },
             }}
         >
             {/* Navbar */}
@@ -88,8 +87,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             transform: 'translateX(-50%)',
                             width: '100%',
                             maxWidth: 600,
-                        }
-                    }
+                        },
+                    },
                 }}
             >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px' }}>
@@ -118,16 +117,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             WebkitScrollbarWidth: 'none',
                             scrollbarWidth: 'none',
                             '::-webkit-scrollbar': {
-                                display: 'none'
+                                display: 'none',
                             },
                             position: 'fixed',
                             top: 0,
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            height: 'auto'
-                        }
-                    }
+                            height: 'auto',
+                        },
+                    },
                 }}
             >
                 {children}
@@ -147,9 +146,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     padding: '5px 0px 20px 0px',
                     '@media (display-mode: standalone)': {
                         '@supports (-webkit-touch-callout: none)': {
-                            paddingBottom: 'env(safe-area-inset-bottom)'
-                        }
-                    }
+                            paddingBottom: 'env(safe-area-inset-bottom)',
+                        },
+                    },
                 }}
                 elevation={3}
                 className="bottom-navigation"

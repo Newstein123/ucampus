@@ -1,8 +1,8 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, CardMedia, IconButton, Paper, Typography } from '@mui/material';
 import React from 'react';
-import Layout from '../components/Layout';
 import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 
 const ownProjects = [
     {
@@ -34,8 +34,6 @@ const collabProjects = [
         image: '/assets/images/idea-sample.png',
     },
 ];
-
-
 
 const ProjectCard: React.FC<{ title: string; subtitle: string; image: string }> = ({ title, subtitle, image }) => {
     const navigate = useNavigate();

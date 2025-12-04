@@ -1,14 +1,8 @@
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SendIcon from '@mui/icons-material/Send';
-import {
-    Avatar,
-    Box,
-    IconButton,
-    TextField,
-    Typography,
-} from '@mui/material';
+import { Avatar, Box, IconButton, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -18,7 +12,8 @@ const mockThreadPosts = [
     {
         id: 1,
         user: { name: 'Adom Shafi', avatar: '' },
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
+        content:
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
         postedAgo: '2d ago',
         likes: 124,
         comments: 123,
@@ -27,7 +22,8 @@ const mockThreadPosts = [
     {
         id: 2,
         user: { name: 'Min Thurein', avatar: '' },
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
+        content:
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
         postedAgo: '1hr ago',
         likes: 124,
         comments: 0,
@@ -36,7 +32,8 @@ const mockThreadPosts = [
     {
         id: 3,
         user: { name: 'Min Thet Paing', avatar: '' },
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
+        content:
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
         postedAgo: '2hr ago',
         likes: 124,
         comments: 0,
@@ -51,12 +48,10 @@ const Thread: React.FC = () => {
     const [newPost, setNewPost] = useState('');
 
     const handleLikePost = (postId: number) => {
-        setPosts(prev =>
-            prev.map(post =>
-                post.id === postId
-                    ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 }
-                    : post
-            )
+        setPosts((prev) =>
+            prev.map((post) =>
+                post.id === postId ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 } : post,
+            ),
         );
     };
 
@@ -71,7 +66,7 @@ const Thread: React.FC = () => {
                 comments: 0,
                 isLiked: false,
             };
-            setPosts(prev => [newThreadPost, ...prev]);
+            setPosts((prev) => [newThreadPost, ...prev]);
             setNewPost('');
         }
     };
@@ -81,34 +76,21 @@ const Thread: React.FC = () => {
             title={t('Thread')}
             rightElement={<Typography sx={{ fontWeight: 600, fontSize: 14, color: '#666' }}>Adom Shafi</Typography>}
         >
-
             {/* Thread Posts */}
             <Box sx={{ p: 2, pb: 0 }}>
                 {posts.map((post, index) => (
                     <Box key={post.id} sx={{ mb: 3 }}>
                         <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
-                                {post.user.name[0]}
-                            </Avatar>
+                            <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>{post.user.name[0]}</Avatar>
                             <Box sx={{ flex: 1 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                    <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
-                                        {post.user.name}
-                                    </Typography>
-                                    <Typography sx={{ color: '#888', fontSize: 12 }}>
-                                        Posted {post.postedAgo}
-                                    </Typography>
+                                    <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>{post.user.name}</Typography>
+                                    <Typography sx={{ color: '#888', fontSize: 12 }}>Posted {post.postedAgo}</Typography>
                                 </Box>
-                                <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
-                                    {post.content}
-                                </Typography>
+                                <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>{post.content}</Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => handleLikePost(post.id)}
-                                            sx={{ p: 0 }}
-                                        >
+                                        <IconButton size="small" onClick={() => handleLikePost(post.id)} sx={{ p: 0 }}>
                                             {post.isLiked ? (
                                                 <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
                                             ) : (
@@ -131,17 +113,19 @@ const Thread: React.FC = () => {
             </Box>
 
             {/* Bottom Input Area */}
-            <Box sx={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                bgcolor: '#fff',
-                borderTop: '1px solid #e0e0e0',
-                p: 2,
-                maxWidth: 600,
-                mx: 'auto'
-            }}>
+            <Box
+                sx={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: '#fff',
+                    borderTop: '1px solid #e0e0e0',
+                    p: 2,
+                    maxWidth: 600,
+                    mx: 'auto',
+                }}
+            >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505' }}>U</Avatar>
                     <TextField

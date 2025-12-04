@@ -1,4 +1,4 @@
-import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
+import { Avatar, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';

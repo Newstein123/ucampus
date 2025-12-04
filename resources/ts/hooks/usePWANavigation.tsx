@@ -6,7 +6,7 @@ export const usePWANavigation = () => {
 
     const pwaNavigate = (to: string, options?: { replace?: boolean }) => {
         console.log('PWA Navigation called:', { to, options, isPWA: isPWA() });
-        
+
         if (isPWA()) {
             // In PWA mode, use window.location to maintain standalone mode
             try {

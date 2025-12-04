@@ -4,7 +4,7 @@ import storage from 'redux-persist/lib/storage';
 import { ThunkAction } from 'redux-thunk';
 
 import authSlice from './slices/authSlice';
-import { RESET_ROOT_STATE, SET_WHOLE_STATE } from './types';
+import { SET_WHOLE_STATE } from './types';
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

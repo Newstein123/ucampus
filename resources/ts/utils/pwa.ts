@@ -109,12 +109,12 @@ export const forcePWAModeDetection = (): void => {
     if (isIOS()) {
         // Add a class to body for iOS PWA styling
         document.body.classList.add('ios-pwa');
-        
+
         // Check if we're in standalone mode
         if (window.matchMedia('(display-mode: standalone)').matches) {
             document.body.classList.add('pwa-standalone');
         }
-        
+
         // Listen for display mode changes
         const mediaQuery = window.matchMedia('(display-mode: standalone)');
         const handleChange = (e: MediaQueryListEvent) => {
@@ -124,7 +124,7 @@ export const forcePWAModeDetection = (): void => {
                 document.body.classList.remove('pwa-standalone');
             }
         };
-        
+
         mediaQuery.addEventListener('change', handleChange);
     }
 };

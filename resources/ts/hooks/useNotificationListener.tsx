@@ -1,9 +1,9 @@
+import axios from 'axios';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-import axios from 'axios';
 import { useEffect, useRef } from 'react';
-import { selectUser } from '../store/slices/authSlice';
 import { useSelector } from 'react-redux';
+import { selectUser } from '../store/slices/authSlice';
 
 // Ensure TypeScript recognizes Pusher globally
 declare global {
@@ -55,14 +55,18 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
                         authorize: (socketId: string, callback: any) => {
                             console.log('Authorizing channel:', channel.name, 'socket:', socketId);
                             axios
-                                .post(url, {
-                                    socket_id: socketId,
-                                    channel_name: channel.name,
-                                }, {
-                                    headers: {
-                                        Authorization: `Bearer ${token}`,
+                                .post(
+                                    url,
+                                    {
+                                        socket_id: socketId,
+                                        channel_name: channel.name,
                                     },
-                                })
+                                    {
+                                        headers: {
+                                            Authorization: `Bearer ${token}`,
+                                        },
+                                    },
+                                )
                                 .then((response) => {
                                     console.log('Broadcasting auth successful:', response.data);
                                     callback(null, response.data);
@@ -74,8 +78,8 @@ export const useNotificationListener = ({ onNotification, onError }: UseNotifica
                         },
                     };
                 },
-                key: (import.meta as any).env.VITE_REVERB_APP_KEY as string || 'your-reverb-key',
-                wsHost: (import.meta as any).env.VITE_REVERB_HOST as string || 'localhost',
+                key: ((import.meta as any).env.VITE_REVERB_APP_KEY as string) || 'your-reverb-key',
+                wsHost: ((import.meta as any).env.VITE_REVERB_HOST as string) || 'localhost',
                 wsPort: ((import.meta as any).env.VITE_REVERB_PORT as unknown as number) ?? 8080,
                 wssPort: ((import.meta as any).env.VITE_REVERB_PORT as unknown as number) ?? 8080,
                 forceTLS: false,

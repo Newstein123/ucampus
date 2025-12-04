@@ -1,10 +1,11 @@
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import SendIcon from '@mui/icons-material/Send';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import MailIcon from '@mui/icons-material/Mail';
+import SendIcon from '@mui/icons-material/Send';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
     Avatar,
     Box,
@@ -17,15 +18,14 @@ import {
     ListItem,
     ListItemAvatar,
     ListItemText,
+    Paper,
     TextField,
     Typography,
-    Paper,
 } from '@mui/material';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
-import { useTranslation } from 'react-i18next';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
 
 const mockProject = {
     id: 1,
@@ -76,7 +76,7 @@ const mockDiscussion = [
     {
         id: 2,
         user: { name: 'Sarah Chen', avatar: '' },
-        comment: 'Can you share more about the tech stack? I\'m particularly interested in the real-time features for study sessions.',
+        comment: "Can you share more about the tech stack? I'm particularly interested in the real-time features for study sessions.",
         postedAgo: '1d ago',
         likes: 123,
         replies: 123,
@@ -101,12 +101,8 @@ const ProjectDetails: React.FC = () => {
     const [discussion, setDiscussion] = useState(mockDiscussion);
 
     const handleLikeComment = (commentId: number) => {
-        setDiscussion(prev =>
-            prev.map(d =>
-                d.id === commentId
-                    ? { ...d, isLiked: !d.isLiked, likes: d.isLiked ? d.likes - 1 : d.likes + 1 }
-                    : d
-            )
+        setDiscussion((prev) =>
+            prev.map((d) => (d.id === commentId ? { ...d, isLiked: !d.isLiked, likes: d.isLiked ? d.likes - 1 : d.likes + 1 } : d)),
         );
     };
 
@@ -121,7 +117,7 @@ const ProjectDetails: React.FC = () => {
                 replies: 0,
                 isLiked: false,
             };
-            setDiscussion(prev => [newComment, ...prev]);
+            setDiscussion((prev) => [newComment, ...prev]);
             setComment('');
         }
     };
@@ -131,10 +127,7 @@ const ProjectDetails: React.FC = () => {
     };
 
     return (
-        <SinglePageLayout
-            title={t('Project Details')}
-            rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}
-        >
+        <SinglePageLayout title={t('Project Details')} rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}>
             {/* Tags */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1, p: 2 }}>
                 {mockProject.tags.map((tag) => (
@@ -230,16 +223,13 @@ const ProjectDetails: React.FC = () => {
                 </Paper>
             </Box>
 
-
             {/* Team Members Section */}
             <Box sx={{ p: 2, pb: 1 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2, textAlign: 'center' }}>Team Members</Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
                     {mockProject.teamMembers.map((member, index) => (
                         <Box key={index} sx={{ textAlign: 'center' }}>
-                            <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>
-                                {member.name[0]}
-                            </Avatar>
+                            <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>{member.name[0]}</Avatar>
                             <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{member.name}</Typography>
                         </Box>
                     ))}
@@ -341,28 +331,16 @@ const ProjectDetails: React.FC = () => {
                 {discussion.map((d, index) => (
                     <Box key={d.id} sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
-                                {d.user.name[0]}
-                            </Avatar>
+                            <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>{d.user.name[0]}</Avatar>
                             <Box sx={{ flex: 1 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                    <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
-                                        {d.user.name}
-                                    </Typography>
-                                    <Typography sx={{ color: '#888', fontSize: 12 }}>
-                                        Posted {d.postedAgo}
-                                    </Typography>
+                                    <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>{d.user.name}</Typography>
+                                    <Typography sx={{ color: '#888', fontSize: 12 }}>Posted {d.postedAgo}</Typography>
                                 </Box>
-                                <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>
-                                    {d.comment}
-                                </Typography>
+                                <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{d.comment}</Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => handleLikeComment(d.id)}
-                                            sx={{ p: 0 }}
-                                        >
+                                        <IconButton size="small" onClick={() => handleLikeComment(d.id)} sx={{ p: 0 }}>
                                             {d.isLiked ? (
                                                 <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
                                             ) : (
