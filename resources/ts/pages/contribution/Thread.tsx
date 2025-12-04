@@ -3,7 +3,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { Avatar, Box, IconButton, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { authApi } from '../../api/auth';
 import { discussionApi } from '../../api/discussion';
 import SinglePageLayout from '../../components/SinglePageLayout';
