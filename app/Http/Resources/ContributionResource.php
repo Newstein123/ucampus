@@ -28,7 +28,7 @@ class ContributionResource extends JsonResource
             'views_count' => $this->views_count,
             'likes_count' => $this->interests_count,
             'is_interested' => $user ? $this->interests()->where('user_id', $user->id)->exists() : false,
-            'thumbnail_url' => $this->type === 'idea' ? env('APP_URL') . '/public/' . $this->thumbnail_url : null,
+            'thumbnail_url' => $this->type === 'idea' ? env('APP_URL').'/public/'.$this->thumbnail_url : null,
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

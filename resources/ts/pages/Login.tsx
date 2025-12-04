@@ -244,7 +244,6 @@ const Login: React.FC = () => {
                         localStorage.removeItem('social_auth_token');
                         localStorage.removeItem('social_auth_user');
 
-                        const { apiClient } = require('../api/client');
                         apiClient.setAuthToken(token);
 
                         try {

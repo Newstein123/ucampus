@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Discussion;
 use App\Models\Contribution;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;

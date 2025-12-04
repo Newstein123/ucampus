@@ -35,6 +35,7 @@ class UserRepository
     {
         $user->fill($data);
         $user->save();
+
         return $user;
     }
 
@@ -43,6 +44,7 @@ class UserRepository
         $account = \App\Models\SocialAccount::where('provider', $provider)
             ->where('provider_user_id', $providerUserId)
             ->first();
+
         return $account ? $account->user : null;
     }
 }

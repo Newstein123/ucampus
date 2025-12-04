@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Contribution;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ContributionSeeder extends Seeder

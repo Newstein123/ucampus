@@ -15,7 +15,7 @@ import { Notification as NotificationType } from '../types/notification';
 const Notifications: React.FC = () => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState(0);
-    const [page, setPage] = useState(1);
+    const [page] = useState(1);
 
     const { data: notificationData, isLoading, error } = useNotificationListQuery({ page, per_page: 20 });
     const readMutation = useNotificationReadMutation();

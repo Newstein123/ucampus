@@ -14,7 +14,6 @@ import { useNotificationListener } from '../hooks/useNotificationListener';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { t } = useTranslation();
-    const [value, setValue] = React.useState(0);
     const navigate = useNavigate();
     const location = useLocation();
     const { triggerHomeRestart } = useHomeContext();

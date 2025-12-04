@@ -20,7 +20,7 @@ const Home: React.FC = () => {
     const type = tab === 0 ? undefined : tabLabels[tab].toLowerCase();
     const queryClient = useQueryClient();
 
-    const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useContributionListInfiniteQuery({ type, perPage: 10 });
+    const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useContributionListInfiniteQuery({ type, perPage: 10 });
 
     const { onHomeRestart } = useHomeContext();
 
@@ -39,7 +39,7 @@ const Home: React.FC = () => {
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
 
-    const handleTabChange = (_: any, idx: number) => {
+    const handleTabChange = (_: React.SyntheticEvent, idx: number) => {
         setTab(idx);
     };
 

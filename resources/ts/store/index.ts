@@ -6,10 +6,6 @@ import { ThunkAction } from 'redux-thunk';
 import authSlice from './slices/authSlice';
 import { SET_WHOLE_STATE } from './types';
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
-
 const persistConfig = {
     key: 'root',
     storage,
@@ -19,7 +15,9 @@ const rootReducer = combineReducers({
     auth: authSlice,
 });
 
-const rootReducerWithSet = (state: any, action: Action & { payload?: any }) => {
+type RootState = ReturnType<typeof rootReducer>;
+
+const rootReducerWithSet = (state: RootState | undefined, action: Action & { payload?: RootState }) => {
     if (action.type === SET_WHOLE_STATE && action.payload) {
         return action.payload;
     }
@@ -39,5 +37,9 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
+export type { RootState };
+export type AppDispatch = typeof store.dispatch;
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
 
 export * from './slices/authSlice';

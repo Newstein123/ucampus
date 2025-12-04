@@ -1,6 +1,5 @@
 import { Avatar, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
 
 const ideas = [
@@ -47,7 +46,6 @@ function formatDate(date: Date): string {
 }
 
 const MyIdeasAndQuestions: React.FC = () => {
-    const navigate = useNavigate();
     return (
         <SinglePageLayout title="My ideas and questions">
             <Paper elevation={0} sx={{ bgcolor: '#fafdff', borderRadius: 3, p: 0, boxShadow: 'none' }}>

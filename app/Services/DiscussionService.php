@@ -6,7 +6,6 @@ use App\Repositories\DiscussionRepositoryInterface;
 
 class DiscussionService implements DiscussionServiceInterface
 {
-
     public function __construct(
         protected DiscussionRepositoryInterface $discussionRepository
     ) {}
@@ -14,16 +13,17 @@ class DiscussionService implements DiscussionServiceInterface
     public function getAllParentDiscussions(int $id, array $data = [])
     {
         $discussion = $this->discussionRepository->findByContributionId($id, $data);
-        if (!$discussion) {
+        if (! $discussion) {
             throw new \Exception('Discussion not found');
         }
+
         return $discussion;
     }
 
     public function getAllResponses(int $id)
     {
         $discussion = $this->discussionRepository->findById($id);
-        if (!$discussion) {
+        if (! $discussion) {
             throw new \Exception('Discussion not found');
         }
 
@@ -34,6 +34,7 @@ class DiscussionService implements DiscussionServiceInterface
     {
         try {
             $discussion = $this->discussionRepository->create($data);
+
             return $discussion;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
@@ -44,6 +45,7 @@ class DiscussionService implements DiscussionServiceInterface
     {
         try {
             $data['content'] = json_encode($data['content']);
+
             return $this->discussionRepository->update($id, $data);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

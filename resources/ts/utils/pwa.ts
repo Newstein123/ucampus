@@ -1,9 +1,13 @@
 // PWA utility functions for handling iOS standalone mode
 
+interface NavigatorWithStandalone extends Navigator {
+    standalone?: boolean;
+}
+
 export const isStandalone = (): boolean => {
     return (
         window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true ||
+        ('standalone' in window.navigator && (window.navigator as NavigatorWithStandalone).standalone === true) ||
         document.referrer.includes('android-app://')
     );
 };
@@ -133,17 +137,17 @@ export const forcePWAModeDetection = (): void => {
 export const addPWAEventListeners = (): void => {
     if (typeof window !== 'undefined') {
         // Handle beforeinstallprompt event
-        window.addEventListener('beforeinstallprompt', (e) => {
+        window.addEventListener('beforeinstallprompt', (e: Event) => {
             console.log('PWA install prompt available');
             // Store the event for later use
-            (window as any).deferredPrompt = e;
+            (window as Window & { deferredPrompt?: Event }).deferredPrompt = e;
         });
 
         // Handle appinstalled event
         window.addEventListener('appinstalled', () => {
             console.log('PWA installed successfully');
             // Clear the deferred prompt
-            (window as any).deferredPrompt = null;
+            (window as Window & { deferredPrompt?: Event }).deferredPrompt = undefined;
         });
 
         // Handle visibility change for PWA
@@ -156,8 +160,8 @@ export const addPWAEventListeners = (): void => {
 
         // Handle page visibility for iOS PWA
         if (isIOS()) {
-            document.addEventListener('pageshow', (event) => {
-                if ((event as any).persisted) {
+            document.addEventListener('pageshow', (event: PageTransitionEvent) => {
+                if (event.persisted) {
                     console.log('Page restored from bfcache');
                     // Refresh data if needed
                 }

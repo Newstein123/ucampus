@@ -11,9 +11,10 @@ class DiscussionRepository implements DiscussionRepositoryInterface
     {
         $discussion = Discussion::with(['user', 'replies'])->find($id);
         Log::info('Fetched discussion:', ['discussion' => $discussion]);
-        if (!$discussion) {
+        if (! $discussion) {
             throw new \Exception('Discussion not found');
         }
+
         return $discussion;
     }
 
@@ -32,7 +33,7 @@ class DiscussionRepository implements DiscussionRepositoryInterface
     {
         $discussion = Discussion::create($data);
 
-        if (!$discussion) {
+        if (! $discussion) {
             throw new \Exception('Failed to create discussion');
         }
 
@@ -44,29 +45,32 @@ class DiscussionRepository implements DiscussionRepositoryInterface
     public function update(int $id, array $data = [])
     {
         $discussion = $this->findById($id);
-        if (!$discussion) {
+        if (! $discussion) {
             throw new \Exception('Discussion not found');
         }
         $discussion->update($data);
+
         return $discussion;
     }
 
     public function delete(int $id)
     {
         $discussion = $this->findById($id);
-        if (!$discussion) {
+        if (! $discussion) {
             throw new \Exception('Discussion not found');
         }
+
         return $discussion->delete();
     }
 
     public function updateInterest(int $id, int $amount = 1 /* give negative value to decrease */)
     {
         $discussion = $this->findById($id);
-        if (!$discussion) {
+        if (! $discussion) {
             throw new \Exception('Discussion not found');
         }
         $discussion->increment('interests', $amount);
+
         return $discussion;
     }
 }

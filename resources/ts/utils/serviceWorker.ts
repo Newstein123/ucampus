@@ -1,5 +1,13 @@
 // Service worker utilities for PWA
 
+interface NavigatorWithStandalone extends Navigator {
+    standalone?: boolean;
+}
+
+interface WindowWithDeferredPrompt extends Window {
+    deferredPrompt?: Event | null;
+}
+
 export const registerServiceWorker = async () => {
     if ('serviceWorker' in navigator) {
         try {
@@ -31,7 +39,8 @@ export const registerServiceWorker = async () => {
 
 // Handle PWA navigation to maintain standalone mode
 export const handlePWANavigation = (url: string, replace = false) => {
-    if ((window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches) {
+    const navigatorWithStandalone = window.navigator as NavigatorWithStandalone;
+    if (navigatorWithStandalone.standalone || window.matchMedia('(display-mode: standalone)').matches) {
         // In PWA standalone mode, use window.location to maintain the mode
         if (replace) {
             window.location.replace(url);
@@ -50,8 +59,9 @@ export const handlePWANavigation = (url: string, replace = false) => {
 
 // Check if running in PWA standalone mode
 export const isInStandaloneMode = () => {
+    const navigatorWithStandalone = window.navigator as NavigatorWithStandalone;
     return (
-        (window.navigator as any).standalone === true ||
+        navigatorWithStandalone.standalone === true ||
         window.matchMedia('(display-mode: standalone)').matches ||
         document.referrer.includes('android-app://')
     );
@@ -60,17 +70,17 @@ export const isInStandaloneMode = () => {
 // Add PWA-specific event listeners
 export const addPWAEventListeners = () => {
     // Handle beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', (e: Event) => {
         console.log('PWA install prompt available');
         // Store the event for later use
-        (window as any).deferredPrompt = e;
+        (window as WindowWithDeferredPrompt).deferredPrompt = e;
     });
 
     // Handle appinstalled event
     window.addEventListener('appinstalled', () => {
         console.log('PWA installed successfully');
         // Clear the deferred prompt
-        (window as any).deferredPrompt = null;
+        (window as WindowWithDeferredPrompt).deferredPrompt = null;
     });
 
     // Handle visibility change for PWA

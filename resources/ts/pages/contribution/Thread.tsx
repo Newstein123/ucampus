@@ -5,7 +5,6 @@ import SendIcon from '@mui/icons-material/Send';
 import { Avatar, Box, IconButton, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
 
 const mockThreadPosts = [
@@ -43,7 +42,6 @@ const mockThreadPosts = [
 
 const Thread: React.FC = () => {
     const { t } = useTranslation();
-    const { id } = useParams<{ id: string }>();
     const [posts, setPosts] = useState(mockThreadPosts);
     const [newPost, setNewPost] = useState('');
 
@@ -78,7 +76,7 @@ const Thread: React.FC = () => {
         >
             {/* Thread Posts */}
             <Box sx={{ p: 2, pb: 0 }}>
-                {posts.map((post, index) => (
+                {posts.map((post) => (
                     <Box key={post.id} sx={{ mb: 3 }}>
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>{post.user.name[0]}</Avatar>

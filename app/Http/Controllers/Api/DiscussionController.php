@@ -11,7 +11,6 @@ use App\Http\Requests\DiscussionController\ParentDiscussionRequest;
 use App\Http\Requests\DiscussionController\UpdateRequest;
 use App\Http\Resources\DiscussionResource;
 use App\Services\DiscussionServiceInterface;
-use Illuminate\Support\Facades\Log;
 
 class DiscussionController extends Controller
 {
@@ -36,6 +35,7 @@ class DiscussionController extends Controller
             'current_page' => $discussions->currentPage(),
             'last_page' => $discussions->lastPage(),
         ];
+
         return $this->response($resource, "Retrieved contributions' discussions successfully");
     }
 
@@ -44,6 +44,7 @@ class DiscussionController extends Controller
         $id = $request->validated()['discussion_id'];
         $responses = $this->discussionService->getAllResponses($id);
         $resource['responses'] = new DiscussionResource($responses);
+
         return $this->response($resource, "Retrieved discussions' responses successfully");
     }
 
@@ -52,6 +53,7 @@ class DiscussionController extends Controller
         $data = $request->validated();
         $discussion = $this->discussionService->create($data);
         $resource['discussions'] = new DiscussionResource($discussion);
+
         return $this->response($resource, 'Discussion created successfully');
     }
 
@@ -60,6 +62,7 @@ class DiscussionController extends Controller
         $data = $request->validated();
         $discussion = $this->discussionService->update($data['discussion_id'], $data);
         $resource['discussion'] = new DiscussionResource($discussion);
+
         return $this->response($resource, 'discussion updated successfully');
     }
 
@@ -67,12 +70,14 @@ class DiscussionController extends Controller
     {
         $data = $request->validated();
         $this->discussionService->delete($data['discussion_id']);
+
         return $this->response(null, 'discussion deleted successfully');
     }
 
     public function updateInterest(InterestUpdateRequest $request)
     {
         $this->discussionService->updateInterest($request->validated()['discussion_id']);
+
         return $this->response(null, 'Discussion interest updated successfully');
     }
 }
