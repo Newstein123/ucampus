@@ -23,6 +23,16 @@ class ContributionRepository implements ContributionRepositoryInterface
             $query->where('type', $filters['type']);
         }
 
+        // Filter by owner: user_id
+        if (isset($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        // Only public projects unless owned by the requester (handled at service level by user_id)
+        if (!isset($filters['user_id']) && isset($filters['is_public'])) {
+            $query->where('is_public', (bool) $filters['is_public']);
+        }
+
         return $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
     }
 

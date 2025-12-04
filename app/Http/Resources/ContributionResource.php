@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Services\FileService;
 
 class ContributionResource extends JsonResource
 {
@@ -15,6 +16,11 @@ class ContributionResource extends JsonResource
     public function toArray(Request $request): array
     {
         $user = $request->user();
+        $fileService = app(FileService::class);
+
+        // Get full URLs for files
+        $thumbnailUrl = $this->thumbnail_url ? $fileService->getFileUrl($this->thumbnail_url) : null;
+        $attachmentUrls = $this->attachments ? $fileService->getFileUrls($this->attachments) : [];
 
         return [
             'id' => $this->id,
@@ -28,7 +34,8 @@ class ContributionResource extends JsonResource
             'views_count' => $this->views_count,
             'likes_count' => $this->interests_count,
             'is_interested' => $user ? $this->interests()->where('user_id', $user->id)->exists() : false,
-            'thumbnail_url' => $this->type === 'idea' ? env('APP_URL').'/public/'.$this->thumbnail_url : null,
+            'thumbnail_url' => $thumbnailUrl,
+            'attachments' => $attachmentUrls,
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

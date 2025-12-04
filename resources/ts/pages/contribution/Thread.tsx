@@ -2,112 +2,213 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SendIcon from '@mui/icons-material/Send';
-import { Avatar, Box, IconButton, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import {
+    Avatar,
+    Box,
+    IconButton,
+    TextField,
+    Typography,
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SinglePageLayout from '../../components/SinglePageLayout';
+import { Discussion } from '../../types/discussion';
+import { authApi } from '../../api/auth';
+import { useLocation } from 'react-router-dom';
+import { discussionApi } from '../../api/discussion';
 
-const mockThreadPosts = [
-    {
-        id: 1,
-        user: { name: 'Adom Shafi', avatar: '' },
-        content:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
-        postedAgo: '2d ago',
-        likes: 124,
-        comments: 123,
-        isLiked: true,
-    },
-    {
-        id: 2,
-        user: { name: 'Min Thurein', avatar: '' },
-        content:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
-        postedAgo: '1hr ago',
-        likes: 124,
-        comments: 0,
-        isLiked: false,
-    },
-    {
-        id: 3,
-        user: { name: 'Min Thet Paing', avatar: '' },
-        content:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.',
-        postedAgo: '2hr ago',
-        likes: 124,
-        comments: 0,
-        isLiked: false,
-    },
-];
+// Helper function to format time ago
+const formatTimeAgo = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    return date.toLocaleDateString();
+};
 
 const Thread: React.FC = () => {
     const { t } = useTranslation();
-    const [posts, setPosts] = useState(mockThreadPosts);
+    const { id, discussionId } = useParams<{ id?: string; discussionId?: string }>();
+    const location = useLocation();
     const [newPost, setNewPost] = useState('');
+    const [profileName, setProfileName] = useState<string>('');
+    const [parentDiscussion, setParentDiscussion] = useState<Discussion | null>(null);
+    const [threadDiscussions, setThreadDiscussions] = useState<Discussion[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleLikePost = (postId: number) => {
-        setPosts((prev) =>
-            prev.map((post) =>
-                post.id === postId ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 } : post,
-            ),
-        );
+    // Determine discussion id from either new route /threads/:discussionId or legacy query param parent_id
+    const searchParams = new URLSearchParams(location.search);
+    const legacyParentId = searchParams.get('parent_id');
+    const resolvedParentId = discussionId || legacyParentId || null;
+
+    // Fetch thread discussions
+    useEffect(() => {
+        if (!resolvedParentId) return;
+
+        const parentIdNum = parseInt(resolvedParentId);
+        if (Number.isNaN(parentIdNum)) {
+            setError('Invalid thread id');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        discussionApi
+            .getResponses({ discussion_id: parentIdNum })
+            .then((response) => {
+                if (response.data.responses) {
+                    const parent = response.data.responses;
+                    setParentDiscussion(parent);
+                    setThreadDiscussions(parent.responses || []);
+                }
+            })
+            .catch((err) => {
+                console.error('Failed to fetch thread responses:', err);
+                setError('Failed to fetch thread');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [resolvedParentId]);
+
+    useEffect(() => {
+        authApi
+            .getProfile()
+            .then((res) => setProfileName(res.data.name || res.data.username || ''))
+            .catch(() => setProfileName(''));
+    }, []);
+
+    const handleLikePost = async (postId: number) => {
+        try {
+            await discussionApi.updateInterest({ discussion_id: postId });
+        } catch (err) {
+            console.error('Failed to update interest:', err);
+        }
     };
 
-    const handlePostComment = () => {
-        if (newPost.trim()) {
-            const newThreadPost = {
-                id: Date.now(),
-                user: { name: 'You', avatar: '' },
+    const handlePostComment = async () => {
+        if (!newPost.trim() || !resolvedParentId || !parentDiscussion) return;
+        const parentIdNum = parseInt(resolvedParentId);
+        if (Number.isNaN(parentIdNum)) return;
+        try {
+            await discussionApi.create({
                 content: newPost.trim(),
-                postedAgo: 'Just now',
-                likes: 0,
-                comments: 0,
-                isLiked: false,
-            };
-            setPosts((prev) => [newThreadPost, ...prev]);
+                contribution_id: parentDiscussion.contribution_id,
+                parent_id: parentIdNum,
+            });
             setNewPost('');
+
+            // Refresh thread discussions
+            const refreshed = await discussionApi.getResponses({ discussion_id: parentIdNum });
+            if (refreshed.data.responses) {
+                const parent = refreshed.data.responses;
+                setParentDiscussion(parent);
+                setThreadDiscussions(parent.responses || []);
+            }
+        } catch (err) {
+            console.error('Failed to create discussion:', err);
         }
     };
 
     return (
         <SinglePageLayout
             title={t('Thread')}
-            rightElement={<Typography sx={{ fontWeight: 600, fontSize: 14, color: '#666' }}>Adom Shafi</Typography>}
+            rightElement={<Typography sx={{ fontWeight: 600, fontSize: 14, color: '#666' }}>{profileName}</Typography>}
         >
             {/* Thread Posts */}
             <Box sx={{ p: 2, pb: 0 }}>
-                {posts.map((post) => (
-                    <Box key={post.id} sx={{ mb: 3 }}>
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>{post.user.name[0]}</Avatar>
-                            <Box sx={{ flex: 1 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                    <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>{post.user.name}</Typography>
-                                    <Typography sx={{ color: '#888', fontSize: 12 }}>Posted {post.postedAgo}</Typography>
-                                </Box>
-                                <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>{post.content}</Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        <IconButton size="small" onClick={() => handleLikePost(post.id)} sx={{ p: 0 }}>
-                                            {post.isLiked ? (
-                                                <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
-                                            ) : (
-                                                <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
-                                            )}
-                                        </IconButton>
-                                        <Typography sx={{ fontSize: 12, color: '#666' }}>{post.likes}</Typography>
-                                    </Box>
-                                    {post.comments > 0 && (
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
-                                            <Typography sx={{ fontSize: 12, color: '#666' }}>{post.comments}</Typography>
+                {loading ? (
+                    <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
+                        Loading thread...
+                    </Typography>
+                ) : error ? (
+                    <Typography sx={{ textAlign: 'center', color: 'error.main', py: 2 }}>
+                        Error: {error}
+                    </Typography>
+                ) : (
+                    <>
+                        {parentDiscussion && (
+                            <Box key={parentDiscussion.id} sx={{ mb: 4 }}>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                                        {parentDiscussion.user.profileName?.[0]?.toUpperCase() || parentDiscussion.user.username?.[0]?.toUpperCase() || 'U'}
+                                    </Avatar>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                            <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
+                                                {parentDiscussion.user.profileName || parentDiscussion.user.username}
+                                            </Typography>
+                                            <Typography sx={{ color: '#888', fontSize: 12 }}>
+                                                Posted {formatTimeAgo(parentDiscussion.created_at)}
+                                            </Typography>
                                         </Box>
-                                    )}
+                                        <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
+                                            {parentDiscussion.content}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleLikePost(parentDiscussion.id)}
+                                                    sx={{ p: 0 }}
+                                                >
+                                                    <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                </IconButton>
+                                                <Typography sx={{ fontSize: 12, color: '#666' }}>{parentDiscussion.interests}</Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
                                 </Box>
                             </Box>
-                        </Box>
-                    </Box>
-                ))}
+                        )}
+                        {threadDiscussions.length === 0 ? (
+                            <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>
+                                No replies yet. Be the first to reply!
+                            </Typography>
+                        ) : (
+                            threadDiscussions.map((post) => (
+                                <Box key={post.id} sx={{ mb: 3, ml: 4 }}>
+                                    <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                                            {post.user.profileName?.[0]?.toUpperCase() || post.user.username?.[0]?.toUpperCase() || 'U'}
+                                        </Avatar>
+                                        <Box sx={{ flex: 1 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                                <Typography sx={{ fontWeight: 600, fontSize: 14, mr: 1 }}>
+                                                    {post.user.profileName || post.user.username}
+                                                </Typography>
+                                                <Typography sx={{ color: '#888', fontSize: 12 }}>
+                                                    Posted {formatTimeAgo(post.created_at)}
+                                                </Typography>
+                                            </Box>
+                                            <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>
+                                                {post.content}
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleLikePost(post.id)}
+                                                        sx={{ p: 0 }}
+                                                    >
+                                                        <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                    </IconButton>
+                                                    <Typography sx={{ fontSize: 12, color: '#666' }}>{post.interests}</Typography>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            ))
+                        )}
+                    </>
+                )}
             </Box>
 
             {/* Bottom Input Area */}

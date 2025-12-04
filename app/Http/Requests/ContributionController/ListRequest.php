@@ -25,6 +25,7 @@ class ListRequest extends FormRequest
             'type' => 'string|nullable',
             'per_page' => 'integer|nullable',
             'page' => 'integer|nullable',
+            'user_id' => 'nullable|integer|exists:users,id',
         ];
     }
 }

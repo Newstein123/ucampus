@@ -112,7 +112,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             mt: 'calc(60px + env(safe-area-inset-top))',
                             mb: 'env(safe-area-inset-bottom)',
                             overflowY: 'auto',
-                            '-webkit-overflow-scrolling': 'touch',
+                            WebkitOverflowScrolling: 'touch',
                             WebkitScrollbarWidth: 'none',
                             scrollbarWidth: 'none',
                             '::-webkit-scrollbar': {

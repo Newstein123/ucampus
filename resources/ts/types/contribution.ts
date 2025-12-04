@@ -30,6 +30,7 @@ export interface ContributionListRequest {
     type?: string;
     per_page?: number;
     page?: number;
+    user_id?: number;
 }
 
 export interface Content {

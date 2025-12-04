@@ -14,6 +14,18 @@ class CreateRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->parent_id) {
+            $parent = \App\Models\Discussion::find($this->parent_id);
+            if ($parent) {
+                $this->merge([
+                    'contribution_id' => $parent->contribution_id,
+                ]);
+            }
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,8 +35,7 @@ class CreateRequest extends FormRequest
     {
         return [
             'content' => 'required|string',
-            'user_id' => 'required|exists:users,id',
-            'contribution_id' => 'required|exists:contributions,id',
+            'contribution_id' => 'required_without:parent_id|exists:contributions,id',
             'parent_id' => 'nullable|exists:discussions,id',
         ];
     }
