@@ -1,4 +1,5 @@
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -10,6 +11,7 @@ import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
 import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
 import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
+import useContributionBookmarkMutation from '../hooks/contribution/useContributionBookmarkMutation';
 
 const tabLabels = ['All Contributions', 'Idea', 'Question'];
 
@@ -28,11 +30,19 @@ const Home: React.FC = () => {
     const interestMutation = useContributionInterestMutation({
         onSuccess: (data) => {
             console.log('Interest updated successfully:', data.message);
-            // You can add a toast notification here if you have one
         },
         onError: (error) => {
             console.error('Failed to update interest:', error);
-            // You can add an error toast notification here
+        },
+    });
+
+    // Bookmark mutation
+    const bookmarkMutation = useContributionBookmarkMutation({
+        onSuccess: (data) => {
+            console.log('Bookmark updated successfully:', data.message);
+        },
+        onError: (error) => {
+            console.error('Failed to update bookmark:', error);
         },
     });
 
@@ -51,6 +61,10 @@ const Home: React.FC = () => {
 
     const handleInterest = (contributionId: number) => {
         interestMutation.mutate(contributionId);
+    };
+
+    const handleBookmark = (contributionId: number) => {
+        bookmarkMutation.mutate(contributionId);
     };
 
     const handleHomeRestart = useCallback(() => {
@@ -185,8 +199,22 @@ const Home: React.FC = () => {
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.views_count}</Typography>
                             <Box sx={{ flex: 1 }} />
-                            <IconButton size="small">
-                                <BookmarkBorderIcon fontSize="small" />
+                            <IconButton
+                                size="small"
+                                onClick={() => handleBookmark(item.id)}
+                                disabled={bookmarkMutation.isPending}
+                                sx={{
+                                    color: item.is_bookmarked ? '#1F8505' : 'inherit',
+                                    '&:hover': {
+                                        color: item.is_bookmarked ? '#165d04' : '#1F8505',
+                                    }
+                                }}
+                            >
+                                {item.is_bookmarked ? (
+                                    <BookmarkIcon fontSize="small" />
+                                ) : (
+                                    <BookmarkBorderIcon fontSize="small" />
+                                )}
                             </IconButton>
                         </Box>
                     </Card>

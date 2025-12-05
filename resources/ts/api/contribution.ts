@@ -25,4 +25,14 @@ export const contributionApi = {
         const response = await apiClient.getClient().post<{ success: boolean; message: string; data: { is_interested: boolean } }>(`${endpoints.contribution_interest}/${contributionId}/interest`);
         return response.data;
     },
+    async bookmark(contributionId: number): Promise<{ success: boolean; message: string; data: { is_bookmarked: boolean; message: string } }> {
+        const response = await apiClient.getClient().post<{ success: boolean; message: string; data: { is_bookmarked: boolean; message: string } }>(
+            `${endpoints.contribution_bookmark}/${contributionId}/bookmarks`
+        );
+        return response.data;
+    },
+    async getBookmarks(): Promise<ContributionResponse> {
+        const response = await apiClient.getClient().get<ContributionResponse>(endpoints.bookmark_list);
+        return response.data;
+    },
 };

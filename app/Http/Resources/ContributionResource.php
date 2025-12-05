@@ -34,6 +34,7 @@ class ContributionResource extends JsonResource
             'views_count' => $this->views_count,
             'likes_count' => $this->interests_count,
             'is_interested' => $user ? $this->interests()->where('user_id', $user->id)->exists() : false,
+            'is_bookmarked' => $user ? $user->bookmarkedContributions()->where('contribution_id', $this->id)->exists() : false,
             'thumbnail_url' => $thumbnailUrl,
             'attachments' => $attachmentUrls,
             'user' => [

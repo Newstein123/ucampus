@@ -161,14 +161,33 @@ class ContributionService implements ContributionServiceInterface
         return $this->contributionRepository->find($id);
     }
 
-    public function bookmark(int $userId, int $contributionId): void
+    public function toggleBookmark(int $userId, int $contributionId): array
     {
-        $this->contributionRepository->addBookmark($userId, $contributionId);
-    }
+        try {
+            $user = \App\Models\User::find($userId);
+            
+            // Check if user already has this bookmarked
+            $isBookmarked = $user->bookmarkedContributions()
+                ->where('contribution_id', $contributionId)
+                ->exists();
 
-    public function unbookmark(int $userId, int $contributionId): void
-    {
-        $this->contributionRepository->removeBookmark($userId, $contributionId);
+            if ($isBookmarked) {
+                // Remove bookmark
+                $this->contributionRepository->removeBookmark($userId, $contributionId);
+                $message = 'Bookmark removed successfully';
+            } else {
+                // Add bookmark
+                $this->contributionRepository->addBookmark($userId, $contributionId);
+                $message = 'Bookmark added successfully';
+            }
+
+            return [
+                'is_bookmarked' => !$isBookmarked,
+                'message' => $message
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function listBookmarks(int $userId, ?string $type = null, int $perPage = 10, int $page = 1)

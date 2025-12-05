@@ -11,6 +11,7 @@ export interface Contribution {
     thumbnail_url: string;
     likes_count: number;
     is_interested: boolean;
+    is_bookmarked: boolean;
     created_at: string;
     updated_at: string;
     user: {
