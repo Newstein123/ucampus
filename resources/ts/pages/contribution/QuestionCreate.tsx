@@ -1,12 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Chip, IconButton, Paper, Switch, TextField, Typography } from '@mui/material';
-import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { ErrorResponse } from '../../hooks';
 import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
 
 const questionSchema = z.object({
@@ -29,7 +27,6 @@ const QuestionCreate: React.FC = () => {
     const [tagInput, setTagInput] = useState('');
     const navigate = useNavigate();
     const createContributionMutation = useCreateContributionMutation();
-    const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
     const {
         control,
         handleSubmit,
@@ -80,8 +77,8 @@ const QuestionCreate: React.FC = () => {
                 onSuccess: () => {
                     navigate('/contribution');
                 },
-                onError: (error: AxiosError<ErrorResponse>) => {
-                    setApiValidationErrors(error.response?.data.errors || {});
+                onError: () => {
+                    // Error handling can be added here if needed
                 },
             },
         );

@@ -1,17 +1,17 @@
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Avatar, Box, Card, CardContent, CardMedia, CircularProgress, Divider, IconButton, Tab, Tabs, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
-import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
 import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
 import useContributionBookmarkMutation from '../hooks/contribution/useContributionBookmarkMutation';
+import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
 
 const tabLabels = ['All Contributions', 'Idea', 'Question'];
 
@@ -22,7 +22,7 @@ const Home: React.FC = () => {
     const type = tab === 0 ? undefined : tabLabels[tab].toLowerCase();
     const queryClient = useQueryClient();
 
-    const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useContributionListInfiniteQuery({ type, perPage: 10 });
+    const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useContributionListInfiniteQuery({ type, perPage: 10 });
 
     const { onHomeRestart } = useHomeContext();
 
@@ -49,7 +49,7 @@ const Home: React.FC = () => {
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
 
-    const handleTabChange = (_: any, idx: number) => {
+    const handleTabChange = (_: React.SyntheticEvent, idx: number) => {
         setTab(idx);
     };
 
@@ -187,11 +187,7 @@ const Home: React.FC = () => {
                                     }
                                 }}
                             >
-                                {item.is_interested ? (
-                                    <FavoriteIcon fontSize="small" />
-                                ) : (
-                                    <FavoriteBorderIcon fontSize="small" />
-                                )}
+                                {item.is_interested ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.likes_count}</Typography>
                             <IconButton size="small">

@@ -5,18 +5,19 @@ import PersonIcon from '@mui/icons-material/Person';
 import { Avatar, Badge, Box, Button, Divider, List, ListItem, ListItemAvatar, ListItemText, Paper, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import SinglePageLayout from '../components/SinglePageLayout';
 import useNotificationListQuery from '../hooks/notification/useNotificationListQuery';
 import useNotificationReadMutation from '../hooks/notification/useNotificationReadMutation';
 import { Notification as NotificationType } from '../types/notification';
-import NotificationTest from '../components/NotificationTest';
 
 // Using the API Notification type instead of local interface
 
 const Notifications: React.FC = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(0);
-    const [page, setPage] = useState(1);
+    const [page] = useState(1);
 
     const { data: notificationData, isLoading, error } = useNotificationListQuery({ page, per_page: 20 });
     const readMutation = useNotificationReadMutation();
@@ -49,7 +50,19 @@ const Notifications: React.FC = () => {
 
         // Handle redirect if available
         if (notification.redirect_url) {
-            window.location.href = notification.redirect_url;
+            const url = notification.redirect_url;
+
+            // Check if it's a relative path (starts with /)
+            if (url.startsWith('/')) {
+                // Use React Router navigation for internal routes (no hard refresh)
+                navigate(url);
+            } else if (url.startsWith('http://') || url.startsWith('https://')) {
+                // External URL - open in new tab
+                window.open(url, '_blank');
+            } else {
+                // Fallback: try to navigate anyway
+                navigate(url);
+            }
         }
     };
 

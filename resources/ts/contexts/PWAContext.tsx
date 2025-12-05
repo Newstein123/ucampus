@@ -37,7 +37,9 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
             setIsPWAState(pwaMode);
 
             // Check if in standalone mode
-            const standaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+            const standaloneMode =
+                window.matchMedia('(display-mode: standalone)').matches ||
+                ('standalone' in window.navigator && (window.navigator as Navigator & { standalone?: boolean }).standalone === true);
             setIsStandalone(standaloneMode);
         };
 

@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\NotificationController\ListRequest;
 use App\Http\Requests\NotificationController\ReadRequest;
-use Illuminate\Http\Request;
-use App\Services\NotificationServiceInterface;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\NotificationListResource;
+use App\Services\NotificationServiceInterface;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -18,6 +18,7 @@ class NotificationController extends Controller
     {
         $userId = Auth::user()->id;
         $notifications = $this->notificationService->getNotifications($userId);
+
         return $this->response([
             'notifications' => NotificationListResource::collection($notifications),
             'pagination' => [
@@ -33,6 +34,7 @@ class NotificationController extends Controller
     {
         $notificationId = $request->validated('notification_id');
         $this->notificationService->markAsRead($notificationId);
+
         return $this->response(null, 'Notifications marked as read');
     }
 
@@ -40,6 +42,7 @@ class NotificationController extends Controller
     {
         $userId = Auth::user()->id;
         $unreadCount = $this->notificationService->getUnreadCount($userId);
+
         return $this->response([
             'unread_count' => $unreadCount,
         ], 'Unread count fetched successfully');
@@ -53,7 +56,7 @@ class NotificationController extends Controller
         $notification = $this->notificationService->create([
             'user_id' => $userId,
             'type' => 'test',
-            'message' => 'This is a test notification from ' . now()->format('H:i:s'),
+            'message' => 'This is a test notification from '.now()->format('H:i:s'),
             'data' => [
                 'test' => true,
                 'timestamp' => now()->toISOString(),

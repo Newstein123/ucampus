@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Repositories\CollaborationRepositoryInterface;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class CollaborationService implements CollaborationServiceInterface
 {
@@ -22,10 +22,11 @@ class CollaborationService implements CollaborationServiceInterface
                 'contribution_id' => $contributionId,
                 'user_id' => $userId,
                 'reason' => $reason,
-                'status' => 0 // Pending
+                'status' => 0, // Pending
             ]);
 
             DB::commit();
+
             return $result;
         } catch (Exception $e) {
             DB::rollBack();
@@ -42,9 +43,10 @@ class CollaborationService implements CollaborationServiceInterface
             $result = $this->collaborationRepository->updateRequestStatus($status);
 
             DB::commit();
+
             return [
                 'status' => $status,
-                'message' => $status === 1 ? 'Request approved' : 'Request rejected'
+                'message' => $status === 1 ? 'Request approved' : 'Request rejected',
             ];
         } catch (Exception $e) {
             DB::rollBack();

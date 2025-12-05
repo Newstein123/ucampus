@@ -3,12 +3,10 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Chip, IconButton, Paper, Step, StepLabel, Stepper, Switch, TextField, Typography } from '@mui/material';
-import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { ErrorResponse } from '../../hooks';
 import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
 import { IdeaForm, ideaSchema } from '../../schemas/idea';
 
@@ -23,12 +21,6 @@ const ideaStep2Schema = z.object({
     problem: z.string().min(1, 'Problem is required'),
     solution: z.string().min(1, 'Solution is required'),
     impact: z.string().min(1, 'Impact is required'),
-});
-const ideaStep3Schema = z.object({
-    resources: z.string().min(1, 'Resources needed is required'),
-    attachments: z.array(z.any()).optional(),
-    tags: z.array(z.string()).optional(),
-    is_public: z.boolean(),
 });
 
 const defaultValues: IdeaForm = {
@@ -77,7 +69,6 @@ const IdeaCreate: React.FC = () => {
     const step2Valid = !!problem && !!solution && !!impact;
     const step3Valid = !!resources;
     const createContributionMutation = useCreateContributionMutation();
-    const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
 
     // Handlers
     const handleBack = () => setActiveStep((s) => s - 1);
@@ -110,7 +101,7 @@ const IdeaCreate: React.FC = () => {
     const handleRemoveAttachment = (idx: number) => {
         setValue(
             'attachments',
-            (getValues('attachments') || []).filter((_: any, i: number) => i !== idx),
+            (getValues('attachments') || []).filter((_attachment: File, i: number) => i !== idx),
         );
     };
 
@@ -120,7 +111,7 @@ const IdeaCreate: React.FC = () => {
             setActiveStep(1);
         } else {
             result.error.errors.forEach((err) => {
-                setError(err.path[0] as any, { message: err.message });
+                setError(err.path[0] as keyof IdeaForm, { message: err.message });
             });
         }
     };
@@ -130,7 +121,7 @@ const IdeaCreate: React.FC = () => {
             setActiveStep(2);
         } else {
             result.error.errors.forEach((err) => {
-                setError(err.path[0] as any, { message: err.message });
+                setError(err.path[0] as keyof IdeaForm, { message: err.message });
             });
         }
     };
@@ -156,8 +147,8 @@ const IdeaCreate: React.FC = () => {
             onSuccess: () => {
                 navigate('/contribution');
             },
-            onError: (error: AxiosError<ErrorResponse>) => {
-                setApiValidationErrors(error.response?.data.errors || {});
+            onError: () => {
+                // Error handling can be added here if needed
             },
         });
     };
@@ -420,7 +411,7 @@ const IdeaCreate: React.FC = () => {
             </Box>
             {/* Stepper */}
             <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 3 }}>
-                {steps.map((label, idx) => (
+                {steps.map((label) => (
                     <Step key={label}>
                         <StepLabel>{label}</StepLabel>
                     </Step>

@@ -12,6 +12,7 @@ class TagRepository implements TagRepositoryInterface
         foreach ($data as $tag) {
             $ids[] = Tag::create(['name' => $tag])->id;
         }
+
         return $ids;
     }
 }

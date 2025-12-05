@@ -25,11 +25,7 @@ const BackButton: React.FC<BackButtonProps> = ({ to, color = '#1F8505', size = '
     };
 
     return (
-        <IconButton
-            onClick={handleClick}
-            size={size}
-            sx={{ mr: 1, ...sx, color: '#1F8505', '&:hover': { color: '#1F8505' }, padding: '20px' }}
-        >
+        <IconButton onClick={handleClick} size={size} sx={{ mr: 1, ...sx, color: '#1F8505', '&:hover': { color: '#1F8505' }, padding: '20px' }}>
             <ArrowBackIosNewIcon fontSize={size} sx={{ color }} />
         </IconButton>
     );

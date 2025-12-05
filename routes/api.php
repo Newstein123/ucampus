@@ -1,24 +1,21 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BookmarkController;
+use App\Http\Controllers\Api\CollaborationController;
 use App\Http\Controllers\Api\ContributionController;
 use App\Http\Controllers\Api\DiscussionController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
-use App\Http\Controllers\Api\CollaborationController;
-use App\Http\Controllers\Api\TaskController;
-use App\Http\Controllers\Api\ProgressController;
-use App\Http\Controllers\Api\BookmarkController;
+use App\Models\Notification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
-use App\Models\Notification;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -48,8 +45,9 @@ Route::get('auth/test-callback', function (Request $request) {
     \Log::info('Test callback route hit', [
         'method' => $request->method(),
         'url' => $request->fullUrl(),
-        'params' => $request->all()
+        'params' => $request->all(),
     ]);
+
     return response()->json(['message' => 'Test callback working']);
 });
 
@@ -59,8 +57,9 @@ Route::get('auth/google/callback', function (Request $request) {
         'method' => $request->method(),
         'url' => $request->fullUrl(),
         'query_params' => $request->query(),
-        'all_params' => $request->all()
+        'all_params' => $request->all(),
     ]);
+
     return response()->json(['message' => 'Google callback route working']);
 });
 
@@ -93,7 +92,7 @@ Route::prefix('notifications')->group(function () {
     Route::post('/test', [NotificationController::class, 'testNotification'])->middleware('auth:sanctum');
     Route::post('/test-broadcast', function (Request $request) {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'User not authenticated'], 401);
         }
 
@@ -111,7 +110,7 @@ Route::prefix('notifications')->group(function () {
 
         return response()->json([
             'message' => 'Test notification created and broadcasted',
-            'notification' => $notification
+            'notification' => $notification,
         ]);
     })->middleware('auth:sanctum');
 });
@@ -124,6 +123,7 @@ Route::post('/broadcasting/auth', function (Request $request) {
         'socket_id' => $request->input('socket_id'),
         'channel_name' => $request->input('channel_name'),
     ]);
+
     return Broadcast::auth($request);
 })->middleware('auth:sanctum');
 
