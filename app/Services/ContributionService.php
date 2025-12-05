@@ -35,14 +35,6 @@ class ContributionService implements ContributionServiceInterface
             if (isset($data['thumbnail_url']) && $data['thumbnail_url'] instanceof \Illuminate\Http\UploadedFile) {
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
-
-            // Handle old attachments array (backward compatibility)
-            if (isset($data['attachments']) && is_array($data['attachments']) && !empty($data['attachments'])) {
-                $firstAttachment = $data['attachments'][0] ?? null;
-                if ($firstAttachment instanceof \Illuminate\Http\UploadedFile) {
-                    $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
-                }
-            }
             
             // Extract attachment_paths before creating contribution
             $attachmentPaths = $data['attachment_paths'] ?? [];
@@ -99,14 +91,7 @@ class ContributionService implements ContributionServiceInterface
                 }
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
-
-            if (isset($data['attachments']) && is_array($data['attachments'])) {
-                // Delete old attachments if they exist
-                if ($existingContribution->attachments) {
-                    $this->fileService->deleteFiles($existingContribution->attachments);
-                }
-                $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
-            }
+        
 
             $contribution = $this->contributionRepository->update($id, $data);
 
