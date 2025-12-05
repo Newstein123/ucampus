@@ -181,9 +181,9 @@ const Home: React.FC = () => {
                                 onClick={() => handleInterest(item.id)}
                                 disabled={interestMutation.isPending}
                                 sx={{
-                                    color: item.is_interested ? '#e91e63' : 'inherit',
+                                    color: item.is_interested ? '#1F8505' : 'inherit',
                                     '&:hover': {
-                                        color: item.is_interested ? '#c2185b' : '#e91e63',
+                                        color: item.is_interested ? '#1F8505' : '#1F8505',
                                     }
                                 }}
                             >
