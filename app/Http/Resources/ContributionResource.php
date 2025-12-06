@@ -33,6 +33,7 @@ class ContributionResource extends JsonResource
             'status' => $this->status,
             'views_count' => $this->views_count,
             'likes_count' => $this->interests_count,
+            'comments_count' => $this->discussions()->whereNull('parent_id')->count(),
             'is_interested' => $user ? $this->interests()->where('user_id', $user->id)->exists() : false,
             'thumbnail_url' => $thumbnailUrl,
             'attachments' => $attachmentUrls,

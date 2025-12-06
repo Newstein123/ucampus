@@ -63,6 +63,7 @@ const MyIdeasAndQuestions: React.FC = () => {
                                 p: 1.5,
                                 alignItems: 'flex-start',
                             }}
+                            onClick={() => navigate(`/ideas/${idea.id}`)}
                         >
                             <ListItemAvatar>
                                 <Avatar variant="rounded" src={idea.image} sx={{ width: 56, height: 56, mr: 2, bgcolor: '#e8f5e9' }} />
@@ -88,6 +89,7 @@ const MyIdeasAndQuestions: React.FC = () => {
                                 p: 1.5,
                                 alignItems: 'flex-start',
                             }}
+                            onClick={() => navigate(`/questions/${q.id}`)}
                         >
                             <ListItemAvatar>
                                 <Avatar

@@ -1,6 +1,6 @@
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SendIcon from '@mui/icons-material/Send';
-import { Avatar, Box, IconButton, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Divider, IconButton, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
@@ -8,6 +8,9 @@ import { authApi } from '../../api/auth';
 import { discussionApi } from '../../api/discussion';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import { Discussion } from '../../types/discussion';
+import { useParams } from 'react-router-dom';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+
 
 // Helper function to format time ago
 const formatTimeAgo = (dateString: string): string => {
@@ -111,7 +114,9 @@ const Thread: React.FC = () => {
     return (
         <SinglePageLayout
             title={t('Thread')}
-            rightElement={<Typography sx={{ fontWeight: 600, fontSize: 14, color: '#666' }}>{profileName}</Typography>}
+            rightElement={<Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                {parentDiscussion?.user.profileName?.[0]?.toUpperCase() || parentDiscussion?.user.username?.[0]?.toUpperCase() || 'U'}
+            </Avatar>}
         >
             {/* Thread Posts */}
             <Box sx={{ p: 2, pb: 0 }}>
@@ -148,16 +153,21 @@ const Thread: React.FC = () => {
                                                 </IconButton>
                                                 <Typography sx={{ fontSize: 12, color: '#666' }}>{parentDiscussion.interests}</Typography>
                                             </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                <Typography sx={{ fontSize: 12, color: '#666' }}>{threadDiscussions.length}</Typography>
+                                            </Box>
                                         </Box>
                                     </Box>
                                 </Box>
                             </Box>
                         )}
+                        <Divider sx={{ my: 2 }} />
                         {threadDiscussions.length === 0 ? (
                             <Typography sx={{ textAlign: 'center', color: '#666', py: 2 }}>No replies yet. Be the first to reply!</Typography>
                         ) : (
                             threadDiscussions.map((post) => (
-                                <Box key={post.id} sx={{ mb: 3, ml: 4 }}>
+                                <Box key={post.id} sx={{ mb: 3 }}>
                                     <Box sx={{ display: 'flex', gap: 2 }}>
                                         <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
                                             {post.user.profileName?.[0]?.toUpperCase() || post.user.username?.[0]?.toUpperCase() || 'U'}
