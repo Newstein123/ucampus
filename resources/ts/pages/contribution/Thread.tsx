@@ -8,7 +8,6 @@ import { authApi } from '../../api/auth';
 import { discussionApi } from '../../api/discussion';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import { Discussion } from '../../types/discussion';
-import { useParams } from 'react-router-dom';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 
 
