@@ -66,6 +66,14 @@ class Contribution extends Model
     }
 
     /**
+     * Get the attachments for the contribution
+     */
+    public function contributionAttachments()
+    {
+        return $this->hasMany(ContributionAttachment::class);
+    }
+
+    /**
      * Get all discussions (comments) for this contribution
      */
     public function discussions()
