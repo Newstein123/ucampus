@@ -35,6 +35,7 @@ import Onboarding from './pages/Onboarding';
 import Projects from './pages/Projects';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
+import Bookmarks from './pages/myhub/Bookmarks';
 
 // Create a theme instance
 const theme = createTheme({
@@ -123,6 +124,15 @@ const App: React.FC = () => {
                                             element={
                                                 <ProtectedRoute>
                                                     <MyIdeasAndQuestions />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+
+                                        <Route
+                                            path="/bookmarks"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Bookmarks />
                                                 </ProtectedRoute>
                                             }
                                         />
