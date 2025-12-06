@@ -72,4 +72,12 @@ class Contribution extends Model
     {
         return $this->hasMany(ContributionAttachment::class);
     }
+
+    /**
+     * Get all discussions (comments) for this contribution
+     */
+    public function discussions()
+    {
+        return $this->hasMany(Discussion::class);
+    }
 }
