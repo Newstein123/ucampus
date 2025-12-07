@@ -35,19 +35,19 @@ class ContributionService implements ContributionServiceInterface
             if (isset($data['thumbnail_url']) && $data['thumbnail_url'] instanceof \Illuminate\Http\UploadedFile) {
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
-            
+
             // Extract attachment_paths before creating contribution
             $attachmentPaths = $data['attachment_paths'] ?? [];
             unset($data['attachment_paths']);
-            
+
             $contribution = $this->contributionRepository->create($data);
-            
+
             // Handle tags
             if (isset($data['tags'])) {
                 $tagIds = $this->tagRepository->createMany($data['tags']);
                 $contribution->tags()->attach($tagIds);
             }
-            
+
             // Create attachment records from paths
             if (!empty($attachmentPaths) && is_array($attachmentPaths)) {
                 foreach ($attachmentPaths as $attachmentData) {
@@ -62,7 +62,7 @@ class ContributionService implements ContributionServiceInterface
                     }
                 }
             }
-            
+
 
             return $contribution;
         } catch (\Exception $e) {
@@ -91,7 +91,7 @@ class ContributionService implements ContributionServiceInterface
                 }
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
-        
+
 
             $contribution = $this->contributionRepository->update($id, $data);
 
@@ -111,16 +111,16 @@ class ContributionService implements ContributionServiceInterface
         try {
             // Get contribution to delete associated files
             $contribution = $this->contributionRepository->find($id);
-            
+
             // Delete associated files
             if ($contribution->thumbnail_url) {
                 $this->fileService->deleteFile($contribution->thumbnail_url);
             }
-            
+
             if ($contribution->attachments) {
                 $this->fileService->deleteFiles($contribution->attachments);
             }
-            
+
             return $this->contributionRepository->delete($id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
@@ -176,7 +176,7 @@ class ContributionService implements ContributionServiceInterface
     {
         try {
             $user = \App\Models\User::find($userId);
-            
+
             // Check if user already has this bookmarked
             $isBookmarked = $user->bookmarkedContributions()
                 ->where('contribution_id', $contributionId)
@@ -217,10 +217,10 @@ class ContributionService implements ContributionServiceInterface
         try {
             // Upload file to MinIO and get relative path
             $relativePath = $this->fileService->uploadFile($file, 'contributions/attachments');
-            
+
             // Get full URL
             $fullUrl = $this->fileService->getFileUrl($relativePath);
-            
+
             return [
                 'url' => $fullUrl,
                 'path' => $relativePath,

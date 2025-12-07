@@ -1,4 +1,5 @@
-import { Avatar, Box, Button, List, ListItem, ListItemText, Typography } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import { Avatar, Box, Button, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
@@ -31,9 +32,20 @@ const MyProfile: React.FC = () => {
 
     return (
         <Layout>
-            <Typography align="center" variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                My Hub
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography align="center" variant="h6" sx={{ fontWeight: 700, flex: 1 }}>
+                    My Hub
+                </Typography>
+                <IconButton
+                    onClick={() => navigate('/profile/edit')}
+                    sx={{
+                        color: '#1F8505',
+                        '&:hover': { bgcolor: '#f0f0f0' },
+                    }}
+                >
+                    <EditIcon />
+                </IconButton>
+            </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
                 <Avatar sx={{ width: 80, height: 80, bgcolor: '#d9f5d6', mb: 1 }}>
                     <Typography variant="h3" sx={{ color: '#b0c4b1' }}>
@@ -56,11 +68,7 @@ const MyProfile: React.FC = () => {
                     />
                 </ListItem>
                 <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
-                    <ListItemText
-                        primary={t('Bookmarks')}
-                        onClick={() => navigate('/bookmarks')}
-                        sx={{ cursor: 'pointer' }}
-                    />
+                    <ListItemText primary={t('Bookmarks')} onClick={() => navigate('/bookmarks')} sx={{ cursor: 'pointer' }} />
                 </ListItem>
                 <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
                     <ListItemText primary={t('Terms & Conditions')} onClick={() => navigate('/terms-and-conditions')} sx={{ cursor: 'pointer' }} />

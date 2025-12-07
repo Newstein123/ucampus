@@ -1,12 +1,12 @@
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import { Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogTitle, Typography } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
-import SinglePageLayout from "../../components/SinglePageLayout";
+import SinglePageLayout from '../../components/SinglePageLayout';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -30,7 +30,7 @@ const Bookmarks: React.FC = () => {
     const unbookmarkMutation = useMutation({
         mutationFn: async (ids: number[]) => {
             // Unbookmark each selected item
-            const promises = ids.map(id => contributionApi.bookmark(id));
+            const promises = ids.map((id) => contributionApi.bookmark(id));
             return Promise.all(promises);
         },
         onSuccess: () => {
@@ -45,7 +45,7 @@ const Bookmarks: React.FC = () => {
         onError: (error) => {
             console.error('Failed to unbookmark:', error);
             setShowConfirmDialog(false);
-        }
+        },
     });
 
     const handleSelectToggle = () => {
@@ -58,7 +58,7 @@ const Bookmarks: React.FC = () => {
 
     const handleItemSelect = (id: number) => {
         if (selectedIds.includes(id)) {
-            setSelectedIds(selectedIds.filter(i => i !== id));
+            setSelectedIds(selectedIds.filter((i) => i !== id));
         } else {
             setSelectedIds([...selectedIds, id]);
         }
@@ -97,7 +97,7 @@ const Bookmarks: React.FC = () => {
                             fontSize: 14,
                             marginRight: 3,
                             cursor: 'pointer',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
                         }}
                     >
                         {isSelectMode ? 'Cancel' : 'Select'}
@@ -132,7 +132,7 @@ const Bookmarks: React.FC = () => {
                                 alignItems: 'flex-start',
                                 mb: index < bookmarks.length - 1 ? 2.5 : 0,
                                 cursor: 'pointer',
-                                '&:hover': { opacity: 0.8 }
+                                '&:hover': { opacity: 0.8 },
                             }}
                         >
                             {/* Checkbox in select mode */}
@@ -158,7 +158,7 @@ const Bookmarks: React.FC = () => {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         flexShrink: 0,
-                                        mr: 2
+                                        mr: 2,
                                     }}
                                 >
                                     <HelpOutlineIcon sx={{ fontSize: 30, color: '#666' }} />
@@ -176,7 +176,7 @@ const Bookmarks: React.FC = () => {
                                         borderRadius: 2,
                                         objectFit: 'cover',
                                         flexShrink: 0,
-                                        mr: 2
+                                        mr: 2,
                                     }}
                                 />
                             )}
@@ -189,7 +189,7 @@ const Bookmarks: React.FC = () => {
                                         fontSize: 15,
                                         color: '#000',
                                         mb: 0.5,
-                                        lineHeight: 1.4
+                                        lineHeight: 1.4,
                                     }}
                                 >
                                     {item.title}
@@ -220,7 +220,7 @@ const Bookmarks: React.FC = () => {
                         bgcolor: '#fff',
                         borderTop: '1px solid #eee',
                         maxWidth: 600,
-                        mx: 'auto'
+                        mx: 'auto',
                     }}
                 >
                     <Button
@@ -238,8 +238,8 @@ const Bookmarks: React.FC = () => {
                             fontSize: 16,
                             '&:hover': {
                                 borderColor: '#1F8505',
-                                bgcolor: 'rgba(31, 133, 5, 0.04)'
-                            }
+                                bgcolor: 'rgba(31, 133, 5, 0.04)',
+                            },
                         }}
                     >
                         {unbookmarkMutation.isPending ? <CircularProgress size={24} /> : 'Unbookmark'}
@@ -255,13 +255,11 @@ const Bookmarks: React.FC = () => {
                     sx: {
                         borderRadius: 3,
                         p: 1,
-                        minWidth: 300
-                    }
+                        minWidth: 300,
+                    },
                 }}
             >
-                <DialogTitle sx={{ textAlign: 'center', fontWeight: 600, pb: 1 }}>
-                    Selected items will be removed from bookmark!
-                </DialogTitle>
+                <DialogTitle sx={{ textAlign: 'center', fontWeight: 600, pb: 1 }}>Selected items will be removed from bookmark!</DialogTitle>
                 <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 2 }}>
                     <Button
                         onClick={handleConfirmUnbookmark}
@@ -275,8 +273,8 @@ const Bookmarks: React.FC = () => {
                             textTransform: 'none',
                             fontWeight: 600,
                             '&:hover': {
-                                bgcolor: '#165d04'
-                            }
+                                bgcolor: '#165d04',
+                            },
                         }}
                     >
                         {unbookmarkMutation.isPending ? <CircularProgress size={24} color="inherit" /> : 'Sure'}
@@ -294,8 +292,8 @@ const Bookmarks: React.FC = () => {
                             fontWeight: 600,
                             '&:hover': {
                                 borderColor: '#165d04',
-                                bgcolor: 'rgba(31, 133, 5, 0.04)'
-                            }
+                                bgcolor: 'rgba(31, 133, 5, 0.04)',
+                            },
                         }}
                     >
                         Cancel

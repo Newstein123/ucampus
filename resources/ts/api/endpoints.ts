@@ -37,5 +37,5 @@ export const endpoints = Object.freeze({
     //   auth_resend_verification: '/api/auth/resend-verification',
     //   auth_update_onboarding: '/api/auth/update-onboarding',
     auth_change_password: '/auth/profile/edit/password',
-    //   auth_update_profile: '/api/auth/update-profile',
+    auth_update_profile: '/auth/profile/edit',
 });

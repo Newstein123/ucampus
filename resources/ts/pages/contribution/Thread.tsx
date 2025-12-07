@@ -1,3 +1,4 @@
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SendIcon from '@mui/icons-material/Send';
 import { Avatar, Box, Divider, IconButton, TextField, Typography } from '@mui/material';
@@ -8,8 +9,6 @@ import { authApi } from '../../api/auth';
 import { discussionApi } from '../../api/discussion';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import { Discussion } from '../../types/discussion';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-
 
 // Helper function to format time ago
 const formatTimeAgo = (dateString: string): string => {
@@ -29,7 +28,6 @@ const Thread: React.FC = () => {
     const { discussionId } = useParams<{ id?: string; discussionId?: string }>();
     const location = useLocation();
     const [newPost, setNewPost] = useState('');
-    const [profileName, setProfileName] = useState<string>('');
     const [parentDiscussion, setParentDiscussion] = useState<Discussion | null>(null);
     const [threadDiscussions, setThreadDiscussions] = useState<Discussion[]>([]);
     const [loading, setLoading] = useState(false);
@@ -113,9 +111,11 @@ const Thread: React.FC = () => {
     return (
         <SinglePageLayout
             title={t('Thread')}
-            rightElement={<Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
-                {parentDiscussion?.user.profileName?.[0]?.toUpperCase() || parentDiscussion?.user.username?.[0]?.toUpperCase() || 'U'}
-            </Avatar>}
+            rightElement={
+                <Avatar sx={{ width: 40, height: 40, bgcolor: '#e8f5e9', color: '#1F8505', mt: 0.5 }}>
+                    {parentDiscussion?.user.profileName?.[0]?.toUpperCase() || parentDiscussion?.user.username?.[0]?.toUpperCase() || 'U'}
+                </Avatar>
+            }
         >
             {/* Thread Posts */}
             <Box sx={{ p: 2, pb: 0 }}>

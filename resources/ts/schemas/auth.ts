@@ -28,6 +28,16 @@ export const changePasswordSchema = z
         path: ['confirmPassword'],
     });
 
+export const updateProfileSchema = z.object({
+    name: z.union([z.string().min(2, 'Name must be at least 2 characters'), z.literal('')]).optional(),
+    username: z.union([z.string().min(2, 'Username must be at least 2 characters'), z.literal('')]).optional(),
+    email: z.union([z.string().email('Please enter a valid email address'), z.literal('')]).optional(),
+    phone: z.union([z.string(), z.literal('')]).optional(),
+    location: z.union([z.string(), z.literal('')]).optional(),
+    dob: z.union([z.string(), z.literal('')]).optional(),
+});
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;

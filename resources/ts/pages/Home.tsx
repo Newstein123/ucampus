@@ -1,5 +1,5 @@
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -10,9 +10,10 @@ import { useNavigate } from 'react-router-dom';
 import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
-import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
 import useContributionBookmarkMutation from '../hooks/contribution/useContributionBookmarkMutation';
+import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
 import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
+import { Contribution } from '../types/contribution';
 
 const tabLabels = ['All Contributions', 'Idea', 'Question'];
 
@@ -51,7 +52,7 @@ const Home: React.FC = () => {
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
 
-    const getContributionTitle = (item: any) => {
+    const getContributionTitle = (item: Contribution) => {
         switch (item?.type) {
             case 'idea':
                 return item?.title;
@@ -64,7 +65,7 @@ const Home: React.FC = () => {
         }
     };
 
-    const getContributionDescription = (item: any) => {
+    const getContributionDescription = (item: Contribution) => {
         switch (item?.type) {
             case 'idea':
                 return item?.content?.description;
@@ -161,17 +162,13 @@ const Home: React.FC = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                 <Avatar sx={{ bgcolor: '#48b74d', width: 32, height: 32, mr: 1 }}>{item?.user?.name?.[0] || 'U'}</Avatar>
                                 <Box>
-                                    <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
-                                        {getContributionTitle(item)}
-                                    </Typography>
+                                    <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{getContributionTitle(item)}</Typography>
                                     <Typography sx={{ color: '#666', fontSize: 12 }}>{item?.user?.name}</Typography>
                                 </Box>
                             </Box>
                             {/* Created at time */}
                             <Typography sx={{ color: '#aaa', fontSize: 12, mb: 0.5, ml: 5 }}>{item.created_at}</Typography>
-                            <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>
-                                {getContributionDescription(item)}
-                            </Typography>
+                            <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>{getContributionDescription(item)}</Typography>
                         </CardContent>
                         {(item.type === 'idea' || item.type === 'project') && item.thumbnail_url && (
                             <CardMedia
@@ -245,7 +242,7 @@ const Home: React.FC = () => {
                                     color: item.is_interested ? '#1F8505' : 'inherit',
                                     '&:hover': {
                                         color: item.is_interested ? '#1F8505' : '#1F8505',
-                                    }
+                                    },
                                 }}
                             >
                                 {item.is_interested ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
@@ -264,14 +261,10 @@ const Home: React.FC = () => {
                                     color: item.is_bookmarked ? '#1F8505' : 'inherit',
                                     '&:hover': {
                                         color: item.is_bookmarked ? '#165d04' : '#1F8505',
-                                    }
+                                    },
                                 }}
                             >
-                                {item.is_bookmarked ? (
-                                    <BookmarkIcon fontSize="small" />
-                                ) : (
-                                    <BookmarkBorderIcon fontSize="small" />
-                                )}
+                                {item.is_bookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
                             </IconButton>
                         </Box>
                     </Card>

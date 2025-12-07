@@ -115,3 +115,18 @@ export interface SocialAuthResponse {
         url: string;
     };
 }
+
+export interface UpdateProfileRequest {
+    name?: string;
+    username?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    dob?: string;
+}
+
+export interface UpdateProfileResponse {
+    success: boolean;
+    message: string;
+    data: User;
+}
