@@ -1,3 +1,12 @@
+export interface Attachment {
+    id: number | null;
+    url: string;
+    path: string;
+    name: string;
+    type: string | null;
+    size: number | null;
+}
+
 export interface Contribution {
     id: number;
     title: string;
@@ -13,6 +22,7 @@ export interface Contribution {
     comments_count: number;
     is_interested: boolean;
     is_bookmarked: boolean;
+    attachments: Attachment[];
     created_at: string;
     updated_at: string;
     user: {
@@ -40,9 +50,11 @@ export interface Content {
     description: string | null;
     question: string | null;
     answer: string | null;
+    thought: string | null;
     problem: string | null;
     solution: string | null;
     impact: string | null;
+    why_it_matters: string | null;
     resources: string | null;
     references: string | null;
 }

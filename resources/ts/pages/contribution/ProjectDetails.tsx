@@ -109,28 +109,50 @@ const ProjectDetails: React.FC = () => {
                 </Paper>
 
                 {/* Attachments */}
-                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Attachments</Typography>
-                    <List dense>
-                        {([] as Array<{ name: string; url?: string }>).map((file) => (
-                            <ListItem
-                                key={file.name}
-                                secondaryAction={
-                                    <IconButton edge="end" aria-label="download">
-                                        <DownloadIcon />
-                                    </IconButton>
-                                }
-                            >
-                                <ListItemAvatar>
-                                    <Avatar sx={{ bgcolor: '#e8f5e9', color: '#1F8505', width: 32, height: 32 }}>
-                                        {file.name.split('.').pop()?.toUpperCase() || 'F'}
-                                    </Avatar>
-                                </ListItemAvatar>
-                                <ListItemText primary={file.name} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Paper>
+                {project?.attachments && project.attachments.length > 0 && (
+                    <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Attachments</Typography>
+                        <List dense>
+                            {project.attachments.map((file, index) => (
+                                <ListItem
+                                    key={file.id || index}
+                                    component="a"
+                                    href={file.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        cursor: 'pointer',
+                                        '&:hover': { bgcolor: '#f5f5f5' },
+                                        borderRadius: 1,
+                                        mb: 0.5,
+                                    }}
+                                    secondaryAction={
+                                        <IconButton
+                                            edge="end"
+                                            aria-label="download"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (file.url) {
+                                                    window.open(file.url, '_blank');
+                                                }
+                                            }}
+                                        >
+                                            <DownloadIcon />
+                                        </IconButton>
+                                    }
+                                >
+                                    <ListItemAvatar>
+                                        <Avatar sx={{ bgcolor: '#e8f5e9', color: '#1F8505', width: 32, height: 32 }}>
+                                            {file.name.split('.').pop()?.toUpperCase().substring(0, 2) || 'F'}
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText primary={file.name} secondary={file.size ? `${(file.size / 1024).toFixed(1)} KB` : ''} />
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Paper>
+                )}
 
                 {/* Next Steps */}
                 <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>

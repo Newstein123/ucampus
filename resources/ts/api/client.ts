@@ -17,12 +17,16 @@ class ApiClient {
     }
 
     private setupInterceptors(): void {
-        // Request interceptor to add auth token
+        // Request interceptor to add auth token and handle FormData
         this.client.interceptors.request.use(
             (config) => {
                 const token = localStorage.getItem('auth_token');
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
+                }
+                // If data is FormData, remove Content-Type header to let axios set it automatically with boundary
+                if (config.data instanceof FormData) {
+                    delete config.headers['Content-Type'];
                 }
                 return config;
             },

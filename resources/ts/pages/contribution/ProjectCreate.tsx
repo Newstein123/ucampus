@@ -3,11 +3,13 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Chip, IconButton, Paper, Step, StepLabel, Stepper, Switch, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
-import { IdeaForm, ideaSchema } from '../../schemas/idea';
+import { contributionApi } from '../../api/contribution';
+import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
+import { ProjectForm, projectSchema } from '../../schemas/idea';
 
 const steps = ["What's your idea?", 'Why it matters?', 'Make it real'];
 
@@ -22,7 +24,7 @@ const ideaStep2Schema = z.object({
     impact: z.string().min(1, 'Impact is required'),
 });
 
-const defaultValues: IdeaForm = {
+const defaultValues: ProjectForm = {
     thumbnail: null,
     title: '',
     description: '',
@@ -32,14 +34,28 @@ const defaultValues: IdeaForm = {
     resources: '',
     attachments: [],
     tags: [],
-    allowContributions: false,
-    publicVisibility: false,
+    allow_collab: false,
+    is_public: false,
 };
+
+interface UploadedAttachment {
+    url: string;
+    path: string;
+    name: string;
+    type: string;
+    size: number;
+}
 
 const ProjectCreate: React.FC = () => {
     const [activeStep, setActiveStep] = useState(0);
     const [tagInput, setTagInput] = useState('');
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const ideaId = searchParams.get('ideaId');
+    const [ideaThumbnailUrl, setIdeaThumbnailUrl] = useState<string | null>(null);
+    const [uploadedAttachments, setUploadedAttachments] = useState<UploadedAttachment[]>([]);
+    const [uploadingAttachments, setUploadingAttachments] = useState<Set<number>>(new Set());
+    const createContributionMutation = useCreateContributionMutation();
 
     const {
         control,
@@ -48,12 +64,48 @@ const ProjectCreate: React.FC = () => {
         getValues,
         watch,
         setError,
+        reset,
         formState: { errors },
-    } = useForm<IdeaForm>({
-        resolver: zodResolver(ideaSchema),
+    } = useForm<ProjectForm>({
+        resolver: zodResolver(projectSchema),
         defaultValues,
         mode: 'onTouched',
     });
+
+    // Load idea data if ideaId is provided (upgrading from idea)
+    useEffect(() => {
+        if (ideaId) {
+            const loadIdea = async () => {
+                try {
+                    const res = await contributionApi.show(parseInt(ideaId));
+                    const idea = res.data;
+                    // Store thumbnail URL separately for display
+                    if (idea.thumbnail_url) {
+                        setIdeaThumbnailUrl(idea.thumbnail_url);
+                    }
+                    reset({
+                        title: idea.title || '',
+                        description: idea.content?.description || '',
+                        problem: idea.content?.problem || '',
+                        solution: idea.content?.solution || '',
+                        impact: idea.content?.why_it_matters || idea.content?.impact || '',
+                        resources: idea.content?.resources || '',
+                        tags: idea.tags || [],
+                        is_public: idea.is_public || false,
+                        allow_collab: idea.allow_collab || false,
+                        thumbnail: null,
+                        attachments: [],
+                    });
+                    // Clear uploaded attachments when loading idea
+                    setUploadedAttachments([]);
+                    setUploadingAttachments(new Set());
+                } catch (error) {
+                    console.error('Failed to load idea:', error);
+                }
+            };
+            loadIdea();
+        }
+    }, [ideaId, reset]);
 
     // Watchers for step validation
     const title = watch('title');
@@ -73,13 +125,58 @@ const ProjectCreate: React.FC = () => {
     const handleBack = () => setActiveStep((s) => s - 1);
 
     const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) setValue('thumbnail', e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            // Validate file type
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select a valid image file (PNG, JPG, JPEG, or WEBP)');
+                e.target.value = ''; // Reset input
+                return;
+            }
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Image size must be less than 2MB');
+                e.target.value = ''; // Reset input
+                return;
+            }
+            setValue('thumbnail', file);
+            // Clear idea thumbnail URL when new file is selected
+            setIdeaThumbnailUrl(null);
+        }
     };
 
-    const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAttachmentChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setValue('attachments', [...(getValues('attachments') || []), e.target.files[0]]);
+            const file = e.target.files[0];
+            const fileIndex = (getValues('attachments') || []).length;
+
+            // Add file to form state for display
+            setValue('attachments', [...(getValues('attachments') || []), file]);
+
+            // Upload file immediately
+            setUploadingAttachments((prev) => new Set(prev).add(fileIndex));
+            try {
+                const response = await contributionApi.uploadAttachment(file);
+                setUploadedAttachments((prev) => [...prev, response.data]);
+            } catch (error) {
+                console.error('Failed to upload attachment:', error);
+                alert('Failed to upload attachment. Please try again.');
+                // Remove the file from form state if upload failed
+                setValue(
+                    'attachments',
+                    (getValues('attachments') || []).filter((_f: File, i: number) => i !== fileIndex),
+                );
+            } finally {
+                setUploadingAttachments((prev) => {
+                    const newSet = new Set(prev);
+                    newSet.delete(fileIndex);
+                    return newSet;
+                });
+            }
         }
+        // Reset input to allow selecting the same file again
+        e.target.value = '';
     };
 
     const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -98,10 +195,19 @@ const ProjectCreate: React.FC = () => {
     };
 
     const handleRemoveAttachment = (idx: number) => {
+        // Remove from form state
         setValue(
             'attachments',
             (getValues('attachments') || []).filter((_attachment: File, i: number) => i !== idx),
         );
+        // Remove from uploaded attachments
+        setUploadedAttachments((prev) => prev.filter((_attachment, i) => i !== idx));
+        // Remove from uploading set if present
+        setUploadingAttachments((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(idx);
+            return newSet;
+        });
     };
 
     // Per-step validation handlers
@@ -111,7 +217,7 @@ const ProjectCreate: React.FC = () => {
             setActiveStep(1);
         } else {
             result.error.errors.forEach((err) => {
-                setError(err.path[0] as keyof IdeaForm, { message: err.message });
+                setError(err.path[0] as keyof ProjectForm, { message: err.message });
             });
         }
     };
@@ -121,48 +227,190 @@ const ProjectCreate: React.FC = () => {
             setActiveStep(2);
         } else {
             result.error.errors.forEach((err) => {
-                setError(err.path[0] as keyof IdeaForm, { message: err.message });
+                setError(err.path[0] as keyof ProjectForm, { message: err.message });
             });
         }
     };
+    // Helper function to convert image URL to File
+    const urlToFile = async (url: string, filename: string): Promise<File> => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new File([blob], filename, { type: blob.type });
+    };
+
     // Final submit uses full schema
-    const onSubmit = (data: IdeaForm) => {
-        // No API, just log
-        console.log(data);
+    const onSubmit = async (data: ProjectForm) => {
+        // Prevent submission if attachments are still uploading
+        if (uploadingAttachments.size > 0) {
+            alert('Please wait for all attachments to finish uploading before submitting.');
+            return;
+        }
+
+        const formData = new FormData();
+
+        formData.append('title', data.title);
+        formData.append('type', 'project');
+        formData.append('is_public', data.is_public ? '1' : '0');
+
+        // Append content fields as array format for Laravel
+        formData.append('content[title]', data.title);
+        formData.append('content[description]', data.description);
+        formData.append('content[problem]', data.problem);
+        formData.append('content[solution]', data.solution);
+        formData.append('content[impact]', data.impact);
+        formData.append('content[resources]', data.resources);
+        formData.append('content[question]', '');
+        formData.append('content[answer]', '');
+        formData.append('content[thought]', '');
+        formData.append('content[why_it_matters]', '');
+        formData.append('content[references]', '');
+
+        if (data.tags && data.tags.length > 0) {
+            data.tags.forEach((tag) => {
+                formData.append('tags[]', tag);
+            });
+        }
+
+        // Handle thumbnail: use new file if selected, otherwise use idea thumbnail URL if available
+        if (data.thumbnail && data.thumbnail instanceof File) {
+            formData.append('thumbnail_url', data.thumbnail, data.thumbnail.name);
+        } else if (ideaThumbnailUrl && !data.thumbnail) {
+            // Convert idea thumbnail URL to File
+            try {
+                const filename = ideaThumbnailUrl.split('/').pop() || 'thumbnail.jpg';
+                const thumbnailFile = await urlToFile(ideaThumbnailUrl, filename);
+                formData.append('thumbnail_url', thumbnailFile, filename);
+            } catch (error) {
+                console.error('Failed to convert thumbnail URL to file:', error);
+            }
+        }
+
+        // Handle attachments: send uploaded attachment paths using Laravel array notation
+        if (uploadedAttachments.length > 0) {
+            uploadedAttachments.forEach((att, index) => {
+                formData.append(`attachment_paths[${index}][path]`, att.path);
+                formData.append(`attachment_paths[${index}][name]`, att.name);
+                formData.append(`attachment_paths[${index}][type]`, att.type);
+                formData.append(`attachment_paths[${index}][size]`, att.size.toString());
+            });
+        }
+
+        createContributionMutation.mutate(formData, {
+            onSuccess: () => {
+                navigate('/contribution');
+            },
+            onError: () => {
+                // Error handling can be added here if needed
+            },
+        });
     };
 
     // Renderers
     const renderStep1 = () => (
         <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, textAlign: 'center' }}>
-                Brand New Idea Creation
+                Brand New Project Creation
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+            {/* Thumbnail Upload */}
+            <Box sx={{ mb: 2 }}>
                 <input accept="image/*" id="thumbnail-upload" type="file" style={{ display: 'none' }} onChange={handleThumbnailChange} />
-                <label htmlFor="thumbnail-upload">
-                    <Controller
-                        name="thumbnail"
-                        control={control}
-                        render={({ field }) => (
-                            <IconButton component="span" sx={{ width: 80, height: 80, bgcolor: '#e8f5e9', mb: 1 }}>
-                                {field.value ? (
+                <Controller
+                    name="thumbnail"
+                    control={control}
+                    render={({ field }) => (
+                        <Box>
+                            {field.value ? (
+                                <Box sx={{ position: 'relative', width: '100%', mb: 1 }}>
                                     <img
                                         src={URL.createObjectURL(field.value)}
                                         alt="thumb"
-                                        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }}
+                                        style={{
+                                            width: '100%',
+                                            height: '400px',
+                                            objectFit: 'cover',
+                                            borderRadius: 8,
+                                            display: 'block',
+                                        }}
                                     />
-                                ) : (
-                                    <AddPhotoAlternateIcon sx={{ fontSize: 40, color: '#1F8505' }} />
-                                )}
-                            </IconButton>
-                        )}
-                    />
-                </label>
-                {getValues('thumbnail') && (
-                    <Typography variant="caption" sx={{ mb: 1 }}>
-                        {getValues('thumbnail').name}
-                    </Typography>
-                )}
+                                    <IconButton
+                                        onClick={() => {
+                                            setValue('thumbnail', null);
+                                            // Restore idea thumbnail if it existed
+                                            if (ideaThumbnailUrl) {
+                                                setIdeaThumbnailUrl(ideaThumbnailUrl);
+                                            }
+                                        }}
+                                        sx={{
+                                            position: 'absolute',
+                                            top: 8,
+                                            right: 8,
+                                            bgcolor: 'rgba(0, 0, 0, 0.5)',
+                                            color: '#fff',
+                                            '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.7)' },
+                                        }}
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
+                            ) : ideaThumbnailUrl ? (
+                                <Box sx={{ position: 'relative', width: '100%', mb: 1 }}>
+                                    <img
+                                        src={ideaThumbnailUrl}
+                                        alt="thumb"
+                                        style={{
+                                            width: '100%',
+                                            height: '400px',
+                                            objectFit: 'cover',
+                                            borderRadius: 8,
+                                            display: 'block',
+                                        }}
+                                    />
+                                    <IconButton
+                                        onClick={() => setIdeaThumbnailUrl(null)}
+                                        sx={{
+                                            position: 'absolute',
+                                            top: 8,
+                                            right: 8,
+                                            bgcolor: 'rgba(0, 0, 0, 0.5)',
+                                            color: '#fff',
+                                            '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.7)' },
+                                        }}
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
+                            ) : (
+                                <label htmlFor="thumbnail-upload" style={{ cursor: 'pointer', display: 'block' }}>
+                                    <Box
+                                        sx={{
+                                            width: '100%',
+                                            height: '400px',
+                                            bgcolor: '#e8f5e9',
+                                            borderRadius: 2,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            border: '2px dashed #1F8505',
+                                            '&:hover': { bgcolor: '#d4e6d5' },
+                                        }}
+                                    >
+                                        <AddPhotoAlternateIcon sx={{ fontSize: 60, color: '#1F8505', mb: 1 }} />
+                                        <Typography sx={{ color: '#1F8505', fontWeight: 600 }}>Click to upload thumbnail</Typography>
+                                        <Typography variant="caption" sx={{ color: '#666', mt: 0.5 }}>
+                                            Recommended: 600 x 400px
+                                        </Typography>
+                                    </Box>
+                                </label>
+                            )}
+                            {field.value && (
+                                <Typography variant="caption" sx={{ color: '#666', display: 'block', mt: 0.5 }}>
+                                    {field.value.name}
+                                </Typography>
+                            )}
+                        </Box>
+                    )}
+                />
             </Box>
             <Controller
                 name="title"
@@ -211,7 +459,7 @@ const ProjectCreate: React.FC = () => {
     const renderStep2 = () => (
         <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, textAlign: 'center' }}>
-                Brand New Idea Creation
+                Brand New Project Creation
             </Typography>
             <Controller
                 name="problem"
@@ -283,7 +531,7 @@ const ProjectCreate: React.FC = () => {
     const renderStep3 = () => (
         <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, textAlign: 'center' }}>
-                Brand New Idea Creation
+                Brand New Project Creation
             </Typography>
             <Controller
                 name="resources"
@@ -316,9 +564,10 @@ const ProjectCreate: React.FC = () => {
                     {(getValues('attachments') || []).map((file, idx) => (
                         <Chip
                             key={idx}
-                            label={file.name}
-                            onDelete={() => handleRemoveAttachment(idx)}
-                            sx={{ bgcolor: '#e8f5e9', color: '#1F8505' }}
+                            label={uploadingAttachments.has(idx) ? `${file.name} (Uploading...)` : file.name}
+                            onDelete={uploadingAttachments.has(idx) ? undefined : () => handleRemoveAttachment(idx)}
+                            disabled={uploadingAttachments.has(idx)}
+                            sx={{ bgcolor: uploadingAttachments.has(idx) ? '#f5f5f5' : '#e8f5e9', color: '#1F8505' }}
                         />
                     ))}
                 </Box>
@@ -341,17 +590,17 @@ const ProjectCreate: React.FC = () => {
                 </Box>
             </Box>
             <Controller
-                name="allowContributions"
+                name="allow_collab"
                 control={control}
                 render={({ field }) => (
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} color="success" />
+                        <Switch checked={field.value || false} onChange={(e) => field.onChange(e.target.checked)} color="success" />
                         <Typography>Allow Contributions</Typography>
                     </Box>
                 )}
             />
             <Controller
-                name="publicVisibility"
+                name="is_public"
                 control={control}
                 render={({ field }) => (
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -367,10 +616,10 @@ const ProjectCreate: React.FC = () => {
                 <Button
                     variant="contained"
                     sx={{ flex: 1, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2 }}
-                    disabled={!step3Valid}
+                    disabled={!step3Valid || createContributionMutation.isPending || uploadingAttachments.size > 0}
                     onClick={handleSubmit(onSubmit)}
                 >
-                    Submit
+                    {uploadingAttachments.size > 0 ? 'Uploading attachments...' : 'Submit'}
                 </Button>
             </Box>
         </Box>
@@ -396,7 +645,7 @@ const ProjectCreate: React.FC = () => {
                 <IconButton edge="start" sx={{ color: '#888' }}>
                     <CloseIcon onClick={() => navigate('/contribution/create')} />
                 </IconButton>
-                <Typography sx={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>Create idea – step {activeStep + 1}</Typography>
+                <Typography sx={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>Create project – step {activeStep + 1}</Typography>
             </Box>
             {/* Stepper */}
             <Stepper

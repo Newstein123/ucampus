@@ -11,6 +11,7 @@ export const endpoints = Object.freeze({
     contribution_interest: '/contributions',
     contribution_bookmark: '/contribution',
     contribution_show: '/contributions/{id}',
+    contribution_upload_attachment: '/contributions/upload-attachment',
     bookmark_list: '/contribution/bookmarks',
 
     // Notification endpoints

@@ -15,7 +15,7 @@ import useContributionInterestMutation from '../hooks/contribution/useContributi
 import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
 import { Contribution } from '../types/contribution';
 
-const tabLabels = ['All Contributions', 'Idea', 'Question'];
+const tabLabels = ['All Contributions', 'Idea', 'Question', 'Project'];
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -157,7 +157,23 @@ const Home: React.FC = () => {
             {/* Contributions List */}
             <Box sx={{ px: 0, pt: 2 }}>
                 {contributions.map((item) => (
-                    <Card key={item.id} sx={{ mb: 3, boxShadow: 0, borderRadius: 3, bgcolor: '#fff', border: '1px solid #e0e0e0' }}>
+                    <Card
+                        key={item.id}
+                        onClick={() => navigateToDetails(item.id, item.type)}
+                        sx={{
+                            mb: 3,
+                            boxShadow: 0,
+                            borderRadius: 3,
+                            bgcolor: '#fff',
+                            border: '1px solid #e0e0e0',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            '&:hover': {
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                transform: 'translateY(-2px)',
+                            },
+                        }}
+                    >
                         <CardContent sx={{ pb: 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                 <Avatar sx={{ bgcolor: '#48b74d', width: 32, height: 32, mr: 1 }}>{item?.user?.name?.[0] || 'U'}</Avatar>
@@ -205,11 +221,8 @@ const Home: React.FC = () => {
                                         color: '#1F8505',
                                         fontWeight: 600,
                                         fontSize: 14,
-                                        cursor: 'pointer',
                                         display: 'inline-block',
-                                        ':hover': { textDecoration: 'underline' },
                                     }}
-                                    onClick={() => navigateToDetails(item.id, item.type)}
                                 >
                                     ... See details
                                 </Typography>
@@ -223,20 +236,20 @@ const Home: React.FC = () => {
                                         color: '#1F8505',
                                         fontWeight: 600,
                                         fontSize: 14,
-                                        cursor: 'pointer',
                                         display: 'inline-block',
-                                        ':hover': { textDecoration: 'underline' },
                                     }}
-                                    onClick={() => navigateToDetails(item.id, item.type)}
                                 >
                                     ... See details
                                 </Typography>
                             </Box>
                         )}
-                        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }} onClick={(e) => e.stopPropagation()}>
                             <IconButton
                                 size="small"
-                                onClick={() => handleInterest(item.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleInterest(item.id);
+                                }}
                                 disabled={interestMutation.isPending}
                                 sx={{
                                     color: item.is_interested ? '#1F8505' : 'inherit',
@@ -248,14 +261,23 @@ const Home: React.FC = () => {
                                 {item.is_interested ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.likes_count}</Typography>
-                            <IconButton size="small" onClick={() => navigateToDetails(item.id, item.type)}>
+                            <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigateToDetails(item.id, item.type);
+                                }}
+                            >
                                 <ChatBubbleOutlineIcon fontSize="small" />
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.comments_count || 0}</Typography>
                             <Box sx={{ flex: 1 }} />
                             <IconButton
                                 size="small"
-                                onClick={() => handleBookmark(item.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleBookmark(item.id);
+                                }}
                                 disabled={bookmarkMutation.isPending}
                                 sx={{
                                     color: item.is_bookmarked ? '#1F8505' : 'inherit',

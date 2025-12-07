@@ -17,7 +17,8 @@ export const contributionApi = {
         const response = await apiClient.getClient().get<CreateContributionResponse>(endpoints.contribution_show.replace('{id}', String(id)));
         return response.data;
     },
-    async create(data: CreateContributionRequest): Promise<CreateContributionResponse> {
+    async create(data: CreateContributionRequest | FormData): Promise<CreateContributionResponse> {
+        // When FormData is used, axios automatically sets Content-Type to multipart/form-data
         const response = await apiClient.getClient().post<CreateContributionResponse>(endpoints.contribution_create, data);
         return response.data;
     },
@@ -39,6 +40,18 @@ export const contributionApi = {
     },
     async getBookmarks(): Promise<ContributionResponse> {
         const response = await apiClient.getClient().get<ContributionResponse>(endpoints.bookmark_list);
+        return response.data;
+    },
+    async uploadAttachment(
+        file: File,
+    ): Promise<{ success: boolean; message: string; data: { url: string; path: string; name: string; type: string; size: number } }> {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await apiClient.getClient().post<{
+            success: boolean;
+            message: string;
+            data: { url: string; path: string; name: string; type: string; size: number };
+        }>(endpoints.contribution_upload_attachment, formData);
         return response.data;
     },
 };
