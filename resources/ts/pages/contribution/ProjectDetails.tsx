@@ -2,32 +2,17 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import MailIcon from '@mui/icons-material/Mail';
-import {
-    Avatar,
-    Box,
-    Button,
-    CardMedia,
-    Chip,
-    Divider,
-    IconButton,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
-    Typography,
-} from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Avatar, Box, Button, CardMedia, Chip, IconButton, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import SinglePageLayout from '../../components/SinglePageLayout';
+import { useParams } from 'react-router-dom';
+import { contributionApi } from '../../api/contribution';
 import DiscussionSection from '../../components/DiscussionSection';
+import SinglePageLayout from '../../components/SinglePageLayout';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { Contribution } from '../../types/contribution';
-import { contributionApi } from '../../api/contribution';
-import { Paper } from '@mui/material';
-
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -39,30 +24,12 @@ const mockTeamMembers = [
     { name: 'Lisa Wang', avatar: '', role: 'Product Manager' },
 ];
 
-// Helper function to format time ago
-const formatTimeAgo = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-    return date.toLocaleDateString();
-};
-
 const ProjectDetails: React.FC = () => {
     const { t } = useTranslation();
-    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [project, setProject] = useState<Contribution | null>(null);
-    const [loadingProject, setLoadingProject] = useState<boolean>(true);
     // Use the discussions hook
-    const {
-        discussions,
-    } = useDiscussions({
+    const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
         page: 1,
@@ -80,7 +47,6 @@ const ProjectDetails: React.FC = () => {
         };
         load();
     }, [id]);
-
 
     return (
         <SinglePageLayout title={t('Project Details')} rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}>

@@ -14,11 +14,11 @@ import { addPWAMetaTags, isPWA } from './utils/pwa';
 // Pages
 import Create from './pages/contribution/Create';
 import IdeaCreate from './pages/contribution/IdeaCreate';
+import IdeaDetails from './pages/contribution/IdeaDetails';
 import ProjectCreate from './pages/contribution/ProjectCreate';
 import ProjectDetails from './pages/contribution/ProjectDetails';
-import IdeaDetails from './pages/contribution/IdeaDetails';
-import QuestionDetails from './pages/contribution/QuestionDetails';
 import QuestionCreate from './pages/contribution/QuestionCreate';
+import QuestionDetails from './pages/contribution/QuestionDetails';
 import Thread from './pages/contribution/Thread';
 import Explore from './pages/Explore';
 import ForgotPassword from './pages/ForgotPassword';
@@ -28,6 +28,7 @@ import ChangePassword from './pages/myhub/ChangePassword';
 import ContactUs from './pages/myhub/ContactUs';
 import Language from './pages/myhub/Language';
 import MyIdeasAndQuestions from './pages/myhub/MyIdeasAndQuestions';
+import ProfileEdit from './pages/myhub/ProfileEdit';
 import TermsAndConditions from './pages/myhub/TermsAndConditions';
 import MyProfile from './pages/MyProfile';
 import Notifications from './pages/Notifications';
@@ -164,6 +165,15 @@ const App: React.FC = () => {
                                         />
 
                                         <Route
+                                            path="/profile/edit"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProfileEdit />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+
+                                        <Route
                                             path="/contribution/create"
                                             element={
                                                 <ProtectedRoute>
@@ -223,9 +233,30 @@ const App: React.FC = () => {
                                                 </ProtectedRoute>
                                             }
                                         />
-                                        <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} />
-                                        <Route path="/ideas/:id" element={<ProtectedRoute><IdeaDetails /></ProtectedRoute>} />
-                                        <Route path="/questions/:id" element={<ProtectedRoute><QuestionDetails /></ProtectedRoute>} />
+                                        <Route
+                                            path="/projects/:id"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProjectDetails />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/ideas/:id"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <IdeaDetails />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/questions/:id"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <QuestionDetails />
+                                                </ProtectedRoute>
+                                            }
+                                        />
                                         <Route
                                             path="/projects/:id/thread"
                                             element={

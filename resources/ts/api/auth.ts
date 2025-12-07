@@ -12,6 +12,8 @@ import type {
     SocialAuthResponse,
     UpdatePasswordRequest,
     UpdatePasswordResponse,
+    UpdateProfileRequest,
+    UpdateProfileResponse,
 } from '../types/auth';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
@@ -59,6 +61,11 @@ export const authApi = {
 
     async socialAuth(provider: string): Promise<SocialAuthResponse> {
         const response = await apiClient.getClient().get<SocialAuthResponse>(endpoints.auth_social_login.replace('{provider}', provider));
+        return response.data;
+    },
+
+    async updateProfile(profileData: UpdateProfileRequest): Promise<UpdateProfileResponse> {
+        const response = await apiClient.getClient().post<UpdateProfileResponse>(endpoints.auth_update_profile, profileData);
         return response.data;
     },
 };

@@ -39,7 +39,7 @@ class ContributionService implements ContributionServiceInterface
             if (isset($data['attachments']) && is_array($data['attachments'])) {
                 $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
             }
-            
+
             $contribution = $this->contributionRepository->create($data);
             if (isset($data['tags'])) {
                 $tagIds = $this->tagRepository->createMany($data['tags']);
@@ -100,16 +100,16 @@ class ContributionService implements ContributionServiceInterface
         try {
             // Get contribution to delete associated files
             $contribution = $this->contributionRepository->find($id);
-            
+
             // Delete associated files
             if ($contribution->thumbnail_url) {
                 $this->fileService->deleteFile($contribution->thumbnail_url);
             }
-            
+
             if ($contribution->attachments) {
                 $this->fileService->deleteFiles($contribution->attachments);
             }
-            
+
             return $this->contributionRepository->delete($id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

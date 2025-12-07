@@ -11,6 +11,7 @@ import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
 import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
 import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
+import { Contribution } from '../types/contribution';
 
 const tabLabels = ['All Contributions', 'Idea', 'Question'];
 
@@ -41,7 +42,7 @@ const Home: React.FC = () => {
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
 
-    const getContributionTitle = (item: any) => {
+    const getContributionTitle = (item: Contribution) => {
         switch (item?.type) {
             case 'idea':
                 return item?.title;
@@ -54,7 +55,7 @@ const Home: React.FC = () => {
         }
     };
 
-    const getContributionDescription = (item: any) => {
+    const getContributionDescription = (item: Contribution) => {
         switch (item?.type) {
             case 'idea':
                 return item?.content?.description;
@@ -147,17 +148,13 @@ const Home: React.FC = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                 <Avatar sx={{ bgcolor: '#48b74d', width: 32, height: 32, mr: 1 }}>{item?.user?.name?.[0] || 'U'}</Avatar>
                                 <Box>
-                                    <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
-                                        {getContributionTitle(item)}
-                                    </Typography>
+                                    <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{getContributionTitle(item)}</Typography>
                                     <Typography sx={{ color: '#666', fontSize: 12 }}>{item?.user?.name}</Typography>
                                 </Box>
                             </Box>
                             {/* Created at time */}
                             <Typography sx={{ color: '#aaa', fontSize: 12, mb: 0.5, ml: 5 }}>{item.created_at}</Typography>
-                            <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>
-                                {getContributionDescription(item)}
-                            </Typography>
+                            <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>{getContributionDescription(item)}</Typography>
                         </CardContent>
                         {(item.type === 'idea' || item.type === 'project') && item.thumbnail_url && (
                             <CardMedia
