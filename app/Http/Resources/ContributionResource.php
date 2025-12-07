@@ -21,8 +21,25 @@ class ContributionResource extends JsonResource
         // Get full URLs for files
         $thumbnailUrl = $this->thumbnail_url ? $fileService->getFileUrl($this->thumbnail_url) : null;
         
-        // Legacy attachments from JSON field
-        $legacyAttachmentUrls = $this->attachments ? $fileService->getFileUrls($this->attachments) : [];
+        // Legacy attachments from JSON field - convert to same format as new attachments
+        $legacyAttachments = [];
+        if ($this->attachments && is_array($this->attachments)) {
+            foreach ($this->attachments as $path) {
+                if (!empty($path)) {
+                    $url = $fileService->getFileUrl($path);
+                    if ($url) {
+                        $legacyAttachments[] = [
+                            'id' => null, // Legacy attachments don't have IDs
+                            'url' => $url,
+                            'path' => $path,
+                            'name' => basename($path),
+                            'type' => null,
+                            'size' => null,
+                        ];
+                    }
+                }
+            }
+        }
         
         // New attachments from contribution_attachments table
         $newAttachments = $this->contributionAttachments->map(function ($attachment) {
@@ -35,6 +52,9 @@ class ContributionResource extends JsonResource
                 'size' => $attachment->file_size,
             ];
         })->toArray();
+
+        // Combine legacy and new attachments into single array
+        $allAttachments = array_merge($legacyAttachments, $newAttachments);
 
         return [
             'id' => $this->id,
@@ -52,11 +72,8 @@ class ContributionResource extends JsonResource
             'is_bookmarked' => $user ? $user->bookmarkedContributions()->where('contribution_id', $this->id)->exists() : false,
             'thumbnail_url' => $thumbnailUrl,
             
-            // Legacy attachments (for backward compatibility)
-            'attachments' => $legacyAttachmentUrls,
-            
-            // New attachments with metadata
-            'attachment_files' => $newAttachments,
+            // Combined attachments array
+            'attachments' => $allAttachments,
             
             'user' => [
                 'id' => $this->user->id,

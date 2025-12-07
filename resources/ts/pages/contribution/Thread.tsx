@@ -5,7 +5,6 @@ import { Avatar, Box, Divider, IconButton, TextField, Typography } from '@mui/ma
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
-import { authApi } from '../../api/auth';
 import { discussionApi } from '../../api/discussion';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import { Discussion } from '../../types/discussion';
@@ -69,12 +68,7 @@ const Thread: React.FC = () => {
             });
     }, [resolvedParentId]);
 
-    useEffect(() => {
-        authApi
-            .getProfile()
-            .then((res) => setProfileName(res.data.name || res.data.username || ''))
-            .catch(() => setProfileName(''));
-    }, []);
+    // Profile name is not needed - removed unused state
 
     const handleLikePost = async (postId: number) => {
         try {

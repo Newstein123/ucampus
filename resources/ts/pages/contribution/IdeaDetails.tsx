@@ -1,15 +1,16 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import DownloadIcon from '@mui/icons-material/Download';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import UpgradeIcon from '@mui/icons-material/Upgrade';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Avatar, Box, CardMedia, Chip, IconButton, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
+import { Avatar, Box, Button, CardMedia, Chip, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
 import DiscussionSection from '../../components/DiscussionSection';
 import SinglePageLayout from '../../components/SinglePageLayout';
+import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { Contribution } from '../../types/contribution';
 
@@ -18,6 +19,8 @@ const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 const IdeaDetails: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const { data: userProfile } = useUserProfileQuery();
     const [idea, setIdea] = useState<Contribution | null>(null);
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
@@ -33,6 +36,13 @@ const IdeaDetails: React.FC = () => {
         };
         load();
     }, [id]);
+
+    const isOwner = userProfile?.data?.id === idea?.user?.id;
+
+    const handleUpgradeToProject = () => {
+        // Navigate to project create page with idea data pre-filled
+        navigate(`/contribution/create-project?ideaId=${id}`);
+    };
 
     return (
         <SinglePageLayout title={t('Idea Details')} rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}>
@@ -56,19 +66,40 @@ const IdeaDetails: React.FC = () => {
                     </Box>
                 </Box>
 
-                {/* Description */}
-                <Typography sx={{ color: '#222', fontSize: 14, mb: 2, lineHeight: 1.6 }}>{idea?.content?.description}</Typography>
+                {/* Upgrade to Project Button - Only show if user is the owner */}
+                {isOwner && (
+                    <Box sx={{ mb: 2 }}>
+                        <Button
+                            variant="contained"
+                            startIcon={<UpgradeIcon />}
+                            onClick={handleUpgradeToProject}
+                            sx={{
+                                bgcolor: '#1F8505',
+                                color: '#fff',
+                                fontWeight: 600,
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                '&:hover': { bgcolor: '#156c0c' },
+                            }}
+                            fullWidth
+                        >
+                            Upgrade to Project
+                        </Button>
+                    </Box>
+                )}
             </Box>
 
             {/* Thumbnail */}
-            <CardMedia
-                component="img"
-                image={idea?.thumbnail_url || DEFAULT_IMAGE}
-                alt={idea?.title || 'thumbnail'}
-                sx={{ width: '100%', borderRadius: 0, mb: 2, maxHeight: 200, objectFit: 'cover' }}
-            />
+            {idea?.thumbnail_url && (
+                <CardMedia
+                    component="img"
+                    image={idea.thumbnail_url || DEFAULT_IMAGE}
+                    alt={idea?.title || 'thumbnail'}
+                    sx={{ width: '100%', borderRadius: 0, mb: 2, maxHeight: 200, objectFit: 'cover' }}
+                />
+            )}
 
-            {/* Problem, Solution & Who Benefits Sections */}
+            {/* Problem, Thought & Why It Matters Sections */}
             <Box sx={{ p: 2, pt: 0 }}>
                 {/* Problem */}
                 {idea?.content?.problem && (
@@ -78,78 +109,19 @@ const IdeaDetails: React.FC = () => {
                     </Paper>
                 )}
 
-                {/* Solution */}
-                {idea?.content?.solution && (
+                {/* Thought */}
+                {idea?.content?.thought && (
                     <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Solution</Typography>
-                        <Typography sx={{ color: '#444', fontSize: 14 }}>{idea.content.solution}</Typography>
+                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Thought</Typography>
+                        <Typography sx={{ color: '#444', fontSize: 14 }}>{idea.content.thought}</Typography>
                     </Paper>
                 )}
 
-                {/* Who Benefits */}
-                {idea?.content?.impact && (
+                {/* Why It Matters */}
+                {idea?.content?.why_it_matters && (
                     <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Who Benefits</Typography>
-                        <Typography sx={{ color: '#444', fontSize: 14 }}>{idea.content.impact}</Typography>
-                    </Paper>
-                )}
-
-                {/* Resources */}
-                {idea?.content?.resources && (
-                    <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Resources</Typography>
-                        <ul style={{ margin: 0, paddingLeft: 18 }}>
-                            {String(idea.content.resources)
-                                .split(/[,\n]/)
-                                .map((r, i) => (
-                                    <li key={i} style={{ color: '#444', fontSize: 14, marginBottom: 2 }}>
-                                        {r.trim()}
-                                    </li>
-                                ))}
-                        </ul>
-                    </Paper>
-                )}
-
-                {/* Attachments */}
-                {idea?.attachments && idea.attachments.length > 0 && (
-                    <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Attachments</Typography>
-                        <List dense>
-                            {idea.attachments.map((file, index) => (
-                                <ListItem
-                                    key={index}
-                                    secondaryAction={
-                                        <IconButton edge="end" aria-label="download" href={file.url} download>
-                                            <DownloadIcon />
-                                        </IconButton>
-                                    }
-                                    sx={{ border: '1px solid #e0e0e0', borderRadius: 1, mb: 1 }}
-                                >
-                                    <ListItemAvatar>
-                                        <Avatar sx={{ bgcolor: '#e8f5e9', color: '#1F8505', width: 32, height: 32 }}>
-                                            {file.name?.split('.').pop()?.toUpperCase().substring(0, 3) || 'F'}
-                                        </Avatar>
-                                    </ListItemAvatar>
-                                    <ListItemText primary={file.name} />
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Paper>
-                )}
-
-                {/* Next Steps */}
-                {idea?.content?.next_steps && (
-                    <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px dashed #1F8505' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Next Steps</Typography>
-                        <ul style={{ margin: 0, paddingLeft: 18 }}>
-                            {String(idea.content.next_steps)
-                                .split(/[,\n]/)
-                                .map((step, i) => (
-                                    <li key={i} style={{ color: '#444', fontSize: 14, marginBottom: 2 }}>
-                                        {step.trim()}
-                                    </li>
-                                ))}
-                        </ul>
+                        <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Why It Matters</Typography>
+                        <Typography sx={{ color: '#444', fontSize: 14 }}>{idea.content.why_it_matters}</Typography>
                     </Paper>
                 )}
             </Box>

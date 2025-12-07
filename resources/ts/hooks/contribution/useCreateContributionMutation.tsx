@@ -6,7 +6,7 @@ import { contributionApi } from '../../api/contribution';
 import { CreateContributionRequest, CreateContributionResponse } from '../../types/contribution';
 
 const useCreateContributionMutation = () => {
-    return useMutation<CreateContributionResponse, AxiosError<ErrorResponse>, CreateContributionRequest>({
+    return useMutation<CreateContributionResponse, AxiosError<ErrorResponse>, CreateContributionRequest | FormData>({
         mutationKey: ['createContribution'],
         mutationFn: contributionApi.create,
     });

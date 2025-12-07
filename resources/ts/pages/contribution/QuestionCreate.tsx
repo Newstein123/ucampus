@@ -9,7 +9,7 @@ import useCreateContributionMutation from '../../hooks/contribution/useCreateCon
 
 const questionSchema = z.object({
     question: z.string().min(1, 'Question is required'),
-    answer: z.string().min(1, 'Answer is required'),
+    thought: z.string().min(1, 'Thought is required'),
     tags: z.array(z.string()).optional(),
     is_public: z.boolean(),
 });
@@ -18,7 +18,7 @@ type QuestionForm = z.infer<typeof questionSchema>;
 
 const defaultValues: QuestionForm = {
     question: '',
-    answer: '',
+    thought: '',
     tags: [],
     is_public: false,
 };
@@ -60,12 +60,14 @@ const QuestionCreate: React.FC = () => {
                 title: data.question,
                 content: {
                     title: data.question,
-                    answer: data.answer,
                     question: data.question,
+                    thought: data.thought,
+                    answer: null,
                     description: null,
                     problem: null,
                     solution: null,
                     impact: null,
+                    why_it_matters: null,
                     resources: null,
                     references: null,
                 },
@@ -126,19 +128,19 @@ const QuestionCreate: React.FC = () => {
                     )}
                 />
                 <Controller
-                    name="answer"
+                    name="thought"
                     control={control}
                     render={({ field }) => (
                         <TextField
                             {...field}
-                            label="Answer"
+                            label="Thought"
                             fullWidth
                             margin="normal"
                             multiline
                             minRows={3}
-                            placeholder="Explain your question"
-                            error={!!errors.answer}
-                            helperText={errors.answer?.message}
+                            placeholder="Share your thoughts about this question"
+                            error={!!errors.thought}
+                            helperText={errors.thought?.message}
                         />
                     )}
                 />
