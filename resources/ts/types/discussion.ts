@@ -11,6 +11,7 @@ export interface Discussion {
     contribution_id: number;
     is_edited: boolean;
     interests: number;
+    is_interested: boolean;
     parent_id?: number;
     responses?: Discussion[];
     created_at: string;
@@ -93,4 +94,9 @@ export interface InterestUpdateRequest {
 export interface InterestUpdateResponse {
     success: boolean;
     message: string;
+    data: {
+        is_interested: boolean;
+        interests: number;
+    };
 }
+

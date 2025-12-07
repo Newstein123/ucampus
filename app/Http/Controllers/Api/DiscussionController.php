@@ -78,8 +78,13 @@ class DiscussionController extends Controller
 
     public function updateInterest(InterestUpdateRequest $request)
     {
-        $this->discussionService->updateInterest($request->validated()['discussion_id']);
+        $data = $request->validated();
+        $userId = auth()->id();
+        $result = $this->discussionService->updateInterest($data['discussion_id'], $userId);
 
-        return $this->response(null, 'Discussion interest updated successfully');
+        return $this->response([
+            'is_interested' => $result['is_interested'],
+            'interests' => $result['interests'],
+        ], $result['message']);
     }
 }

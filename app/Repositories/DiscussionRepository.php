@@ -63,14 +63,30 @@ class DiscussionRepository implements DiscussionRepositoryInterface
         return $discussion->delete();
     }
 
-    public function updateInterest(int $id, int $amount = 1 /* give negative value to decrease */)
+    public function updateInterest(int $id, int $userId): array
     {
         $discussion = $this->findById($id);
         if (! $discussion) {
             throw new \Exception('Discussion not found');
         }
-        $discussion->increment('interests', $amount);
 
-        return $discussion;
+        // Check if user already expressed interest
+        $isInterested = $discussion->interests()->where('user_id', $userId)->exists();
+
+        if ($isInterested) {
+            // Remove interest
+            $discussion->interests()->detach($userId);
+            $message = 'Discussion interest removed successfully';
+        } else {
+            // Add interest
+            $discussion->interests()->attach($userId);
+            $message = 'Discussion interest added successfully';
+        }
+
+        return [
+            'is_interested' => !$isInterested,
+            'interests' => $discussion->interests()->count(),
+            'message' => $message,
+        ];
     }
 }

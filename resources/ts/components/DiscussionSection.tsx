@@ -1,4 +1,5 @@
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SendIcon from '@mui/icons-material/Send';
 import { Avatar, Box, Divider, IconButton, TextField, Typography } from '@mui/material';
@@ -117,10 +118,31 @@ export const DiscussionSection: React.FC<DiscussionSectionProps> = ({ contributi
                                     <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{d.content}</Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <IconButton size="small" onClick={() => handleLikeComment(d.id)} sx={{ p: 0 }}>
-                                                <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleLikeComment(d.id)}
+                                                sx={{
+                                                    p: 0.5,
+                                                    '&:hover': {
+                                                        bgcolor: 'rgba(255, 82, 82, 0.1)',
+                                                    },
+                                                }}
+                                            >
+                                                {d.is_interested ? (
+                                                    <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
+                                                ) : (
+                                                    <FavoriteBorderIcon
+                                                        sx={{
+                                                            color: '#444',
+                                                            fontSize: 16,
+                                                            '&:hover': { color: '#1F8505' },
+                                                        }}
+                                                    />
+                                                )}
                                             </IconButton>
-                                            <Typography sx={{ fontSize: 12, color: '#666' }}>{d.interests}</Typography>
+                                            <Typography sx={{ fontSize: 12, color: d.is_interested ? '#444' : '#666' }}>
+                                                {d.interests}
+                                            </Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                             <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />

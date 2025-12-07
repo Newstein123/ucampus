@@ -61,10 +61,10 @@ class DiscussionService implements DiscussionServiceInterface
         }
     }
 
-    public function updateInterest(int $id)
+    public function updateInterest(int $id, int $userId): array
     {
         try {
-            return $this->discussionRepository->updateInterest($id);
+            return $this->discussionRepository->updateInterest($id, $userId);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
