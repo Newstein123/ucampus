@@ -15,6 +15,7 @@ interface ContributionServiceInterface
     public function update(array $data = []);
 
     public function delete(int $id);
+    public function toggleBookmark(int $userId, int $contributionId): array;
 
     public function bookmark(int $userId, int $contributionId): void;
 

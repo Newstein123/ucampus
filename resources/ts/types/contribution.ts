@@ -12,6 +12,7 @@ export interface Contribution {
     likes_count: number;
     comments_count: number;
     is_interested: boolean;
+    is_bookmarked: boolean;
     created_at: string;
     updated_at: string;
     user: {

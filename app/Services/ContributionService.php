@@ -31,20 +31,38 @@ class ContributionService implements ContributionServiceInterface
                 $data['is_public'] = filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN);
             }
 
-            // Handle file uploads
+            // Handle file uploads (backward compatibility)
             if (isset($data['thumbnail_url']) && $data['thumbnail_url'] instanceof \Illuminate\Http\UploadedFile) {
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
 
-            if (isset($data['attachments']) && is_array($data['attachments'])) {
-                $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
-            }
+            // Extract attachment_paths before creating contribution
+            $attachmentPaths = $data['attachment_paths'] ?? [];
+            unset($data['attachment_paths']);
 
             $contribution = $this->contributionRepository->create($data);
+
+            // Handle tags
             if (isset($data['tags'])) {
                 $tagIds = $this->tagRepository->createMany($data['tags']);
                 $contribution->tags()->attach($tagIds);
             }
+
+            // Create attachment records from paths
+            if (!empty($attachmentPaths) && is_array($attachmentPaths)) {
+                foreach ($attachmentPaths as $attachmentData) {
+                    if (is_array($attachmentData) && isset($attachmentData['path'])) {
+                        \App\Models\ContributionAttachment::create([
+                            'contribution_id' => $contribution->id,
+                            'file_path' => $attachmentData['path'],
+                            'file_name' => $attachmentData['name'] ?? basename($attachmentData['path']),
+                            'file_type' => $attachmentData['type'] ?? null,
+                            'file_size' => $attachmentData['size'] ?? null,
+                        ]);
+                    }
+                }
+            }
+
 
             return $contribution;
         } catch (\Exception $e) {
@@ -74,13 +92,6 @@ class ContributionService implements ContributionServiceInterface
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
 
-            if (isset($data['attachments']) && is_array($data['attachments'])) {
-                // Delete old attachments if they exist
-                if ($existingContribution->attachments) {
-                    $this->fileService->deleteFiles($existingContribution->attachments);
-                }
-                $data['attachments'] = $this->fileService->uploadFiles($data['attachments'], 'contributions/attachments');
-            }
 
             $contribution = $this->contributionRepository->update($id, $data);
 
@@ -161,18 +172,64 @@ class ContributionService implements ContributionServiceInterface
         return $this->contributionRepository->find($id);
     }
 
-    public function bookmark(int $userId, int $contributionId): void
+    public function toggleBookmark(int $userId, int $contributionId): array
     {
-        $this->contributionRepository->addBookmark($userId, $contributionId);
-    }
+        try {
+            $user = \App\Models\User::find($userId);
 
-    public function unbookmark(int $userId, int $contributionId): void
-    {
-        $this->contributionRepository->removeBookmark($userId, $contributionId);
+            // Check if user already has this bookmarked
+            $isBookmarked = $user->bookmarkedContributions()
+                ->where('contribution_id', $contributionId)
+                ->exists();
+
+            if ($isBookmarked) {
+                // Remove bookmark
+                $this->contributionRepository->removeBookmark($userId, $contributionId);
+                $message = 'Bookmark removed successfully';
+            } else {
+                // Add bookmark
+                $this->contributionRepository->addBookmark($userId, $contributionId);
+                $message = 'Bookmark added successfully';
+            }
+
+            return [
+                'is_bookmarked' => !$isBookmarked,
+                'message' => $message
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function listBookmarks(int $userId, ?string $type = null, int $perPage = 10, int $page = 1)
     {
         return $this->contributionRepository->listBookmarks($userId, $type, $perPage, $page);
+    }
+
+    /**
+     * Upload a single attachment file to MinIO
+     * 
+     * @param \Illuminate\Http\UploadedFile $file
+     * @return array ['url' => string, 'path' => string, 'name' => string, 'type' => string, 'size' => int]
+     */
+    public function uploadAttachment($file): array
+    {
+        try {
+            // Upload file to MinIO and get relative path
+            $relativePath = $this->fileService->uploadFile($file, 'contributions/attachments');
+
+            // Get full URL
+            $fullUrl = $this->fileService->getFileUrl($relativePath);
+
+            return [
+                'url' => $fullUrl,
+                'path' => $relativePath,
+                'name' => $file->getClientOriginalName(),
+                'type' => $file->getMimeType(),
+                'size' => $file->getSize(),
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to upload attachment: ' . $e->getMessage());
+        }
     }
 }

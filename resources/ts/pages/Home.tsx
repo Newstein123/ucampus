@@ -1,3 +1,4 @@
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -9,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
 import { useHomeContext } from '../contexts/HomeContext';
+import useContributionBookmarkMutation from '../hooks/contribution/useContributionBookmarkMutation';
 import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
 import useContributionListInfiniteQuery from '../hooks/contribution/useContributionListInfiniteQuery';
 import { Contribution } from '../types/contribution';
@@ -31,11 +33,19 @@ const Home: React.FC = () => {
     const interestMutation = useContributionInterestMutation({
         onSuccess: (data) => {
             console.log('Interest updated successfully:', data.message);
-            // You can add a toast notification here if you have one
         },
         onError: (error) => {
             console.error('Failed to update interest:', error);
-            // You can add an error toast notification here
+        },
+    });
+
+    // Bookmark mutation
+    const bookmarkMutation = useContributionBookmarkMutation({
+        onSuccess: (data) => {
+            console.log('Bookmark updated successfully:', data.message);
+        },
+        onError: (error) => {
+            console.error('Failed to update bookmark:', error);
         },
     });
 
@@ -80,6 +90,10 @@ const Home: React.FC = () => {
 
     const handleInterest = (contributionId: number) => {
         interestMutation.mutate(contributionId);
+    };
+
+    const handleBookmark = (contributionId: number) => {
+        bookmarkMutation.mutate(contributionId);
     };
 
     const navigateToDetails = (id: number, contributionType: string) => {
@@ -225,9 +239,9 @@ const Home: React.FC = () => {
                                 onClick={() => handleInterest(item.id)}
                                 disabled={interestMutation.isPending}
                                 sx={{
-                                    color: item.is_interested ? '#e91e63' : 'inherit',
+                                    color: item.is_interested ? '#1F8505' : 'inherit',
                                     '&:hover': {
-                                        color: item.is_interested ? '#c2185b' : '#e91e63',
+                                        color: item.is_interested ? '#1F8505' : '#1F8505',
                                     },
                                 }}
                             >
@@ -239,8 +253,18 @@ const Home: React.FC = () => {
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.comments_count || 0}</Typography>
                             <Box sx={{ flex: 1 }} />
-                            <IconButton size="small">
-                                <BookmarkBorderIcon fontSize="small" />
+                            <IconButton
+                                size="small"
+                                onClick={() => handleBookmark(item.id)}
+                                disabled={bookmarkMutation.isPending}
+                                sx={{
+                                    color: item.is_bookmarked ? '#1F8505' : 'inherit',
+                                    '&:hover': {
+                                        color: item.is_bookmarked ? '#165d04' : '#1F8505',
+                                    },
+                                }}
+                            >
+                                {item.is_bookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
                             </IconButton>
                         </Box>
                     </Card>

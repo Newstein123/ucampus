@@ -17,6 +17,8 @@ class BookmarkController extends Controller
     {
         $data = $request->validated();
         $userId = Auth::user()->id;
+        $result = $this->contributionService->toggleBookmark($userId, $data['contribution_id']);
+        return $this->response($result, $result['message']);
         $this->contributionService->bookmark($userId, $data['contribution_id']);
 
         return $this->response(null, 'Contribution Bookmark successfully');

@@ -24,6 +24,7 @@ import Explore from './pages/Explore';
 import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Bookmarks from './pages/myhub/Bookmarks';
 import ChangePassword from './pages/myhub/ChangePassword';
 import ContactUs from './pages/myhub/ContactUs';
 import Language from './pages/myhub/Language';
@@ -124,6 +125,15 @@ const App: React.FC = () => {
                                             element={
                                                 <ProtectedRoute>
                                                     <MyIdeasAndQuestions />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+
+                                        <Route
+                                            path="/bookmarks"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Bookmarks />
                                                 </ProtectedRoute>
                                             }
                                         />

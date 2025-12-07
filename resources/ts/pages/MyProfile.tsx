@@ -68,6 +68,9 @@ const MyProfile: React.FC = () => {
                     />
                 </ListItem>
                 <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
+                    <ListItemText primary={t('Bookmarks')} onClick={() => navigate('/bookmarks')} sx={{ cursor: 'pointer' }} />
+                </ListItem>
+                <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
                     <ListItemText primary={t('Terms & Conditions')} onClick={() => navigate('/terms-and-conditions')} sx={{ cursor: 'pointer' }} />
                 </ListItem>
                 <ListItem sx={{ borderBottom: '1px solid #eee', py: 2 }}>
