@@ -1,4 +1,5 @@
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SendIcon from '@mui/icons-material/Send';
 import { Avatar, Box, Divider, IconButton, TextField, Typography } from '@mui/material';
@@ -141,10 +142,31 @@ const Thread: React.FC = () => {
                                         </Typography>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <IconButton size="small" onClick={() => handleLikePost(parentDiscussion.id)} sx={{ p: 0 }}>
-                                                    <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleLikePost(parentDiscussion.id)}
+                                                    sx={{
+                                                        p: 0.5,
+                                                        '&:hover': {
+                                                            bgcolor: 'rgba(31, 133, 5, 0.1)',
+                                                        },
+                                                    }}
+                                                >
+                                                    {parentDiscussion.is_interested ? (
+                                                        <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
+                                                    ) : (
+                                                        <FavoriteBorderIcon
+                                                            sx={{
+                                                                color: '#444',
+                                                                fontSize: 16,
+                                                                '&:hover': { color: '#1F8505' },
+                                                            }}
+                                                        />
+                                                    )}
                                                 </IconButton>
-                                                <Typography sx={{ fontSize: 12, color: '#666' }}>{parentDiscussion.interests}</Typography>
+                                                <Typography sx={{ fontSize: 12, color: parentDiscussion.is_interested ? '#1F8505' : '#666' }}>
+                                                    {parentDiscussion.interests}
+                                                </Typography>
                                             </Box>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                 <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />
@@ -175,10 +197,31 @@ const Thread: React.FC = () => {
                                             <Typography sx={{ color: '#444', fontSize: 14, mb: 1, lineHeight: 1.5 }}>{post.content}</Typography>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                    <IconButton size="small" onClick={() => handleLikePost(post.id)} sx={{ p: 0 }}>
-                                                        <FavoriteBorderIcon sx={{ color: '#666', fontSize: 16 }} />
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleLikePost(post.id)}
+                                                        sx={{
+                                                            p: 0.5,
+                                                            '&:hover': {
+                                                                bgcolor: 'rgba(31, 133, 5, 0.1)',
+                                                            },
+                                                        }}
+                                                    >
+                                                        {post.is_interested ? (
+                                                            <FavoriteIcon sx={{ color: '#1F8505', fontSize: 16 }} />
+                                                        ) : (
+                                                            <FavoriteBorderIcon
+                                                                sx={{
+                                                                    color: '#444',
+                                                                    fontSize: 16,
+                                                                    '&:hover': { color: '#1F8505' },
+                                                                }}
+                                                            />
+                                                        )}
                                                     </IconButton>
-                                                    <Typography sx={{ fontSize: 12, color: '#666' }}>{post.interests}</Typography>
+                                                    <Typography sx={{ fontSize: 12, color: post.is_interested ? '#1F8505' : '#666' }}>
+                                                        {post.interests}
+                                                    </Typography>
                                                 </Box>
                                             </Box>
                                         </Box>

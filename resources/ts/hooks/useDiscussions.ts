@@ -102,12 +102,18 @@ export const useDiscussions = (options: UseDiscussionsOptions): UseDiscussionsRe
 
     const updateInterest = useCallback(async (data: InterestUpdateRequest) => {
         try {
-            await discussionApi.updateInterest(data);
+            const response = await discussionApi.updateInterest(data);
 
-            // Update the interests count in the discussion
+            // Update the discussion with the response from API (proper toggle)
             setDiscussions((prev) =>
                 prev.map((discussion) =>
-                    discussion.id === data.discussion_id ? { ...discussion, interests: discussion.interests + 1 } : discussion,
+                    discussion.id === data.discussion_id
+                        ? {
+                              ...discussion,
+                              is_interested: response.data.is_interested,
+                              interests: response.data.interests,
+                          }
+                        : discussion,
                 ),
             );
         } catch (err) {

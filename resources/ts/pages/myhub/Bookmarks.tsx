@@ -124,7 +124,9 @@ const Bookmarks: React.FC = () => {
                                 if (isSelectMode) {
                                     handleItemSelect(item.id);
                                 } else {
-                                    navigate(`/contributions/${item.id}`);
+                                    // Navigate based on contribution type
+                                    const typeRoute = item.type === 'idea' ? 'ideas' : item.type === 'question' ? 'questions' : 'projects';
+                                    navigate(`/${typeRoute}/${item.id}`);
                                 }
                             }}
                             sx={{

@@ -44,4 +44,21 @@ class Discussion extends Model
     {
         return $this->parent_id === null;
     }
+
+    /**
+     * Users who expressed interest (liked) this discussion
+     */
+    public function interests()
+    {
+        return $this->belongsToMany(User::class, 'discussion_interest', 'discussion_id', 'user_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the count of interests
+     */
+    public function getInterestsCountAttribute()
+    {
+        return $this->interests()->count();
+    }
 }

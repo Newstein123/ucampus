@@ -14,5 +14,5 @@ interface DiscussionServiceInterface
 
     public function delete(int $id);
 
-    public function updateInterest(int $id);
+    public function updateInterest(int $id, int $userId): array;
 }
