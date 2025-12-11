@@ -140,9 +140,7 @@ export const DiscussionSection: React.FC<DiscussionSectionProps> = ({ contributi
                                                     />
                                                 )}
                                             </IconButton>
-                                            <Typography sx={{ fontSize: 12, color: d.is_interested ? '#444' : '#666' }}>
-                                                {d.interests}
-                                            </Typography>
+                                            <Typography sx={{ fontSize: 12, color: d.is_interested ? '#444' : '#666' }}>{d.interests}</Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                             <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 16 }} />

@@ -10,13 +10,7 @@ interface UseMyContributionsQueryOptions {
     enabled?: boolean;
 }
 
-const useMyContributionsQuery = ({
-    type,
-    userId,
-    perPage = 10,
-    page = 1,
-    enabled = true,
-}: UseMyContributionsQueryOptions) => {
+const useMyContributionsQuery = ({ type, userId, perPage = 10, page = 1, enabled = true }: UseMyContributionsQueryOptions) => {
     const request: ContributionListRequest = {
         type,
         user_id: userId,

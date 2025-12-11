@@ -99,4 +99,3 @@ export interface InterestUpdateResponse {
         interests: number;
     };
 }
-

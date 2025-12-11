@@ -1,7 +1,7 @@
 import { Avatar, CircularProgress, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
 import useMyContributionsQuery from '../../hooks/contribution/useMyContributionsQuery';
@@ -54,8 +54,6 @@ const MyIdeasAndQuestions: React.FC = () => {
     const ideas: Contribution[] = ideasData?.data || [];
     const questions: Contribution[] = questionsData?.data || [];
 
-    const isLoading = ideasLoading || questionsLoading;
-
     return (
         <SinglePageLayout title={t('My ideas and questions')} bgColor="#fafdff">
             <Paper elevation={0} sx={{ bgcolor: '#fafdff', borderRadius: 3, p: 0, boxShadow: 'none', minHeight: '100vh' }}>
@@ -101,9 +99,7 @@ const MyIdeasAndQuestions: React.FC = () => {
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={<Typography sx={{ fontWeight: 700, fontSize: 15, color: '#222' }}>{idea.title}</Typography>}
-                                    secondary={
-                                        <Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>{formatDate(idea.created_at)}</Typography>
-                                    }
+                                    secondary={<Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>{formatDate(idea.created_at)}</Typography>}
                                 />
                             </ListItem>
                         ))}
@@ -159,9 +155,7 @@ const MyIdeasAndQuestions: React.FC = () => {
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={<Typography sx={{ fontWeight: 700, fontSize: 15, color: '#222' }}>{q.title}</Typography>}
-                                    secondary={
-                                        <Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>{formatDate(q.created_at)}</Typography>
-                                    }
+                                    secondary={<Typography sx={{ color: '#aaa', fontSize: 13, mt: 0.5 }}>{formatDate(q.created_at)}</Typography>}
                                 />
                             </ListItem>
                         ))}
