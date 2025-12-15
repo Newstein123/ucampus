@@ -1,0 +1,264 @@
+import { Avatar, Box, Button, CircularProgress, Paper, Snackbar, Alert, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { apiClient } from '../../api/client';
+import { contributionApi } from '../../api/contribution';
+import SinglePageLayout from '../../components/SinglePageLayout';
+
+interface RequestDetails {
+    id: number;
+    contribution_id: number;
+    user_id: number;
+    reason: string;
+    status: string;
+    created_at: string;
+    user: {
+        id: number;
+        name: string;
+        username: string;
+        avatar?: string;
+    };
+    contribution: {
+        id: number;
+        title: string;
+        thumbnail_url?: string;
+    };
+}
+
+const ProjectRequest: React.FC = () => {
+    const { requestId } = useParams<{ requestId: string }>();
+    const navigate = useNavigate();
+    const [request, setRequest] = useState<RequestDetails | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [processing, setProcessing] = useState(false);
+    const [toastOpen, setToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+    useEffect(() => {
+        const fetchRequest = async () => {
+            if (!requestId) return;
+            try {
+                const response = await apiClient.getClient().get(`/project/collaboration`, {
+                    params: { request_id: requestId }
+                });
+                const collaborations = response.data?.data?.collaborations || [];
+                const found = collaborations.find((c: RequestDetails) => c.id === parseInt(requestId));
+                setRequest(found || null);
+            } catch (error) {
+                console.error('Failed to load request:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchRequest();
+    }, [requestId]);
+
+    const handleAccept = async () => {
+        if (!request) return;
+        setProcessing(true);
+        try {
+            await contributionApi.collaborationAction(request.id, 1);
+            setToastMessage(`${request.user.name} has been accepted!`);
+            setToastType('success');
+            setToastOpen(true);
+            setTimeout(() => navigate('/notifications'), 1500);
+        } catch {
+            setToastMessage('Failed to accept request');
+            setToastType('error');
+            setToastOpen(true);
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handleReject = async () => {
+        if (!request) return;
+        setProcessing(true);
+        try {
+            await contributionApi.collaborationAction(request.id, 2);
+            setToastMessage('Request has been rejected');
+            setToastType('success');
+            setToastOpen(true);
+            setTimeout(() => navigate('/notifications'), 1500);
+        } catch {
+            setToastMessage('Failed to reject request');
+            setToastType('error');
+            setToastOpen(true);
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    // Parse reason to extract role if present
+    const parseReason = (reason: string) => {
+        const roleMatch = reason.match(/\n\nDesired role: (.+)$/);
+        if (roleMatch) {
+            return {
+                reason: reason.replace(/\n\nDesired role: .+$/, ''),
+                role: roleMatch[1]
+            };
+        }
+        return { reason, role: null };
+    };
+
+    const { reason: displayReason, role } = request ? parseReason(request.reason) : { reason: '', role: null };
+
+    if (loading) {
+        return (
+            <SinglePageLayout title="Project request">
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </SinglePageLayout>
+        );
+    }
+
+    if (!request) {
+        return (
+            <SinglePageLayout title="Project request">
+                <Box sx={{ textAlign: 'center', py: 8 }}>
+                    <Typography variant="body1" sx={{ color: '#666' }}>Request not found</Typography>
+                </Box>
+            </SinglePageLayout>
+        );
+    }
+
+    return (
+        <SinglePageLayout
+            title="Project request"
+            onBackClick={() => navigate(-1)}
+        >
+            <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, p: 3 }}>
+                {/* Requester Info */}
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <Avatar
+                        src={request.user.avatar}
+                        sx={{ width: 50, height: 50, bgcolor: '#e8f5e9', color: '#1F8505', mr: 2 }}
+                    >
+                        {request.user.name[0]?.toUpperCase()}
+                    </Avatar>
+                    <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>
+                            {request.user.name}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#999' }}>
+                            {request.created_at}
+                        </Typography>
+                    </Box>
+                </Box>
+
+                {/* Requested To Section */}
+                <Box sx={{ mb: 3 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#999', mb: 1.5 }}>
+                        Requested to
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: '#f9f9f9', borderRadius: 2 }}>
+                        {request.contribution.thumbnail_url && (
+                            <Box
+                                component="img"
+                                src={request.contribution.thumbnail_url}
+                                sx={{ width: 60, height: 60, borderRadius: 2, objectFit: 'cover', mr: 2 }}
+                            />
+                        )}
+                        <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                {request.contribution.title}
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Box>
+
+                {/* Reason Section */}
+                <Box sx={{ mb: 3 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#999', mb: 1 }}>
+                        Reason
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#444', lineHeight: 1.6 }}>
+                        {displayReason}
+                    </Typography>
+                </Box>
+
+                {/* Role Section */}
+                {role && (
+                    <Box sx={{ mb: 4 }}>
+                        <Typography variant="subtitle2" sx={{ color: '#999', mb: 1 }}>
+                            Role want
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#444' }}>
+                            {role}
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* Action Buttons */}
+                {request.status === 'pending' && (
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            disabled={processing}
+                            onClick={handleAccept}
+                            sx={{
+                                bgcolor: '#1F8505',
+                                color: '#fff',
+                                py: 1.5,
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                '&:hover': { bgcolor: '#165d04' },
+                            }}
+                        >
+                            {processing ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Accept'}
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            disabled={processing}
+                            onClick={handleReject}
+                            sx={{
+                                borderColor: '#f44336',
+                                color: '#f44336',
+                                py: 1.5,
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                '&:hover': { borderColor: '#d32f2f', bgcolor: '#fff5f5' },
+                            }}
+                        >
+                            Reject
+                        </Button>
+                    </Box>
+                )}
+
+                {request.status !== 'pending' && (
+                    <Box sx={{ textAlign: 'center', py: 2 }}>
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                color: request.status === 'accepted' ? '#1F8505' : '#f44336',
+                                fontWeight: 600
+                            }}
+                        >
+                            This request has been {request.status}
+                        </Typography>
+                    </Box>
+                )}
+            </Paper>
+
+            {/* Toast */}
+            <Snackbar
+                open={toastOpen}
+                autoHideDuration={3000}
+                onClose={() => setToastOpen(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setToastOpen(false)} severity={toastType} sx={{ width: '100%' }}>
+                    {toastMessage}
+                </Alert>
+            </Snackbar>
+        </SinglePageLayout>
+    );
+};
+
+export default ProjectRequest;

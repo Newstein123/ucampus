@@ -17,6 +17,7 @@ import IdeaCreate from './pages/contribution/IdeaCreate';
 import IdeaDetails from './pages/contribution/IdeaDetails';
 import ProjectCreate from './pages/contribution/ProjectCreate';
 import ProjectDetails from './pages/contribution/ProjectDetails';
+import ProjectRequest from './pages/contribution/ProjectRequest';
 import QuestionCreate from './pages/contribution/QuestionCreate';
 import QuestionDetails from './pages/contribution/QuestionDetails';
 import Thread from './pages/contribution/Thread';
@@ -264,6 +265,14 @@ const App: React.FC = () => {
                                             element={
                                                 <ProtectedRoute>
                                                     <QuestionDetails />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/contribution/request/:requestId"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProjectRequest />
                                                 </ProtectedRoute>
                                             }
                                         />

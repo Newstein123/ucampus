@@ -25,7 +25,7 @@ class CollaborationRepository implements CollaborationRepositoryInterface
         return $participant->toArray();
     }
 
-    public function updateRequestStatus(int $status): array
+    public function updateRequestStatus(int $requestId, int $status): array
     {
         $statusMap = [
             0 => 'pending',
@@ -33,7 +33,7 @@ class CollaborationRepository implements CollaborationRepositoryInterface
             2 => 'rejected',
         ];
 
-        $collaborationRequest = ContributionParticipant::findOrFail(request('request_id'));
+        $collaborationRequest = ContributionParticipant::findOrFail($requestId);
         $collaborationRequest->status = $statusMap[$status];
         $collaborationRequest->save();
 
