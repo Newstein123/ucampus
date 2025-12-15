@@ -226,31 +226,48 @@ const Notifications: React.FC = () => {
                                                     },
                                                 }}
                                             >
-                                                <Avatar
-                                                    sx={{
-                                                        width: 40,
-                                                        height: 40,
-                                                        bgcolor: notification.sender?.avatar ? 'transparent' : '#e0e0e0',
-                                                    }}
-                                                >
-                                                    {notification.sender?.avatar ? (
-                                                        <img
-                                                            src={notification.sender.avatar}
-                                                            alt={notification.sender.name || 'User'}
-                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                        />
-                                                    ) : notification.sender?.name ? (
-                                                        <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-                                                            {notification.sender.name
-                                                                .split(' ')
-                                                                .map((n: string) => n[0])
-                                                                .join('')
-                                                                .toUpperCase()}
-                                                        </Typography>
-                                                    ) : (
-                                                        getNotificationIcon(notification)
-                                                    )}
-                                                </Avatar>
+                                                {/* Special icons for collaboration response notifications */}
+                                                {notification.type === 'collaboration_response' ? (
+                                                    <Avatar
+                                                        sx={{
+                                                            width: 40,
+                                                            height: 40,
+                                                            bgcolor: '#e0e0e0',
+                                                        }}
+                                                    >
+                                                        {notification.message.includes('accepted') ? (
+                                                            <CheckCircleIcon sx={{ color: '#000000ff', fontSize: 24 }} />
+                                                        ) : (
+                                                            <CancelIcon sx={{ color: '#666', fontSize: 24 }} />
+                                                        )}
+                                                    </Avatar>
+                                                ) : (
+                                                    <Avatar
+                                                        sx={{
+                                                            width: 40,
+                                                            height: 40,
+                                                            bgcolor: notification.sender?.avatar ? 'transparent' : '#e0e0e0',
+                                                        }}
+                                                    >
+                                                        {notification.sender?.avatar ? (
+                                                            <img
+                                                                src={notification.sender.avatar}
+                                                                alt={notification.sender.name || 'User'}
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            />
+                                                        ) : notification.sender?.name ? (
+                                                            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
+                                                                {notification.sender.name
+                                                                    .split(' ')
+                                                                    .map((n: string) => n[0])
+                                                                    .join('')
+                                                                    .toUpperCase()}
+                                                            </Typography>
+                                                        ) : (
+                                                            getNotificationIcon(notification)
+                                                        )}
+                                                    </Avatar>
+                                                )}
                                             </Badge>
                                         </ListItemAvatar>
                                         <ListItemText
