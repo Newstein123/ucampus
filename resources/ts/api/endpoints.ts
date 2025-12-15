@@ -30,6 +30,7 @@ export const endpoints = Object.freeze({
 
     // Collaboration endpoints
     collaboration_list: '/project/collaboration',
+    collaboration_request: '/project/request',
 
     auth_social_login: '/auth/{provider}/login',
     auth_forgot_password: '/auth/forgot-password',

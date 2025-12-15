@@ -74,6 +74,19 @@ class ContributionResource extends JsonResource
             
             // Combined attachments array
             'attachments' => $allAttachments,
+
+            // Team members (accepted participants only)
+            'participants' => $this->participants
+                ->where('status', 'accepted')
+                ->map(function ($participant) {
+                    return [
+                        'id' => $participant->id,
+                        'user_id' => $participant->user_id,
+                        'name' => $participant->user->name ?? 'Unknown',
+                        'username' => $participant->user->username ?? '',
+                        'joined_at' => $participant->joined_at?->diffForHumans() ?? $participant->created_at?->diffForHumans(),
+                    ];
+                })->values()->toArray(),
             
             'user' => [
                 'id' => $this->user->id,

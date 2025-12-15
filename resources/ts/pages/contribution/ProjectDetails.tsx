@@ -7,33 +7,64 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Avatar, Box, Button, CardMedia, Chip, IconButton, List, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
 import DiscussionSection from '../../components/DiscussionSection';
+import JoinTeamModal from '../../components/JoinTeamModal';
 import SinglePageLayout from '../../components/SinglePageLayout';
+import Toast from '../../components/Toast';
 import { useDiscussions } from '../../hooks/useDiscussions';
+import { selectUser } from '../../store/slices/authSlice';
 import { Contribution } from '../../types/contribution';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
-
-// Mock team members (UI-only; backend not wired yet)
-const mockTeamMembers = [
-    { name: 'Adom Shafi', avatar: '', role: 'Frontend Developer' },
-    { name: 'Sarah Chen', avatar: '', role: 'UI/UX Designer' },
-    { name: 'Mike Johnson', avatar: '', role: 'Backend Developer' },
-    { name: 'Lisa Wang', avatar: '', role: 'Product Manager' },
-];
 
 const ProjectDetails: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const [project, setProject] = useState<Contribution | null>(null);
+    const currentUser = useSelector(selectUser);
+
+    // Modal and toast state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [toastOpen, setToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
     // Use the discussions hook
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
         page: 1,
     });
+
+    // Check if current user is the project owner
+    const isOwner = currentUser?.id === project?.user?.id;
+    // Check if user can join: must be logged in, project allows collaboration, and not the owner
+    const canJoin = currentUser && project?.allow_collab && !isOwner;
+
+    // Handle join request submission
+    const handleJoinSubmit = async (reason: string) => {
+        if (!id) return;
+        setIsSubmitting(true);
+        try {
+            await contributionApi.requestCollaboration(parseInt(id), reason);
+            setIsModalOpen(false);
+            setToastMessage('Your request was sent!');
+            setToastType('success');
+            setToastOpen(true);
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+            const errorMsg = err.response?.data?.errors?.contribution_id?.[0] || err.response?.data?.message || 'Failed to send request';
+            setToastMessage(errorMsg);
+            setToastType('error');
+            setToastOpen(true);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     useEffect(() => {
         const load = async () => {
@@ -170,51 +201,65 @@ const ProjectDetails: React.FC = () => {
             {/* Team Members Section */}
             <Box sx={{ p: 2, pb: 1 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 17, mb: 2, textAlign: 'center' }}>Team Members</Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
-                    {mockTeamMembers.map((member, index) => (
-                        <Box key={index} sx={{ textAlign: 'center' }}>
-                            <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>{member.name[0]}</Avatar>
-                            <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{member.name}</Typography>
-                        </Box>
-                    ))}
-                </Box>
-                <Button
-                    variant="contained"
-                    sx={{
-                        bgcolor: '#1F8505',
-                        color: '#fff',
-                        borderRadius: '25px',
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        fontSize: 16,
-                        py: 1.5,
-                        px: 4,
-                        width: '100%',
-                        position: 'relative',
-                    }}
-                >
-                    Join this team
-                    <Box
+                {project?.participants && project.participants.length > 0 ? (
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
+                        {project.participants.map((member) => (
+                            <Box key={member.id} sx={{ textAlign: 'center' }}>
+                                <Avatar sx={{ width: 60, height: 60, bgcolor: '#e8f5e9', color: '#1F8505', mx: 'auto', mb: 1 }}>
+                                    {member.name[0]?.toUpperCase() || 'U'}
+                                </Avatar>
+                                <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{member.name}</Typography>
+                            </Box>
+                        ))}
+                    </Box>
+                ) : (
+                    <Box sx={{ textAlign: 'center', py: 3, mb: 2 }}>
+                        <Typography sx={{ color: '#888', fontSize: 14 }}>No members yet</Typography>
+                    </Box>
+                )}
+                {canJoin && (
+                    <Button
+                        variant="contained"
+                        onClick={() => setIsModalOpen(true)}
                         sx={{
-                            position: 'absolute',
-                            right: -8,
-                            top: -8,
                             bgcolor: '#1F8505',
                             color: '#fff',
-                            borderRadius: '50%',
-                            width: 24,
-                            height: 24,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 12,
+                            borderRadius: '25px',
+                            textTransform: 'none',
                             fontWeight: 600,
-                            border: '2px solid #fff',
+                            fontSize: 16,
+                            py: 1.5,
+                            px: 4,
+                            width: '100%',
+                            position: 'relative',
+                            '&:hover': {
+                                bgcolor: '#165d04',
+                            },
                         }}
                     >
-                        <MailIcon sx={{ fontSize: 14 }} />
-                    </Box>
-                </Button>
+                        Join this team
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                right: -8,
+                                top: -8,
+                                bgcolor: '#1F8505',
+                                color: '#fff',
+                                borderRadius: '50%',
+                                width: 24,
+                                height: 24,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 12,
+                                fontWeight: 600,
+                                border: '2px solid #fff',
+                            }}
+                        >
+                            <MailIcon sx={{ fontSize: 14 }} />
+                        </Box>
+                    </Button>
+                )}
             </Box>
             {/* Engagement Metrics */}
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, p: 2, pb: 1 }}>
@@ -234,6 +279,18 @@ const ProjectDetails: React.FC = () => {
 
             {/* Discussion Section */}
             <DiscussionSection contributionId={parseInt(id || '1')} />
+
+            {/* Join Team Modal */}
+            <JoinTeamModal
+                open={isModalOpen}
+                projectTitle={project?.title || ''}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleJoinSubmit}
+                isLoading={isSubmitting}
+            />
+
+            {/* Success/Error Toast */}
+            <Toast open={toastOpen} message={toastMessage} type={toastType} onClose={() => setToastOpen(false)} />
         </SinglePageLayout>
     );
 };

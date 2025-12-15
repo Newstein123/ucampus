@@ -7,6 +7,14 @@ export interface Attachment {
     size: number | null;
 }
 
+export interface Participant {
+    id: number;
+    user_id: number;
+    name: string;
+    username: string;
+    joined_at: string | null;
+}
+
 export interface Contribution {
     id: number;
     title: string;
@@ -23,6 +31,7 @@ export interface Contribution {
     is_interested: boolean;
     is_bookmarked: boolean;
     attachments: Attachment[];
+    participants?: Participant[];
     created_at: string;
     updated_at: string;
     user: {

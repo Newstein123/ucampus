@@ -54,4 +54,15 @@ export const contributionApi = {
         }>(endpoints.contribution_upload_attachment, formData);
         return response.data;
     },
+    async requestCollaboration(contributionId: number, reason: string): Promise<{ success: boolean; message: string; data: unknown }> {
+        const response = await apiClient.getClient().post<{
+            success: boolean;
+            message: string;
+            data: unknown;
+        }>(endpoints.collaboration_request, {
+            contribution_id: contributionId,
+            reason,
+        });
+        return response.data;
+    },
 };
