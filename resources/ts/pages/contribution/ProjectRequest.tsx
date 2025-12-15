@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, CircularProgress, Paper, Snackbar, Alert, Typography } from '@mui/material';
+import { Alert, Avatar, Box, Button, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiClient } from '../../api/client';
@@ -53,7 +53,7 @@ const ProjectRequest: React.FC = () => {
             if (!requestId) return;
             try {
                 const response = await apiClient.getClient().get(`/project/collaboration`, {
-                    params: { request_id: requestId }
+                    params: { request_id: requestId },
                 });
                 const collaborations = response.data?.data?.collaborations || [];
                 const found = collaborations.find((c: RequestDetails) => c.id === parseInt(requestId));
@@ -109,7 +109,7 @@ const ProjectRequest: React.FC = () => {
         if (roleMatch) {
             return {
                 reason: reason.replace(/\n\nDesired role: .+$/, ''),
-                role: roleMatch[1]
+                role: roleMatch[1],
             };
         }
         return { reason, role: null };
@@ -131,24 +131,20 @@ const ProjectRequest: React.FC = () => {
         return (
             <SinglePageLayout title="Project request">
                 <Box sx={{ textAlign: 'center', py: 8 }}>
-                    <Typography variant="body1" sx={{ color: '#666' }}>Request not found</Typography>
+                    <Typography variant="body1" sx={{ color: '#666' }}>
+                        Request not found
+                    </Typography>
                 </Box>
             </SinglePageLayout>
         );
     }
 
     return (
-        <SinglePageLayout
-            title="Project request"
-            onBackClick={() => navigate(-1)}
-        >
+        <SinglePageLayout title="Project request" onBackClick={() => navigate(-1)}>
             <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 3, p: 3 }}>
                 {/* Requester Info */}
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <Avatar
-                        src={request.user.avatar}
-                        sx={{ width: 50, height: 50, bgcolor: '#e8f5e9', color: '#1F8505', mr: 2 }}
-                    >
+                    <Avatar src={request.user.avatar} sx={{ width: 50, height: 50, bgcolor: '#e8f5e9', color: '#1F8505', mr: 2 }}>
                         {request.user.name[0]?.toUpperCase()}
                     </Avatar>
                     <Box>
@@ -250,7 +246,7 @@ const ProjectRequest: React.FC = () => {
                             variant="body1"
                             sx={{
                                 color: request.status === 'accepted' ? '#1F8505' : '#f44336',
-                                fontWeight: 600
+                                fontWeight: 600,
                             }}
                         >
                             This request has been {request.status}

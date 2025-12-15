@@ -65,7 +65,10 @@ export const contributionApi = {
         });
         return response.data;
     },
-    async collaborationAction(requestId: number, status: number): Promise<{ success: boolean; message: string; data: { status: number; message: string } }> {
+    async collaborationAction(
+        requestId: number,
+        status: number,
+    ): Promise<{ success: boolean; message: string; data: { status: number; message: string } }> {
         const response = await apiClient.getClient().post<{
             success: boolean;
             message: string;

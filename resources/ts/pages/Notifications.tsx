@@ -2,7 +2,23 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InfoIcon from '@mui/icons-material/Info';
 import PersonIcon from '@mui/icons-material/Person';
-import { Avatar, Badge, Box, Button, Divider, List, ListItem, ListItemAvatar, ListItemText, Paper, Snackbar, Alert, Tab, Tabs, Typography } from '@mui/material';
+import {
+    Alert,
+    Avatar,
+    Badge,
+    Box,
+    Button,
+    Divider,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Paper,
+    Snackbar,
+    Tab,
+    Tabs,
+    Typography,
+} from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +40,7 @@ const Notifications: React.FC = () => {
     // Track notifications that have been acted upon (accepted/rejected)
     const [actedNotifications, setActedNotifications] = useState<Map<number, 'accepted' | 'rejected'>>(new Map());
 
-    const { data: notificationData, isLoading, error, refetch } = useNotificationListQuery({ page, per_page: 20 });
+    const { data: notificationData, isLoading, error } = useNotificationListQuery({ page, per_page: 20 });
     const readMutation = useNotificationReadMutation();
 
     const notifications = notificationData?.data?.notifications || [];
@@ -68,7 +84,7 @@ const Notifications: React.FC = () => {
         e.stopPropagation();
         if (!notification.source_id) return;
 
-        setProcessingIds(prev => new Set(prev).add(notification.id));
+        setProcessingIds((prev) => new Set(prev).add(notification.id));
         try {
             await contributionApi.collaborationAction(notification.source_id, 1);
             readMutation.mutate({ notification_id: notification.id });
@@ -76,13 +92,13 @@ const Notifications: React.FC = () => {
             setToastType('success');
             setToastOpen(true);
             // Mark as acted upon
-            setActedNotifications(prev => new Map(prev).set(notification.id, 'accepted'));
+            setActedNotifications((prev) => new Map(prev).set(notification.id, 'accepted'));
         } catch {
             setToastMessage('Failed to accept request');
             setToastType('error');
             setToastOpen(true);
         } finally {
-            setProcessingIds(prev => {
+            setProcessingIds((prev) => {
                 const newSet = new Set(prev);
                 newSet.delete(notification.id);
                 return newSet;
@@ -94,7 +110,7 @@ const Notifications: React.FC = () => {
         e.stopPropagation();
         if (!notification.source_id) return;
 
-        setProcessingIds(prev => new Set(prev).add(notification.id));
+        setProcessingIds((prev) => new Set(prev).add(notification.id));
         try {
             await contributionApi.collaborationAction(notification.source_id, 2);
             readMutation.mutate({ notification_id: notification.id });
@@ -102,13 +118,13 @@ const Notifications: React.FC = () => {
             setToastType('success');
             setToastOpen(true);
             // Mark as acted upon
-            setActedNotifications(prev => new Map(prev).set(notification.id, 'rejected'));
+            setActedNotifications((prev) => new Map(prev).set(notification.id, 'rejected'));
         } catch {
             setToastMessage('Failed to reject request');
             setToastType('error');
             setToastOpen(true);
         } finally {
-            setProcessingIds(prev => {
+            setProcessingIds((prev) => {
                 const newSet = new Set(prev);
                 newSet.delete(notification.id);
                 return newSet;
@@ -130,8 +146,7 @@ const Notifications: React.FC = () => {
 
     // Check if notification is a handled collaboration request (accepted or rejected)
     const isHandledCollaborationRequest = (notification: NotificationType) => {
-        return notification.type === 'collaboration_request_accepted' ||
-            notification.type === 'collaboration_request_rejected';
+        return notification.type === 'collaboration_request_accepted' || notification.type === 'collaboration_request_rejected';
     };
 
     // Get the action status from notification type
@@ -310,7 +325,7 @@ const Notifications: React.FC = () => {
                                     </Box>
 
                                     {/* Action buttons or result for collaboration requests */}
-                                    {(isPendingCollaborationRequest(notification) || isHandledCollaborationRequest(notification)) && (
+                                    {(isPendingCollaborationRequest(notification) || isHandledCollaborationRequest(notification)) &&
                                         (() => {
                                             const actionStatus = getNotificationActionStatus(notification);
 
@@ -403,8 +418,7 @@ const Notifications: React.FC = () => {
                                                     </Button>
                                                 </Box>
                                             );
-                                        })()
-                                    )}
+                                        })()}
                                 </ListItem>
                                 {index < filteredNotifications.length - 1 && <Divider sx={{ my: 1, opacity: 0.3 }} />}
                             </React.Fragment>
