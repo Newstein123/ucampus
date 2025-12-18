@@ -217,7 +217,35 @@ const ProjectDetails: React.FC = () => {
                         <Typography sx={{ color: '#888', fontSize: 14 }}>No members yet</Typography>
                     </Box>
                 )}
-                {canJoin && (
+                {/* Check if user is already a team member */}
+                {currentUser && project?.participants?.some(member => member.user_id === currentUser.id) ? (
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
+                            // Leave functionality - API not implemented yet
+                            setToastMessage('Leave team functionality coming soon');
+                            setToastType('error');
+                            setToastOpen(true);
+                        }}
+                        sx={{
+                            borderColor: '#f44336',
+                            color: '#f44336',
+                            borderRadius: '25px',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: 16,
+                            py: 1.5,
+                            px: 4,
+                            width: '100%',
+                            '&:hover': {
+                                borderColor: '#d32f2f',
+                                bgcolor: '#fff5f5',
+                            },
+                        }}
+                    >
+                        Leave
+                    </Button>
+                ) : canJoin && (
                     <Button
                         variant="contained"
                         onClick={() => setIsModalOpen(true)}

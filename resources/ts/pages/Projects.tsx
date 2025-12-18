@@ -12,6 +12,19 @@ import { Contribution } from '../types/contribution';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
+interface CollaborationProject {
+    id: number;
+    contribution_id: number;
+    contribution: {
+        id: number;
+        title: string;
+        thumbnail_url?: string;
+        content?: {
+            description?: string;
+        };
+    };
+}
+
 const ProjectCard: React.FC<{ id: number; title: string; subtitle?: string; image: string }> = ({ id, title, subtitle, image }) => {
     const navigate = useNavigate();
     const handleNavigate = (projectId: number) => {
@@ -35,6 +48,7 @@ const ProjectCard: React.FC<{ id: number; title: string; subtitle?: string; imag
 
 const Projects: React.FC = () => {
     const [ownProjects, setOwnProjects] = useState<Contribution[]>([]);
+    const [collaborationProjects, setCollaborationProjects] = useState<CollaborationProject[]>([]);
     const user = useSelector(selectUser);
 
     useEffect(() => {
@@ -43,30 +57,70 @@ const Projects: React.FC = () => {
             .getProfile()
             .then((profile) => {
                 const uid = profile.data.id;
-                return contributionApi.list({ user_id: uid, type: 'project', per_page: 20 });
+                // Fetch own projects
+                contributionApi.list({ user_id: uid, type: 'project', per_page: 20 })
+                    .then((res) => setOwnProjects(res.data))
+                    .catch(() => setOwnProjects([]));
+
+                // Fetch collaboration projects where user is accepted
+                contributionApi.listCollaborations(uid)
+                    .then((res) => {
+                        // Filter only accepted collaborations
+                        const accepted = (res.data?.collaborations || []).filter(
+                            (c: { status: string }) => c.status === 'accepted'
+                        );
+                        setCollaborationProjects(accepted);
+                    })
+                    .catch(() => setCollaborationProjects([]));
             })
-            .then((res) => setOwnProjects(res.data))
-            .catch(() => setOwnProjects([]));
+            .catch(() => {
+                setOwnProjects([]);
+                setCollaborationProjects([]);
+            });
     }, [user?.id]);
 
     return (
         <Layout>
             <Typography sx={{ fontWeight: 700, fontSize: 18, textAlign: 'center', mb: 3 }}>Projects</Typography>
-            <Box sx={{ px: 2, pt: 3, pb: 2, alignItems: 'center', justifyContent: 'center' }}>
-                {ownProjects.length === 0 ? (
+            <Box sx={{ pt: 3, pb: 2, alignItems: 'center', justifyContent: 'center' }}>
+                {/* Show empty state when no projects at all */}
+                {ownProjects.length === 0 && collaborationProjects.length === 0 ? (
                     <EmptyProjects />
                 ) : (
-                    ownProjects.map((p) => (
-                        <ProjectCard
-                            key={p.id}
-                            id={p.id}
-                            title={p.title}
-                            subtitle={p.content?.description || ''}
-                            image={p.thumbnail_url || DEFAULT_IMAGE}
-                        />
-                    ))
+                    <>
+                        {/* Your own projects section */}
+                        {ownProjects.length > 0 && (
+                            <>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16, mb: 2 }}>Your own projects</Typography>
+                                {ownProjects.map((p) => (
+                                    <ProjectCard
+                                        key={p.id}
+                                        id={p.id}
+                                        title={p.title}
+                                        subtitle={p.content?.description || ''}
+                                        image={p.thumbnail_url || DEFAULT_IMAGE}
+                                    />
+                                ))}
+                            </>
+                        )}
+
+                        {/* Projects you collaborate section */}
+                        {collaborationProjects.length > 0 && (
+                            <>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16, mt: ownProjects.length > 0 ? 4 : 0, mb: 2 }}>Projects you collaborate</Typography>
+                                {collaborationProjects.map((c) => (
+                                    <ProjectCard
+                                        key={c.id}
+                                        id={c.contribution.id}
+                                        title={c.contribution.title}
+                                        subtitle={c.contribution.content?.description || ''}
+                                        image={c.contribution.thumbnail_url || DEFAULT_IMAGE}
+                                    />
+                                ))}
+                            </>
+                        )}
+                    </>
                 )}
-                {/* Collaboration section removed per requirement to only show own projects */}
             </Box>
         </Layout>
     );

@@ -11,31 +11,24 @@ interface JoinTeamModalProps {
 
 const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClose, onSubmit, isLoading = false }) => {
     const [reason, setReason] = useState('');
-    const [role, setRole] = useState('');
     const [error, setError] = useState('');
 
     const handleSubmit = async () => {
-        // Combine reason and role into a single message
-        let fullReason = reason.trim();
-        if (role.trim()) {
-            fullReason += `\n\nDesired role: ${role.trim()}`;
-        }
+        const trimmedReason = reason.trim();
 
-        if (fullReason.length < 10) {
+        if (trimmedReason.length < 10) {
             setError('Please provide at least 10 characters explaining why you want to join.');
             return;
         }
 
         setError('');
-        await onSubmit(fullReason);
+        await onSubmit(trimmedReason);
         // Reset form after successful submission
         setReason('');
-        setRole('');
     };
 
     const handleClose = () => {
         setReason('');
-        setRole('');
         setError('');
         onClose();
     };
@@ -48,8 +41,7 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClo
                 sx: {
                     borderRadius: 5,
                     p: 1,
-                    minWidth: 320,
-                    maxWidth: 400,
+                    width: 500,
                 },
             }}
         >
@@ -70,22 +62,6 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClo
                     }}
                     error={!!error}
                     helperText={error}
-                    sx={{
-                        mb: 2,
-                        '& .MuiOutlinedInput-root': {
-                            borderRadius: 3,
-                            bgcolor: '#f9f9f9',
-                        },
-                    }}
-                />
-
-                {/* What role do you want? */}
-                <Typography sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>What role do you want?</Typography>
-                <TextField
-                    fullWidth
-                    placeholder="Your role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             borderRadius: 3,

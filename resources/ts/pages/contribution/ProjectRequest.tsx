@@ -103,20 +103,6 @@ const ProjectRequest: React.FC = () => {
         }
     };
 
-    // Parse reason to extract role if present
-    const parseReason = (reason: string) => {
-        const roleMatch = reason.match(/\n\nDesired role: (.+)$/);
-        if (roleMatch) {
-            return {
-                reason: reason.replace(/\n\nDesired role: .+$/, ''),
-                role: roleMatch[1],
-            };
-        }
-        return { reason, role: null };
-    };
-
-    const { reason: displayReason, role } = request ? parseReason(request.reason) : { reason: '', role: null };
-
     if (loading) {
         return (
             <SinglePageLayout title="Project request">
@@ -179,26 +165,14 @@ const ProjectRequest: React.FC = () => {
                 </Box>
 
                 {/* Reason Section */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 4 }}>
                     <Typography variant="subtitle2" sx={{ color: '#999', mb: 1 }}>
                         Reason
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#444', lineHeight: 1.6 }}>
-                        {displayReason}
+                        {request.reason}
                     </Typography>
                 </Box>
-
-                {/* Role Section */}
-                {role && (
-                    <Box sx={{ mb: 4 }}>
-                        <Typography variant="subtitle2" sx={{ color: '#999', mb: 1 }}>
-                            Role want
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#444' }}>
-                            {role}
-                        </Typography>
-                    </Box>
-                )}
 
                 {/* Action Buttons */}
                 {request.status === 'pending' && (
