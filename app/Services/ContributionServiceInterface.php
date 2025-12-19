@@ -22,4 +22,8 @@ interface ContributionServiceInterface
     public function unbookmark(int $userId, int $contributionId): void;
 
     public function listBookmarks(int $userId, ?string $type = null, int $perPage = 10, int $page = 1);
+
+    public function search(array $data = []);
+
+    public function trending(array $data = []);
 }
