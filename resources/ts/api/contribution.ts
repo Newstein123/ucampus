@@ -54,4 +54,29 @@ export const contributionApi = {
         }>(endpoints.contribution_upload_attachment, formData);
         return response.data;
     },
+    async requestCollaboration(contributionId: number, reason: string): Promise<{ success: boolean; message: string; data: unknown }> {
+        const response = await apiClient.getClient().post<{
+            success: boolean;
+            message: string;
+            data: unknown;
+        }>(endpoints.collaboration_request, {
+            contribution_id: contributionId,
+            reason,
+        });
+        return response.data;
+    },
+    async collaborationAction(
+        requestId: number,
+        status: number,
+    ): Promise<{ success: boolean; message: string; data: { status: number; message: string } }> {
+        const response = await apiClient.getClient().post<{
+            success: boolean;
+            message: string;
+            data: { status: number; message: string };
+        }>(endpoints.collaboration_action, {
+            request_id: requestId,
+            status,
+        });
+        return response.data;
+    },
 };

@@ -7,6 +7,7 @@ use App\Http\Requests\Api\CollaborationRequest;
 use App\Services\CollaborationServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CollaborationController extends Controller
 {
@@ -43,6 +44,7 @@ class CollaborationController extends Controller
     public function action(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
+            'request_id' => 'required|exists:contribution_participants,id',
             'status' => 'required|in:0,1,2',
         ]);
 
@@ -54,7 +56,10 @@ class CollaborationController extends Controller
         }
 
         try {
-            $result = $this->collaborationService->handleAction($request->status);
+            $result = $this->collaborationService->handleAction(
+                $request->request_id,
+                $request->status
+            );
 
             return response()->json([
                 'message' => 'Success',

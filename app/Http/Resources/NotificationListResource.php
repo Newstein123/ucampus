@@ -17,6 +17,9 @@ class NotificationListResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'type' => $this->type,
+            'source_id' => $this->source_id,
+            'source_type' => $this->source_type,
             'sender' => $this->sender ? [
                 'id' => $this->sender->id,
                 'name' => $this->sender->name,

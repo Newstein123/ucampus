@@ -251,6 +251,7 @@ const ProjectCreate: React.FC = () => {
         formData.append('title', data.title);
         formData.append('type', 'project');
         formData.append('is_public', data.is_public ? '1' : '0');
+        formData.append('allow_collab', data.allow_collab ? '1' : '0');
 
         // Append content fields as array format for Laravel
         formData.append('content[title]', data.title);

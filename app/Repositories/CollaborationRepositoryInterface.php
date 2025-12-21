@@ -6,7 +6,7 @@ interface CollaborationRepositoryInterface
 {
     public function createRequest(array $data): array;
 
-    public function updateRequestStatus(int $status): array;
+    public function updateRequestStatus(int $requestId, int $status): array;
 
     public function getCollaborations(array $filters): array;
 

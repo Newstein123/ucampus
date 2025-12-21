@@ -12,6 +12,9 @@ export interface NotificationRecipient {
 
 export interface Notification {
     id: number;
+    type?: string;
+    source_id?: number;
+    source_type?: string;
     sender?: NotificationSender;
     recipient?: NotificationRecipient;
     message: string;
