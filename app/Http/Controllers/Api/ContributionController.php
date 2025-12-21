@@ -8,7 +8,9 @@ use App\Http\Requests\Api\UpdateContributionRequest;
 use App\Http\Requests\ContributionController\CreateRequest;
 use App\Http\Requests\ContributionController\InterestRequest;
 use App\Http\Requests\ContributionController\ListRequest;
+use App\Http\Requests\ContributionController\SearchRequest;
 use App\Http\Requests\ContributionController\ShowRequest;
+use App\Http\Requests\ContributionController\TrendingRequest;
 use App\Http\Requests\ContributionController\UploadAttachmentRequest;
 use App\Http\Resources\ContributionResource;
 use App\Services\ContributionServiceInterface;
@@ -30,6 +32,24 @@ class ContributionController extends Controller
         $resource = ContributionResource::collection($contributions);
 
         return $this->response($resource, 'Contributions fetched successfully');
+    }
+
+    public function search(SearchRequest $request)
+    {
+        $data = $request->validated();
+        $contributions = $this->contributionService->search($data);
+        $resource = ContributionResource::collection($contributions);
+
+        return $this->response($resource, 'Contributions searched successfully');
+    }
+
+    public function trending(TrendingRequest $request)
+    {
+        $data = $request->validated();
+        $contributions = $this->contributionService->trending($data);
+        $resource = ContributionResource::collection($contributions);
+
+        return $this->response($resource, 'Trending contributions fetched successfully');
     }
 
     public function show(ShowRequest $request)
@@ -91,3 +111,4 @@ class ContributionController extends Controller
         return $this->response($result, 'Attachment uploaded successfully');
     }
 }
+

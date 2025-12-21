@@ -242,4 +242,14 @@ class ContributionService implements ContributionServiceInterface
             throw new \Exception('Failed to upload attachment: ' . $e->getMessage());
         }
     }
+
+    public function search(array $data = [])
+    {
+        return $this->contributionRepository->search($data);
+    }
+
+    public function trending(array $data = [])
+    {
+        return $this->contributionRepository->trending($data);
+    }
 }

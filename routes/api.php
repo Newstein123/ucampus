@@ -65,6 +65,8 @@ Route::get('auth/google/callback', function (Request $request) {
 
 Route::prefix('contributions')->group(function () {
     Route::get('/', [ContributionController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/search', [ContributionController::class, 'search'])->middleware('auth:sanctum');
+    Route::get('/trending', [ContributionController::class, 'trending'])->middleware('auth:sanctum');
     Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum')->name('contributions.show');
     Route::post('/', [ContributionController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/upload-attachment', [ContributionController::class, 'uploadAttachment'])->middleware('auth:sanctum');
