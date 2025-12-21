@@ -218,7 +218,7 @@ const ProjectDetails: React.FC = () => {
                     </Box>
                 )}
                 {/* Check if user is already a team member */}
-                {currentUser && project?.participants?.some(member => member.user_id === currentUser.id) ? (
+                {currentUser && project?.participants?.some((member) => member.user_id === currentUser.id) ? (
                     <Button
                         variant="outlined"
                         onClick={() => {
@@ -245,48 +245,50 @@ const ProjectDetails: React.FC = () => {
                     >
                         Leave
                     </Button>
-                ) : canJoin && (
-                    <Button
-                        variant="contained"
-                        onClick={() => setIsModalOpen(true)}
-                        sx={{
-                            bgcolor: '#1F8505',
-                            color: '#fff',
-                            borderRadius: '25px',
-                            textTransform: 'none',
-                            fontWeight: 600,
-                            fontSize: 16,
-                            py: 1.5,
-                            px: 4,
-                            width: '100%',
-                            position: 'relative',
-                            '&:hover': {
-                                bgcolor: '#165d04',
-                            },
-                        }}
-                    >
-                        Join this team
-                        <Box
+                ) : (
+                    canJoin && (
+                        <Button
+                            variant="contained"
+                            onClick={() => setIsModalOpen(true)}
                             sx={{
-                                position: 'absolute',
-                                right: -8,
-                                top: -8,
                                 bgcolor: '#1F8505',
                                 color: '#fff',
-                                borderRadius: '50%',
-                                width: 24,
-                                height: 24,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 12,
+                                borderRadius: '25px',
+                                textTransform: 'none',
                                 fontWeight: 600,
-                                border: '2px solid #fff',
+                                fontSize: 16,
+                                py: 1.5,
+                                px: 4,
+                                width: '100%',
+                                position: 'relative',
+                                '&:hover': {
+                                    bgcolor: '#165d04',
+                                },
                             }}
                         >
-                            <MailIcon sx={{ fontSize: 14 }} />
-                        </Box>
-                    </Button>
+                            Join this team
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    right: -8,
+                                    top: -8,
+                                    bgcolor: '#1F8505',
+                                    color: '#fff',
+                                    borderRadius: '50%',
+                                    width: 24,
+                                    height: 24,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    border: '2px solid #fff',
+                                }}
+                            >
+                                <MailIcon sx={{ fontSize: 14 }} />
+                            </Box>
+                        </Button>
+                    )
                 )}
             </Box>
             {/* Engagement Metrics */}

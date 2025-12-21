@@ -58,17 +58,17 @@ const Projects: React.FC = () => {
             .then((profile) => {
                 const uid = profile.data.id;
                 // Fetch own projects
-                contributionApi.list({ user_id: uid, type: 'project', per_page: 20 })
+                contributionApi
+                    .list({ user_id: uid, type: 'project', per_page: 20 })
                     .then((res) => setOwnProjects(res.data))
                     .catch(() => setOwnProjects([]));
 
                 // Fetch collaboration projects where user is accepted
-                contributionApi.listCollaborations(uid)
+                contributionApi
+                    .listCollaborations(uid)
                     .then((res) => {
                         // Filter only accepted collaborations
-                        const accepted = (res.data?.collaborations || []).filter(
-                            (c: { status: string }) => c.status === 'accepted'
-                        );
+                        const accepted = (res.data?.collaborations || []).filter((c: { status: string }) => c.status === 'accepted');
                         setCollaborationProjects(accepted);
                     })
                     .catch(() => setCollaborationProjects([]));
@@ -107,7 +107,9 @@ const Projects: React.FC = () => {
                         {/* Projects you collaborate section */}
                         {collaborationProjects.length > 0 && (
                             <>
-                                <Typography sx={{ fontWeight: 700, fontSize: 16, mt: ownProjects.length > 0 ? 4 : 0, mb: 2 }}>Projects you collaborate</Typography>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16, mt: ownProjects.length > 0 ? 4 : 0, mb: 2 }}>
+                                    Projects you collaborate
+                                </Typography>
                                 {collaborationProjects.map((c) => (
                                     <ProjectCard
                                         key={c.id}
