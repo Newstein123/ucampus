@@ -109,17 +109,15 @@ class ContributionService implements ContributionServiceInterface
     public function delete(int $id)
     {
         try {
-            // Get contribution to delete associated files
+            // Get contribution for soft delete
             $contribution = $this->contributionRepository->find($id);
 
-            // Delete associated files
-            if ($contribution->thumbnail_url) {
-                $this->fileService->deleteFile($contribution->thumbnail_url);
+            if (!$contribution) {
+                throw new \Exception('Contribution not found');
             }
 
-            if ($contribution->attachments) {
-                $this->fileService->deleteFiles($contribution->attachments);
-            }
+            // Files will be deleted later by scheduled cleanup
+            // Soft delete preserves the record for potential recovery
 
             return $this->contributionRepository->delete($id);
         } catch (\Exception $e) {

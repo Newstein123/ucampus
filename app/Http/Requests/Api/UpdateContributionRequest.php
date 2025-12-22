@@ -44,7 +44,7 @@ class UpdateContributionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|min:8',
+            'title' => 'required|string|max:255',
             'content' => 'required',
             'type' => 'required|in:idea,question,guide,research,project',
             'allow_collab' => 'boolean',

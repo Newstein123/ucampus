@@ -17,6 +17,7 @@ import IdeaCreate from './pages/contribution/IdeaCreate';
 import IdeaDetails from './pages/contribution/IdeaDetails';
 import ProjectCreate from './pages/contribution/ProjectCreate';
 import ProjectDetails from './pages/contribution/ProjectDetails';
+import ProjectEdit from './pages/contribution/ProjectEdit';
 import ProjectRequest from './pages/contribution/ProjectRequest';
 import QuestionCreate from './pages/contribution/QuestionCreate';
 import QuestionDetails from './pages/contribution/QuestionDetails';
@@ -217,6 +218,14 @@ const App: React.FC = () => {
                                             element={
                                                 <ProtectedRoute>
                                                     <ProjectCreate />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/contribution/edit-project/:id"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProjectEdit />
                                                 </ProtectedRoute>
                                             }
                                         />
