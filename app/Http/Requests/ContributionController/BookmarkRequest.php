@@ -26,27 +26,5 @@ class BookmarkRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $user = Auth::user();
-            if (! $user) {
-                return;
-            }
-
-            $contributionId = (int) $this->input('contribution_id');
-
-            $hasBookmark = $user->bookmarkedContributions()
-                ->where('contribution_id', $contributionId)
-                ->exists();
-
-            if ($this->isMethod('post') && $hasBookmark) {
-                $validator->errors()->add('contribution_id', 'Contribution already bookmarked.');
-            }
-
-            if ($this->isMethod('delete') && ! $hasBookmark) {
-                $validator->errors()->add('contribution_id', 'Bookmark does not exist.');
-            }
-        });
-    }
+    // Validation removed to allow toggle logic in controller
 }

@@ -94,28 +94,27 @@ const QuestionEdit: React.FC = () => {
         setIsSubmitting(true);
 
         try {
-            await contributionApi.update(parseInt(id), (
-                {
+            await contributionApi.update(parseInt(id), {
+                title: data.question,
+                content: {
                     title: data.question,
-                    content: {
-                        title: data.question,
-                        question: data.question,
-                        thought: data.thought,
-                        description: data.thought,
-                        answer: null,
-                        problem: null,
-                        solution: null,
-                        impact: null,
-                        why_it_matters: null,
-                        resources: null,
-                        references: null,
-                    },
-                    type: 'question',
-                    tags: data.tags || [],
-                    is_public: data.is_public,
-                    status: 'active',
-                } as any
-            ));
+                    question: data.question,
+                    thought: data.thought,
+                    description: data.thought,
+                    answer: null,
+                    problem: null,
+                    solution: null,
+                    impact: null,
+                    why_it_matters: null,
+                    resources: null,
+                    references: null,
+                },
+                type: 'question',
+                tags: data.tags || [],
+                is_public: data.is_public,
+                // @ts-expect-error - status is not yet in the official type definition
+                status: 'active',
+            });
             // Navigate to question detail page with success toast info in state
             navigate(`/questions/${id}`, { replace: true, state: { toastMessage: 'Question updated successfully!', toastType: 'success' } });
         } catch (error: unknown) {

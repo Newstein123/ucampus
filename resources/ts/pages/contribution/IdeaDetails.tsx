@@ -50,10 +50,10 @@ const IdeaDetails: React.FC = () => {
     // Show toast from navigation state (e.g., after edit)
     useEffect(() => {
         if (location.state && typeof location.state === 'object') {
-            const { toastMessage: msg, toastType: type } = location.state as any;
-            if (msg) {
-                setToastMessage(msg);
-                setToastType(type || 'success');
+            const state = location.state as { toastMessage?: string; toastType?: 'success' | 'error' };
+            if (state.toastMessage) {
+                setToastMessage(state.toastMessage);
+                setToastType(state.toastType || 'success');
                 setToastOpen(true);
             }
         }
@@ -272,4 +272,3 @@ const IdeaDetails: React.FC = () => {
 };
 
 export default IdeaDetails;
-

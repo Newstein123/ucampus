@@ -111,12 +111,7 @@ const IdeaEdit: React.FC = () => {
         }
     };
 
-    // Helper function to convert image URL to File
-    const urlToFile = async (url: string, filename: string): Promise<File> => {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        return new File([blob], filename, { type: blob.type });
-    };
+
 
     const onSubmit = async (data: IdeaForm) => {
         if (!id) return;

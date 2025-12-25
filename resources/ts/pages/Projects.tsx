@@ -2,12 +2,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Box, CardMedia, CircularProgress, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
-import { useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/auth';
 import { contributionApi } from '../api/contribution';
+import { useNavigate } from 'react-router-dom';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyProjects from '../components/EmptyProjects';
 import Layout from '../components/Layout';
@@ -163,7 +162,6 @@ const Projects: React.FC = () => {
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
     const navigate = useNavigate();
-    const location = useLocation();
 
     useEffect(() => {
         setIsLoading(true);
