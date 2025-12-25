@@ -1,7 +1,8 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Box, CardMedia, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
+import { Box, CardMedia, CircularProgress, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -148,6 +149,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ id, title, subtitle, image, s
 const Projects: React.FC = () => {
     const [ownProjects, setOwnProjects] = useState<Contribution[]>([]);
     const [collaborationProjects, setCollaborationProjects] = useState<CollaborationProject[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const user = useSelector(selectUser);
 
     // Delete modal state
@@ -161,32 +163,34 @@ const Projects: React.FC = () => {
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        // Fetch own projects (by user_id)
+        setIsLoading(true);
+        // Fetch user profile then both own projects and collaborations
         authApi
             .getProfile()
             .then((profile) => {
                 const uid = profile.data.id;
-                // Fetch own projects
-                contributionApi
-                    .list({ user_id: uid, type: 'project', per_page: 20 })
-                    .then((res) => setOwnProjects(res.data))
-                    .catch(() => setOwnProjects([]));
+                const ownPromise = contributionApi.list({ user_id: uid, type: 'project', per_page: 20 });
+                const collabPromise = contributionApi.listCollaborations(uid);
 
-                // Fetch collaboration projects where user is accepted
-                contributionApi
-                    .listCollaborations(uid)
-                    .then((res) => {
-                        // Filter only accepted collaborations
-                        const accepted = (res.data?.collaborations || []).filter((c: { status: string }) => c.status === 'accepted');
+                Promise.all([ownPromise, collabPromise])
+                    .then(([ownRes, collabRes]) => {
+                        setOwnProjects(ownRes.data);
+                        const accepted = (collabRes.data?.collaborations || []).filter((c: { status: string }) => c.status === 'accepted');
                         setCollaborationProjects(accepted);
                     })
-                    .catch(() => setCollaborationProjects([]));
+                    .catch(() => {
+                        setOwnProjects([]);
+                        setCollaborationProjects([]);
+                    })
+                    .finally(() => setIsLoading(false));
             })
             .catch(() => {
                 setOwnProjects([]);
                 setCollaborationProjects([]);
+                setIsLoading(false);
             });
     }, [user?.id]);
 
@@ -221,6 +225,16 @@ const Projects: React.FC = () => {
             setProjectToDelete(null);
         }
     };
+
+    if (isLoading) {
+        return (
+            <Layout>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </Layout>
+        );
+    }
 
     return (
         <Layout>

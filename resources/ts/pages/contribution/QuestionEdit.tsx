@@ -94,29 +94,30 @@ const QuestionEdit: React.FC = () => {
         setIsSubmitting(true);
 
         try {
-            await contributionApi.update(parseInt(id), {
-                title: data.question,
-                content: {
+            await contributionApi.update(parseInt(id), (
+                {
                     title: data.question,
-                    question: data.question,
-                    thought: data.thought,
-                    description: data.thought,
-                    answer: null,
-                    problem: null,
-                    solution: null,
-                    impact: null,
-                    why_it_matters: null,
-                    resources: null,
-                    references: null,
-                },
-                type: 'question',
-                tags: data.tags || [],
-                is_public: data.is_public,
-            });
-            setToastMessage('Question updated successfully!');
-            setToastType('success');
-            setToastOpen(true);
-            setTimeout(() => navigate(`/questions/${id}`, { replace: true }), 1500);
+                    content: {
+                        title: data.question,
+                        question: data.question,
+                        thought: data.thought,
+                        description: data.thought,
+                        answer: null,
+                        problem: null,
+                        solution: null,
+                        impact: null,
+                        why_it_matters: null,
+                        resources: null,
+                        references: null,
+                    },
+                    type: 'question',
+                    tags: data.tags || [],
+                    is_public: data.is_public,
+                    status: 'active',
+                } as any
+            ));
+            // Navigate to question detail page with success toast info in state
+            navigate(`/questions/${id}`, { replace: true, state: { toastMessage: 'Question updated successfully!', toastType: 'success' } });
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             const errorMsg = err.response?.data?.message || 'Failed to update question';

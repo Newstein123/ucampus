@@ -8,7 +8,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Avatar, Box, Chip, IconButton, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import SinglePageLayout from '../../components/SinglePageLayout';
@@ -23,6 +23,7 @@ const QuestionDetails: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { data: userProfile } = useUserProfileQuery();
     const [question, setQuestion] = useState<Contribution | null>(null);
     const { discussions } = useDiscussions({
@@ -43,6 +44,18 @@ const QuestionDetails: React.FC = () => {
     const [toastOpen, setToastOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+    // Show toast from navigation state (e.g., after edit)
+    useEffect(() => {
+        if (location.state && typeof location.state === 'object') {
+            const { toastMessage: msg, toastType: type } = location.state as any;
+            if (msg) {
+                setToastMessage(msg);
+                setToastType(type || 'success');
+                setToastOpen(true);
+            }
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const load = async () => {

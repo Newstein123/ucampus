@@ -27,7 +27,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
@@ -44,6 +44,18 @@ const ProjectDetails: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    // Show toast if navigation passed a success message
+    useEffect(() => {
+        if (location.state && typeof location.state === 'object') {
+            const { toastMessage: msg, toastType: type } = location.state as any;
+            if (msg) {
+                setToastMessage(msg);
+                setToastType(type || 'success');
+                setToastOpen(true);
+            }
+        }
+    }, [location.state]);
     const [project, setProject] = useState<Contribution | null>(null);
     const currentUser = useSelector(selectUser);
 

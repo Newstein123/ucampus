@@ -299,11 +299,11 @@ const ProjectEdit: React.FC = () => {
         }
 
         try {
+            // Perform the update request
             await contributionApi.update(parseInt(id), formData);
-            setToastMessage('Project updated successfully!');
-            setToastType('success');
-            setToastOpen(true);
-            setTimeout(() => navigate(`/projects/${id}`, { replace: true }), 1500);
+
+            // Navigate to project detail page with success toast info in state
+            navigate(`/projects/${id}`, { replace: true, state: { toastMessage: 'Project updated successfully!', toastType: 'success' } });
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             const errorMsg = err.response?.data?.message || 'Failed to update project';
@@ -633,7 +633,7 @@ const ProjectEdit: React.FC = () => {
                     disabled={!step3Valid || isSubmitting || uploadingAttachments.size > 0}
                     onClick={handleSubmit(onSubmit)}
                 >
-                    {isSubmitting ? 'Updating...' : uploadingAttachments.size > 0 ? 'Uploading attachments...' : 'Update'}
+                    {isSubmitting ? 'Updating' : uploadingAttachments.size > 0 ? 'Uploading attachments...' : 'Update'}
                 </Button>
             </Box>
         </Box>

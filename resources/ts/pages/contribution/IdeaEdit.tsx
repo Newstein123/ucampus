@@ -126,6 +126,8 @@ const IdeaEdit: React.FC = () => {
         formData.append('title', data.title);
         formData.append('type', 'idea');
         formData.append('is_public', data.is_public ? '1' : '0');
+        // Add required status field
+        formData.append('status', 'active');
 
         formData.append('content[title]', data.title);
         formData.append('content[problem]', data.problem);
@@ -145,25 +147,16 @@ const IdeaEdit: React.FC = () => {
             });
         }
 
-        // Handle thumbnail
+        // Handle thumbnail - only upload if user selected a new file
         if (data.thumbnail && data.thumbnail instanceof File) {
             formData.append('thumbnail_url', data.thumbnail, data.thumbnail.name);
-        } else if (existingThumbnailUrl && !data.thumbnail) {
-            try {
-                const filename = existingThumbnailUrl.split('/').pop() || 'thumbnail.jpg';
-                const thumbnailFile = await urlToFile(existingThumbnailUrl, filename);
-                formData.append('thumbnail_url', thumbnailFile, filename);
-            } catch (error) {
-                console.error('Failed to convert thumbnail URL to file:', error);
-            }
         }
+        // If existingThumbnailUrl is set and no new file, backend keeps existing thumbnail
 
         try {
             await contributionApi.update(parseInt(id), formData);
-            setToastMessage('Idea updated successfully!');
-            setToastType('success');
-            setToastOpen(true);
-            setTimeout(() => navigate(`/ideas/${id}`, { replace: true }), 1500);
+            // Navigate to idea detail page with success toast info in state
+            navigate(`/ideas/${id}`, { replace: true, state: { toastMessage: 'Idea updated successfully!', toastType: 'success' } });
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             const errorMsg = err.response?.data?.message || 'Failed to update idea';
@@ -421,7 +414,7 @@ const IdeaEdit: React.FC = () => {
                     }}
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? 'Updating...' : 'Update'}
+                    {isSubmitting ? 'Updating' : 'Update'}
                 </Button>
             </form>
 
