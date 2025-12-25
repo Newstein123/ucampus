@@ -54,6 +54,20 @@ export interface ContributionListRequest {
     user_id?: number;
 }
 
+export interface ContributionTrendingRequest {
+    type?: string;
+    per_page?: number;
+    page?: number;
+}
+
+export interface ContributionSearchRequest {
+    type?: string;
+    q?: string;
+    sort?: 'latest' | 'oldest' | 'most_liked' | 'most_viewed' | 'most_commented';
+    per_page?: number;
+    page?: number;
+}
+
 export interface Content {
     title: string;
     description: string | null;
