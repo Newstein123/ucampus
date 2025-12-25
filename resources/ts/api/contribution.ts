@@ -1,4 +1,11 @@
-import { ContributionListRequest, ContributionResponse, CreateContributionRequest, CreateContributionResponse } from '../types/contribution';
+import {
+    ContributionListRequest,
+    ContributionResponse,
+    ContributionSearchRequest,
+    ContributionTrendingRequest,
+    CreateContributionRequest,
+    CreateContributionResponse,
+} from '../types/contribution';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
 
@@ -93,6 +100,14 @@ export const contributionApi = {
             request_id: requestId,
             status,
         });
+        return response.data;
+    },
+    async trending(data: ContributionTrendingRequest): Promise<ContributionResponse> {
+        const response = await apiClient.getClient().get<ContributionResponse>(endpoints.contribution_trending, { params: data });
+        return response.data;
+    },
+    async search(data: ContributionSearchRequest): Promise<ContributionResponse> {
+        const response = await apiClient.getClient().get<ContributionResponse>(endpoints.contribution_search, { params: data });
         return response.data;
     },
 };

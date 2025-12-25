@@ -41,6 +41,7 @@ import Onboarding from './pages/Onboarding';
 import Projects from './pages/Projects';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
+import Search from './pages/Search';
 
 // Create a theme instance
 const theme = createTheme({
@@ -260,6 +261,14 @@ const App: React.FC = () => {
                                             element={
                                                 <ProtectedRoute>
                                                     <Explore />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/search"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Search />
                                                 </ProtectedRoute>
                                             }
                                         />
