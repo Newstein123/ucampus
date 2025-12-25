@@ -1,15 +1,20 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Avatar, Box, Button, CardMedia, Chip, Paper, Typography } from '@mui/material';
+import { Avatar, Box, Button, CardMedia, Chip, IconButton, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
+import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import SinglePageLayout from '../../components/SinglePageLayout';
+import Toast from '../../components/Toast';
 import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { Contribution } from '../../types/contribution';
@@ -28,6 +33,19 @@ const IdeaDetails: React.FC = () => {
         page: 1,
     });
 
+    // Menu state
+    const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+    const isMenuOpen = Boolean(menuAnchorEl);
+
+    // Delete modal state
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Toast state
+    const [toastOpen, setToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
     useEffect(() => {
         const load = async () => {
             if (!id) return;
@@ -40,12 +58,65 @@ const IdeaDetails: React.FC = () => {
     const isOwner = userProfile?.data?.id === idea?.user?.id;
 
     const handleUpgradeToProject = () => {
-        // Navigate to project create page with idea data pre-filled
         navigate(`/contribution/create-project?ideaId=${id}`);
     };
 
+    // Menu handlers
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setMenuAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchorEl(null);
+    };
+
+    const handleEdit = () => {
+        handleMenuClose();
+        navigate(`/contribution/edit-idea/${id}`);
+    };
+
+    const handleDeleteClick = () => {
+        handleMenuClose();
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!id) return;
+        setIsDeleting(true);
+        try {
+            await contributionApi.delete(parseInt(id));
+            setToastMessage('Idea deleted successfully');
+            setToastType('success');
+            setToastOpen(true);
+            setTimeout(() => navigate('/my-ideas-and-questions', { replace: true }), 1500);
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            const errorMsg = err.response?.data?.message || 'Failed to delete idea';
+            setToastMessage(errorMsg);
+            setToastType('error');
+            setToastOpen(true);
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteModalOpen(false);
+        }
+    };
+
     return (
-        <SinglePageLayout title={t('Idea Details')} rightElement={<BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />}>
+        <SinglePageLayout
+            title={t('Idea Details')}
+            rightElement={
+                isOwner ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                        <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
+                            <MoreVertIcon sx={{ fontSize: 20 }} />
+                        </IconButton>
+                    </Box>
+                ) : (
+                    <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                )
+            }
+        >
             {/* Tags */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1, p: 2 }}>
                 {idea?.tags?.map((tag) => (
@@ -143,8 +214,49 @@ const IdeaDetails: React.FC = () => {
             </Box>
 
             <DiscussionSection contributionId={parseInt(id || '1')} />
+
+            {/* Owner Actions Menu */}
+            <Menu
+                anchorEl={menuAnchorEl}
+                open={isMenuOpen}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                PaperProps={{
+                    sx: { borderRadius: 2, minWidth: 150, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
+                }}
+            >
+                <MenuItem onClick={handleEdit} sx={{ py: 1.5 }}>
+                    <ListItemIcon>
+                        <EditIcon sx={{ color: '#1F8505' }} />
+                    </ListItemIcon>
+                    <Typography sx={{ fontWeight: 500 }}>Edit</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleDeleteClick} sx={{ py: 1.5 }}>
+                    <ListItemIcon>
+                        <DeleteIcon sx={{ color: '#f44336' }} />
+                    </ListItemIcon>
+                    <Typography sx={{ fontWeight: 500, color: '#f44336' }}>Delete</Typography>
+                </MenuItem>
+            </Menu>
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmModal
+                open={isDeleteModalOpen}
+                title="Delete Idea"
+                message="Are you sure you want to delete this idea? This action cannot be undone."
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setIsDeleteModalOpen(false)}
+                isLoading={isDeleting}
+                confirmText="Delete"
+                confirmColor="error"
+            />
+
+            {/* Toast */}
+            <Toast open={toastOpen} message={toastMessage} type={toastType} onClose={() => setToastOpen(false)} />
         </SinglePageLayout>
     );
 };
 
 export default IdeaDetails;
+

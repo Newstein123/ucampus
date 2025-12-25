@@ -15,12 +15,14 @@ import { addPWAMetaTags, isPWA } from './utils/pwa';
 import Create from './pages/contribution/Create';
 import IdeaCreate from './pages/contribution/IdeaCreate';
 import IdeaDetails from './pages/contribution/IdeaDetails';
+import IdeaEdit from './pages/contribution/IdeaEdit';
 import ProjectCreate from './pages/contribution/ProjectCreate';
 import ProjectDetails from './pages/contribution/ProjectDetails';
 import ProjectEdit from './pages/contribution/ProjectEdit';
 import ProjectRequest from './pages/contribution/ProjectRequest';
 import QuestionCreate from './pages/contribution/QuestionCreate';
 import QuestionDetails from './pages/contribution/QuestionDetails';
+import QuestionEdit from './pages/contribution/QuestionEdit';
 import Thread from './pages/contribution/Thread';
 import Explore from './pages/Explore';
 import ForgotPassword from './pages/ForgotPassword';
@@ -226,6 +228,22 @@ const App: React.FC = () => {
                                             element={
                                                 <ProtectedRoute>
                                                     <ProjectEdit />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/contribution/edit-idea/:id"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <IdeaEdit />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/contribution/edit-question/:id"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <QuestionEdit />
                                                 </ProtectedRoute>
                                             }
                                         />
