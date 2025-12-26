@@ -51,6 +51,7 @@ class UpdateContributionRequest extends FormRequest
             'is_public' => 'boolean',
             'status' => 'required|in:draft,active,completed',
             'thumbnail_url' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'remove_thumbnail' => 'nullable|boolean',
 
             'tags' => 'nullable|array',
             'tags.*' => 'required|string',

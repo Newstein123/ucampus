@@ -111,8 +111,6 @@ const IdeaEdit: React.FC = () => {
         }
     };
 
-
-
     const onSubmit = async (data: IdeaForm) => {
         if (!id) return;
         setIsSubmitting(true);
@@ -145,8 +143,10 @@ const IdeaEdit: React.FC = () => {
         // Handle thumbnail - only upload if user selected a new file
         if (data.thumbnail && data.thumbnail instanceof File) {
             formData.append('thumbnail_url', data.thumbnail, data.thumbnail.name);
+        } else if (!data.thumbnail && !existingThumbnailUrl) {
+            // If both are empty, it means user removed the thumbnail
+            formData.append('remove_thumbnail', '1');
         }
-        // If existingThumbnailUrl is set and no new file, backend keeps existing thumbnail
 
         try {
             await contributionApi.update(parseInt(id), formData);

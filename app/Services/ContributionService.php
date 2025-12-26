@@ -90,6 +90,21 @@ class ContributionService implements ContributionServiceInterface
                     $this->fileService->deleteFile($existingContribution->thumbnail_url);
                 }
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
+            } elseif (isset($data['remove_thumbnail']) && $data['remove_thumbnail']) {
+                // Handle thumbnail removal
+                if ($existingContribution->thumbnail_url) {
+                    $this->fileService->deleteFile($existingContribution->thumbnail_url);
+                }
+                $data['thumbnail_url'] = null;
+                unset($data['remove_thumbnail']); // Remove flag from data
+            } else {
+                // Keep existing thumbnail if not changed
+                unset($data['thumbnail_url']);
+            }
+            
+            // Clean up any remove_thumbnail flag that might still be present
+            if (isset($data['remove_thumbnail'])) {
+                unset($data['remove_thumbnail']);
             }
 
 

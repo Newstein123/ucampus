@@ -242,12 +242,7 @@ const ProjectEdit: React.FC = () => {
         }
     };
 
-    // Helper function to convert image URL to File
-    const urlToFile = async (url: string, filename: string): Promise<File> => {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        return new File([blob], filename, { type: blob.type });
-    };
+
 
     // Submit update
     const onSubmit = async (data: ProjectForm) => {
@@ -286,16 +281,11 @@ const ProjectEdit: React.FC = () => {
         }
 
         // Handle thumbnail
+        // Handle thumbnail
         if (data.thumbnail && data.thumbnail instanceof File) {
             formData.append('thumbnail_url', data.thumbnail, data.thumbnail.name);
-        } else if (existingThumbnailUrl && !data.thumbnail) {
-            try {
-                const filename = existingThumbnailUrl.split('/').pop() || 'thumbnail.jpg';
-                const thumbnailFile = await urlToFile(existingThumbnailUrl, filename);
-                formData.append('thumbnail_url', thumbnailFile, filename);
-            } catch (error) {
-                console.error('Failed to convert thumbnail URL to file:', error);
-            }
+        } else if (!data.thumbnail && !existingThumbnailUrl) {
+            formData.append('remove_thumbnail', '1');
         }
 
         try {
