@@ -11,6 +11,8 @@ export const endpoints = Object.freeze({
     contribution_interest: '/contributions',
     contribution_bookmark: '/contribution',
     contribution_show: '/contributions/{id}',
+    contribution_update: '/contributions/{id}',
+    contribution_delete: '/contributions/{id}',
     contribution_upload_attachment: '/contributions/upload-attachment',
     contribution_trending: '/contributions/trending',
     contribution_search: '/contributions/search',

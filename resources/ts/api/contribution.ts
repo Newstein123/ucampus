@@ -29,6 +29,22 @@ export const contributionApi = {
         const response = await apiClient.getClient().post<CreateContributionResponse>(endpoints.contribution_create, data);
         return response.data;
     },
+    async update(id: number, data: CreateContributionRequest | FormData): Promise<CreateContributionResponse> {
+        const response = await apiClient
+            .getClient()
+            .post<CreateContributionResponse>(endpoints.contribution_update.replace('{id}', String(id)), data, {
+                headers: {
+                    'X-HTTP-Method-Override': 'PUT',
+                },
+            });
+        return response.data;
+    },
+    async delete(id: number): Promise<{ success: boolean; message: string }> {
+        const response = await apiClient
+            .getClient()
+            .delete<{ success: boolean; message: string }>(endpoints.contribution_delete.replace('{id}', String(id)));
+        return response.data;
+    },
     async interest(contributionId: number): Promise<{ success: boolean; message: string; data: { is_interested: boolean } }> {
         const response = await apiClient.getClient().post<{
             success: boolean;

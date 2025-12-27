@@ -19,9 +19,6 @@ class BookmarkController extends Controller
         $userId = Auth::user()->id;
         $result = $this->contributionService->toggleBookmark($userId, $data['contribution_id']);
         return $this->response($result, $result['message']);
-        $this->contributionService->bookmark($userId, $data['contribution_id']);
-
-        return $this->response(null, 'Contribution Bookmark successfully');
     }
 
     public function destroy(int $id, BookmarkRequest $request)

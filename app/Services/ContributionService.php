@@ -90,6 +90,21 @@ class ContributionService implements ContributionServiceInterface
                     $this->fileService->deleteFile($existingContribution->thumbnail_url);
                 }
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
+            } elseif (isset($data['remove_thumbnail']) && $data['remove_thumbnail']) {
+                // Handle thumbnail removal
+                if ($existingContribution->thumbnail_url) {
+                    $this->fileService->deleteFile($existingContribution->thumbnail_url);
+                }
+                $data['thumbnail_url'] = null;
+                unset($data['remove_thumbnail']); // Remove flag from data
+            } else {
+                // Keep existing thumbnail if not changed
+                unset($data['thumbnail_url']);
+            }
+            
+            // Clean up any remove_thumbnail flag that might still be present
+            if (isset($data['remove_thumbnail'])) {
+                unset($data['remove_thumbnail']);
             }
 
 
@@ -109,17 +124,15 @@ class ContributionService implements ContributionServiceInterface
     public function delete(int $id)
     {
         try {
-            // Get contribution to delete associated files
+            // Get contribution for soft delete
             $contribution = $this->contributionRepository->find($id);
 
-            // Delete associated files
-            if ($contribution->thumbnail_url) {
-                $this->fileService->deleteFile($contribution->thumbnail_url);
+            if (!$contribution) {
+                throw new \Exception('Contribution not found');
             }
 
-            if ($contribution->attachments) {
-                $this->fileService->deleteFiles($contribution->attachments);
-            }
+            // Files will be deleted later by scheduled cleanup
+            // Soft delete preserves the record for potential recovery
 
             return $this->contributionRepository->delete($id);
         } catch (\Exception $e) {
