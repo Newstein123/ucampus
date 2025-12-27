@@ -109,7 +109,7 @@ class ContributionRepository implements ContributionRepositoryInterface
             $searchTerm = '%' . $filters['q'] . '%';
             $query->where(function (Builder $q) use ($searchTerm) {
                 $q->where('title', 'like', $searchTerm)
-                  ->orWhere('content', 'like', $searchTerm);
+                    ->orWhere('content', 'like', $searchTerm);
             });
         }
 
@@ -121,7 +121,7 @@ class ContributionRepository implements ContributionRepositoryInterface
                 break;
             case 'most_liked':
                 $query->withCount('interests')
-                      ->orderBy('interests_count', 'desc');
+                    ->orderBy('interests_count', 'desc');
                 break;
             case 'most_viewed':
                 $query->orderBy('views_count', 'desc');
@@ -160,16 +160,16 @@ class ContributionRepository implements ContributionRepositoryInterface
 
         // Hacker News-style trending algorithm:
         // score = (likes + views * 0.1 + comments * 2) / (hours_since_created + 2) ^ 1.5
-        // Using raw SQL for performance
+        // Using raw SQL for performance (PostgreSQL compatible)
         $query->selectRaw('
             contributions.*,
             (
                 (COALESCE((SELECT COUNT(*) FROM contribution_interest WHERE contribution_id = contributions.id), 0)) +
                 (contributions.views_count * 0.1) +
                 (COALESCE((SELECT COUNT(*) FROM discussions WHERE contribution_id = contributions.id AND parent_id IS NULL AND deleted_at IS NULL), 0) * 2)
-            ) / POWER(TIMESTAMPDIFF(HOUR, contributions.created_at, NOW()) + 2, 1.5) AS trending_score
+            ) / POWER(EXTRACT(EPOCH FROM (NOW() - contributions.created_at)) / 3600 + 2, 1.5) AS trending_score
         ')
-        ->orderBy('trending_score', 'desc');
+            ->orderBy('trending_score', 'desc');
 
         return $query->paginate($perPage, ['*'], 'page', $page);
     }

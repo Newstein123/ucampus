@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -51,25 +51,15 @@ return [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        'minio' => [
-            'driver' => 's3',
-            'key' => env('MINIO_ROOT_USER', 'minioadmin'),
-            'secret' => env('MINIO_ROOT_PASSWORD', 'minioadmin123'),
-            'region' => env('MINIO_REGION', 'us-east-1'),
-            'bucket' => env('MINIO_BUCKET', 'contributions'),
-            'url' => env('MINIO_URL', 'http://localhost:9000'),
-            'endpoint' => env('MINIO_ENDPOINT', 'http://localhost:9000'),
-            'use_path_style_endpoint' => true,
-            'throw' => false,
+            // For MinIO in Docker: use service name 'minio'. For localhost access, set AWS_ENDPOINT in .env
+            // For AWS S3: leave AWS_ENDPOINT empty/null
+            'endpoint' => env('AWS_ENDPOINT') ?: (env('LARAVEL_SAIL') ? 'http://minio:9000' : 'http://localhost:9000'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', env('LARAVEL_SAIL') ? true : false), // Required for MinIO, false for AWS S3
+            'visibility' => env('AWS_VISIBILITY', 'public'),
+            'throw' => true, // Enable exceptions to get actual error messages
             'report' => false,
         ],
 
