@@ -242,8 +242,6 @@ const ProjectEdit: React.FC = () => {
         }
     };
 
-
-
     // Submit update
     const onSubmit = async (data: ProjectForm) => {
         if (!id) return;
