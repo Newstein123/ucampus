@@ -44,5 +44,7 @@ class ContributionSeeder extends Seeder
             'thumbnail_url' => 'images/assets/idea-sample.png',
             'status' => 'active',
         ]);
+
+        Contribution::factory(100)->create();
     }
 }

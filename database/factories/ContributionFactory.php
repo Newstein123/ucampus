@@ -22,24 +22,24 @@ class ContributionFactory extends Factory
         switch ($type) {
             case 'idea':
                 $content = json_encode([
-                    'image' => 'images/assets/idea-sample.png',
+                    'problem' => fake()->paragraph(),
+                    'thought' => fake()->paragraph(),
+                    'why_it_matters' => fake()->paragraph(),
+                ]);
+                break;
+            case 'question':
+                $content = json_encode([
+                    'thought' => fake()->paragraph(),
+                ]);
+                break;
+            case 'project':
+                $content = json_encode([
                     'description' => fake()->paragraph(),
                     'problem' => fake()->paragraph(),
                     'solution' => fake()->paragraph(),
                     'impact' => fake()->paragraph(),
                     'resources' => fake()->paragraph(),
                     'references' => fake()->paragraph(),
-                ]);
-                break;
-            case 'question':
-                $content = json_encode([
-                    'question' => fake()->sentence(),
-                    'answer' => fake()->paragraph(),
-                ]);
-                break;
-            default:
-                $content = json_encode([
-                    'body' => fake()->paragraph(),
                 ]);
                 break;
         }

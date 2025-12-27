@@ -101,7 +101,7 @@ class ContributionService implements ContributionServiceInterface
                 // Keep existing thumbnail if not changed
                 unset($data['thumbnail_url']);
             }
-            
+
             // Clean up any remove_thumbnail flag that might still be present
             if (isset($data['remove_thumbnail'])) {
                 unset($data['remove_thumbnail']);
