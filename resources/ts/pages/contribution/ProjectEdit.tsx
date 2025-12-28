@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { contributionApi } from '../../api/contribution';
 import Toast from '../../components/Toast';
+import { useDeleteAttachmentMutation, useUpdateContributionMutation } from '../../hooks';
 import { ProjectForm, projectSchema } from '../../schemas/idea';
 
 const steps = ["What's your idea?", 'Why it matters?', 'Make it real'];
@@ -39,6 +40,7 @@ const defaultValues: ProjectForm = {
 };
 
 interface UploadedAttachment {
+    id: number;
     url: string;
     path: string;
     name: string;
@@ -50,15 +52,18 @@ const ProjectEdit: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [activeStep, setActiveStep] = useState(0);
     const [tagInput, setTagInput] = useState('');
+    const [referenceInput, setReferenceInput] = useState('');
     const navigate = useNavigate();
     const [existingThumbnailUrl, setExistingThumbnailUrl] = useState<string | null>(null);
     const [uploadedAttachments, setUploadedAttachments] = useState<UploadedAttachment[]>([]);
     const [uploadingAttachments, setUploadingAttachments] = useState<Set<number>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [toastOpen, setToastOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+    const updateMutation = useUpdateContributionMutation();
+    const deleteAttachmentMutation = useDeleteAttachmentMutation();
 
     const {
         control,
@@ -91,13 +96,28 @@ const ProjectEdit: React.FC = () => {
                     // Map existing attachments to uploaded format
                     if (project.attachments && project.attachments.length > 0) {
                         const existingAttachments = project.attachments.map((att) => ({
+                            id: att.id || 0, // Use attachment ID from database
                             url: att.url,
-                            path: att.url, // Will use the same URL for existing
+                            path: att.path || att.url,
                             name: att.name,
                             type: att.type || '',
                             size: att.size || 0,
                         }));
                         setUploadedAttachments(existingAttachments);
+                    }
+
+                    // Parse references from content
+                    let references: string[] = [];
+                    if (project.content?.references) {
+                        try {
+                            references =
+                                typeof project.content.references === 'string' ? JSON.parse(project.content.references) : project.content.references;
+                            if (!Array.isArray(references)) {
+                                references = [];
+                            }
+                        } catch {
+                            references = [];
+                        }
                     }
 
                     reset({
@@ -107,6 +127,7 @@ const ProjectEdit: React.FC = () => {
                         solution: project.content?.solution || '',
                         impact: project.content?.impact || project.content?.why_it_matters || '',
                         resources: project.content?.resources || '',
+                        references: references,
                         tags: project.tags || [],
                         is_public: project.is_public || false,
                         allow_collab: project.allow_collab || false,
@@ -163,30 +184,40 @@ const ProjectEdit: React.FC = () => {
     };
 
     const handleAttachmentChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const fileIndex = (getValues('attachments') || []).length;
+        if (e.target.files && e.target.files.length > 0) {
+            const files = Array.from(e.target.files);
+            const startIndex = (getValues('attachments') || []).length;
 
-            setValue('attachments', [...(getValues('attachments') || []), file]);
+            // Add files to form state for display
+            setValue('attachments', [...(getValues('attachments') || []), ...files]);
 
-            setUploadingAttachments((prev) => new Set(prev).add(fileIndex));
-            try {
-                const response = await contributionApi.uploadAttachment(file);
-                setUploadedAttachments((prev) => [...prev, response.data]);
-            } catch (error) {
-                console.error('Failed to upload attachment:', error);
-                alert('Failed to upload attachment. Please try again.');
-                setValue(
-                    'attachments',
-                    (getValues('attachments') || []).filter((_f: File, i: number) => i !== fileIndex),
-                );
-            } finally {
-                setUploadingAttachments((prev) => {
-                    const newSet = new Set(prev);
-                    newSet.delete(fileIndex);
-                    return newSet;
-                });
-            }
+            // Upload files immediately (one by one)
+            files.forEach((file, fileOffset) => {
+                const fileIndex = startIndex + fileOffset;
+                setUploadingAttachments((prev) => new Set(prev).add(fileIndex));
+
+                contributionApi
+                    .uploadAttachment(file, id ? parseInt(id) : undefined)
+                    .then((response) => {
+                        setUploadedAttachments((prev) => [...prev, response.data]);
+                    })
+                    .catch((error) => {
+                        console.error('Failed to upload attachment:', error);
+                        alert(`Failed to upload ${file.name}. Please try again.`);
+                        // Remove the file from form state if upload failed
+                        setValue(
+                            'attachments',
+                            (getValues('attachments') || []).filter((_f: File, i: number) => i !== fileIndex),
+                        );
+                    })
+                    .finally(() => {
+                        setUploadingAttachments((prev) => {
+                            const newSet = new Set(prev);
+                            newSet.delete(fileIndex);
+                            return newSet;
+                        });
+                    });
+            });
         }
         e.target.value = '';
     };
@@ -206,17 +237,55 @@ const ProjectEdit: React.FC = () => {
         );
     };
 
-    const handleRemoveAttachment = (idx: number) => {
+    const handleRemoveAttachment = async (idx: number) => {
+        const attachment = uploadedAttachments[idx];
+
+        // If attachment has an ID (was uploaded or exists in DB), delete it from server
+        if (attachment?.id) {
+            try {
+                await deleteAttachmentMutation.mutateAsync(attachment.id);
+            } catch (error) {
+                console.error('Failed to delete attachment:', error);
+                alert('Failed to delete attachment. Please try again.');
+                return;
+            }
+        }
+
+        // Remove from form state
         setValue(
             'attachments',
             (getValues('attachments') || []).filter((_attachment: File, i: number) => i !== idx),
         );
+        // Remove from uploaded attachments
         setUploadedAttachments((prev) => prev.filter((_attachment, i) => i !== idx));
+        // Remove from uploading set if present
         setUploadingAttachments((prev) => {
             const newSet = new Set(prev);
             newSet.delete(idx);
             return newSet;
         });
+    };
+
+    const handleAddReference = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && referenceInput.trim()) {
+            const url = referenceInput.trim();
+            // Basic URL validation
+            try {
+                new URL(url);
+                setValue('references', [...(getValues('references') || []), url]);
+                setReferenceInput('');
+            } catch {
+                alert('Please enter a valid URL');
+            }
+            e.preventDefault();
+        }
+    };
+
+    const handleRemoveReference = (reference: string) => {
+        setValue(
+            'references',
+            (getValues('references') || []).filter((r) => r !== reference),
+        );
     };
 
     // Per-step validation handlers
@@ -251,8 +320,6 @@ const ProjectEdit: React.FC = () => {
             return;
         }
 
-        setIsSubmitting(true);
-
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('type', 'project');
@@ -270,7 +337,13 @@ const ProjectEdit: React.FC = () => {
         formData.append('content[answer]', '');
         formData.append('content[thought]', '');
         formData.append('content[why_it_matters]', '');
-        formData.append('content[references]', '');
+
+        // Handle references: send as JSON array
+        if (data.references && Array.isArray(data.references) && data.references.length > 0) {
+            formData.append('content[references]', JSON.stringify(data.references));
+        } else {
+            formData.append('content[references]', '');
+        }
 
         if (data.tags && data.tags.length > 0) {
             data.tags.forEach((tag) => {
@@ -278,7 +351,22 @@ const ProjectEdit: React.FC = () => {
             });
         }
 
-        // Handle thumbnail
+        // Handle attachments: send new attachment IDs and IDs to delete
+        const existingAttachmentIds = uploadedAttachments.filter((att) => att.id && att.id > 0).map((att) => att.id!);
+        const currentAttachmentIds = uploadedAttachments.map((att) => att.id).filter((id): id is number => id !== undefined && id > 0);
+        const newAttachmentIds = currentAttachmentIds.filter((id) => !existingAttachmentIds.includes(id));
+        const deletedAttachmentIds = existingAttachmentIds.filter((id) => !currentAttachmentIds.includes(id));
+
+        // Add new attachment IDs
+        newAttachmentIds.forEach((attachmentId) => {
+            formData.append('attachment_ids[]', attachmentId.toString());
+        });
+
+        // Add deleted attachment IDs
+        deletedAttachmentIds.forEach((attachmentId) => {
+            formData.append('delete_attachment_ids[]', attachmentId.toString());
+        });
+
         // Handle thumbnail
         if (data.thumbnail && data.thumbnail instanceof File) {
             formData.append('thumbnail_url', data.thumbnail, data.thumbnail.name);
@@ -286,21 +374,22 @@ const ProjectEdit: React.FC = () => {
             formData.append('remove_thumbnail', '1');
         }
 
-        try {
-            // Perform the update request
-            await contributionApi.update(parseInt(id), formData);
-
-            // Navigate to project detail page with success toast info in state
-            navigate(`/projects/${id}`, { replace: true, state: { toastMessage: 'Project updated successfully!', toastType: 'success' } });
-        } catch (error: unknown) {
-            const err = error as { response?: { data?: { message?: string } } };
-            const errorMsg = err.response?.data?.message || 'Failed to update project';
-            setToastMessage(errorMsg);
-            setToastType('error');
-            setToastOpen(true);
-        } finally {
-            setIsSubmitting(false);
-        }
+        updateMutation.mutate(
+            { id: parseInt(id!), data: formData },
+            {
+                onSuccess: () => {
+                    // Navigate to project detail page with success toast info in state
+                    navigate(`/projects/${id}`, { replace: true, state: { toastMessage: 'Project updated successfully!', toastType: 'success' } });
+                },
+                onError: (error) => {
+                    const err = error as { response?: { data?: { message?: string } } };
+                    const errorMsg = err.response?.data?.message || 'Failed to update project';
+                    setToastMessage(errorMsg);
+                    setToastType('error');
+                    setToastOpen(true);
+                },
+            },
+        );
     };
 
     if (isLoading) {
@@ -562,7 +651,7 @@ const ProjectEdit: React.FC = () => {
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                     Attachments
                 </Typography>
-                <input accept="*" id="attachment-upload" type="file" style={{ display: 'none' }} onChange={handleAttachmentChange} />
+                <input accept="*" id="attachment-upload" type="file" multiple style={{ display: 'none' }} onChange={handleAttachmentChange} />
                 <label htmlFor="attachment-upload">
                     <Button startIcon={<AttachFileIcon />} sx={{ mb: 1, textTransform: 'none', color: '#1F8505' }} component="span">
                         Add attachment
@@ -570,7 +659,41 @@ const ProjectEdit: React.FC = () => {
                 </label>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     {uploadedAttachments.map((att, idx) => (
-                        <Chip key={idx} label={att.name} onDelete={() => handleRemoveAttachment(idx)} sx={{ bgcolor: '#e8f5e9', color: '#1F8505' }} />
+                        <Chip
+                            key={att.id || idx}
+                            label={uploadingAttachments.has(idx) ? `${att.name} (Uploading...)` : att.name}
+                            onDelete={uploadingAttachments.has(idx) ? undefined : () => handleRemoveAttachment(idx)}
+                            disabled={uploadingAttachments.has(idx)}
+                            sx={{ bgcolor: uploadingAttachments.has(idx) ? '#f5f5f5' : '#e8f5e9', color: '#1F8505' }}
+                        />
+                    ))}
+                </Box>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    References (Links)
+                </Typography>
+                <TextField
+                    fullWidth
+                    placeholder="Add reference URL and press Enter (e.g., https://example.com)"
+                    value={referenceInput}
+                    onChange={(e) => setReferenceInput(e.target.value)}
+                    onKeyDown={handleAddReference}
+                    sx={{ mb: 1 }}
+                />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {(getValues('references') || []).map((ref, idx) => (
+                        <Chip
+                            key={idx}
+                            label={ref}
+                            onDelete={() => handleRemoveReference(ref)}
+                            sx={{ bgcolor: '#e3f2fd', color: '#1976d2' }}
+                            clickable
+                            component="a"
+                            href={ref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        />
                     ))}
                 </Box>
             </Box>
@@ -618,10 +741,10 @@ const ProjectEdit: React.FC = () => {
                 <Button
                     variant="contained"
                     sx={{ flex: 1, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2 }}
-                    disabled={!step3Valid || isSubmitting || uploadingAttachments.size > 0}
+                    disabled={!step3Valid || updateMutation.isPending || uploadingAttachments.size > 0}
                     onClick={handleSubmit(onSubmit)}
                 >
-                    {isSubmitting ? 'Updating' : uploadingAttachments.size > 0 ? 'Uploading attachments...' : 'Update'}
+                    {updateMutation.isPending ? 'Updating' : uploadingAttachments.size > 0 ? 'Uploading attachments...' : 'Update'}
                 </Button>
             </Box>
         </Box>

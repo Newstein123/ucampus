@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import LinkIcon from '@mui/icons-material/Link';
 import MailIcon from '@mui/icons-material/Mail';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -37,6 +38,7 @@ import Toast from '../../components/Toast';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
 import { Contribution } from '../../types/contribution';
+import { downloadFile } from '../../utils/pwa';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -237,6 +239,50 @@ const ProjectDetails: React.FC = () => {
                     </ul>
                 </Paper>
 
+                {/* References */}
+                {(() => {
+                    let references: string[] = [];
+                    if (project?.content?.references) {
+                        try {
+                            references =
+                                typeof project.content.references === 'string' ? JSON.parse(project.content.references) : project.content.references;
+                            if (!Array.isArray(references)) {
+                                references = [];
+                            }
+                        } catch {
+                            references = [];
+                        }
+                    }
+                    return references.length > 0 ? (
+                        <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>References</Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                {references.map((ref, idx) => (
+                                    <Box
+                                        key={idx}
+                                        component="a"
+                                        href={ref}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            fontSize: 14,
+                                            textDecoration: 'none',
+                                            '&:hover': { textDecoration: 'underline' },
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                        }}
+                                    >
+                                        <LinkIcon sx={{ fontSize: 16 }} />
+                                        {ref}
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Paper>
+                    ) : null;
+                })()}
+
                 {/* Attachments */}
                 {project?.attachments && project.attachments.length > 0 && (
                     <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
@@ -259,11 +305,11 @@ const ProjectDetails: React.FC = () => {
                                         <IconButton
                                             edge="end"
                                             aria-label="download"
-                                            onClick={(e) => {
+                                            onClick={async (e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                                 if (file.url) {
-                                                    window.open(file.url, '_blank');
+                                                    await downloadFile(file.url, file.name);
                                                 }
                                             }}
                                         >
@@ -282,18 +328,6 @@ const ProjectDetails: React.FC = () => {
                         </List>
                     </Paper>
                 )}
-
-                {/* Next Steps */}
-                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Next Steps</Typography>
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                        {([] as string[]).map((step, i) => (
-                            <li key={i} style={{ color: '#444', fontSize: 14, marginBottom: 2 }}>
-                                {step}
-                            </li>
-                        ))}
-                    </ul>
-                </Paper>
             </Box>
 
             {/* Team Members Section */}

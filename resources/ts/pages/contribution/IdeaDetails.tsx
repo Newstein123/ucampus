@@ -3,6 +3,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -208,6 +209,49 @@ const IdeaDetails: React.FC = () => {
                         <Typography sx={{ color: '#444', fontSize: 14 }}>{idea.content.why_it_matters}</Typography>
                     </Paper>
                 )}
+
+                {/* References */}
+                {(() => {
+                    let references: string[] = [];
+                    if (idea?.content?.references) {
+                        try {
+                            references = typeof idea.content.references === 'string' ? JSON.parse(idea.content.references) : idea.content.references;
+                            if (!Array.isArray(references)) {
+                                references = [];
+                            }
+                        } catch {
+                            references = [];
+                        }
+                    }
+                    return references.length > 0 ? (
+                        <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>References</Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                {references.map((ref, idx) => (
+                                    <Box
+                                        key={idx}
+                                        component="a"
+                                        href={ref}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            fontSize: 14,
+                                            textDecoration: 'none',
+                                            '&:hover': { textDecoration: 'underline' },
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                        }}
+                                    >
+                                        <LinkIcon sx={{ fontSize: 16 }} />
+                                        {ref}
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Paper>
+                    ) : null;
+                })()}
             </Box>
 
             {/* Engagement Metrics */}

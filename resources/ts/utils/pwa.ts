@@ -160,12 +160,72 @@ export const addPWAEventListeners = (): void => {
 
         // Handle page visibility for iOS PWA
         if (isIOS()) {
-            document.addEventListener('pageshow', (event: PageTransitionEvent) => {
-                if (event.persisted) {
+            document.addEventListener('pageshow', (event: Event) => {
+                const pageEvent = event as PageTransitionEvent;
+                if (pageEvent.persisted) {
                     console.log('Page restored from bfcache');
                     // Refresh data if needed
                 }
             });
         }
+    }
+};
+
+/**
+ * Download a file from a URL, compatible with PWA
+ * Uses fetch and blob to ensure downloads work in PWA contexts
+ * @param url - The URL of the file to download
+ * @param filename - Optional filename for the download
+ */
+export const downloadFile = async (url: string, filename?: string): Promise<void> => {
+    try {
+        // Get auth token if available (for private files)
+        const token = localStorage.getItem('auth_token');
+        const headers: HeadersInit = {};
+
+        // Add authorization header if token exists and URL is from same origin
+        if (token) {
+            const urlObj = new URL(url, window.location.origin);
+            const isSameOrigin = urlObj.origin === window.location.origin;
+            if (isSameOrigin) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
+        // Fetch the file
+        const response = await fetch(url, {
+            method: 'GET',
+            headers,
+            credentials: 'include', // Include cookies for same-origin requests
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to download file: ${response.statusText}`);
+        }
+
+        // Get the blob
+        const blob = await response.blob();
+
+        // Create object URL
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        // Create a temporary anchor element
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename || url.split('/').pop() || 'download';
+
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up the object URL after a short delay to ensure download starts
+        setTimeout(() => {
+            window.URL.revokeObjectURL(blobUrl);
+        }, 100);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        // Fallback to opening in new window if download fails
+        window.open(url, '_blank');
     }
 };
