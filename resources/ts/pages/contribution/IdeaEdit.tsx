@@ -7,6 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
 import Toast from '../../components/Toast';
+import { useUpdateContributionMutation } from '../../hooks';
 import { IdeaForm, ideaSchema } from '../../schemas/idea';
 
 const defaultValues: IdeaForm = {
@@ -25,10 +26,11 @@ const IdeaEdit: React.FC = () => {
     const navigate = useNavigate();
     const [existingThumbnailUrl, setExistingThumbnailUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [toastOpen, setToastOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+    const updateMutation = useUpdateContributionMutation();
 
     const {
         control,
@@ -111,9 +113,8 @@ const IdeaEdit: React.FC = () => {
         }
     };
 
-    const onSubmit = async (data: IdeaForm) => {
+    const onSubmit = (data: IdeaForm) => {
         if (!id) return;
-        setIsSubmitting(true);
 
         const formData = new FormData();
         formData.append('title', data.title);
@@ -148,19 +149,21 @@ const IdeaEdit: React.FC = () => {
             formData.append('remove_thumbnail', '1');
         }
 
-        try {
-            await contributionApi.update(parseInt(id), formData);
-            // Navigate to idea detail page with success toast info in state
-            navigate(`/ideas/${id}`, { replace: true, state: { toastMessage: 'Idea updated successfully!', toastType: 'success' } });
-        } catch (error: unknown) {
-            const err = error as { response?: { data?: { message?: string } } };
-            const errorMsg = err.response?.data?.message || 'Failed to update idea';
-            setToastMessage(errorMsg);
-            setToastType('error');
-            setToastOpen(true);
-        } finally {
-            setIsSubmitting(false);
-        }
+        updateMutation.mutate(
+            { id: parseInt(id!), data: formData },
+            {
+                onSuccess: () => {
+                    navigate(`/ideas/${id}`, { replace: true, state: { toastMessage: 'Idea updated successfully!', toastType: 'success' } });
+                },
+                onError: (error) => {
+                    const err = error as { response?: { data?: { message?: string } } };
+                    const errorMsg = err.response?.data?.message || 'Failed to update idea';
+                    setToastMessage(errorMsg);
+                    setToastType('error');
+                    setToastOpen(true);
+                },
+            },
+        );
     };
 
     if (isLoading) {
@@ -407,9 +410,9 @@ const IdeaEdit: React.FC = () => {
                         mt: 2,
                         '&:hover': { bgcolor: '#156c0c' },
                     }}
-                    disabled={isSubmitting}
+                    disabled={updateMutation.isPending}
                 >
-                    {isSubmitting ? 'Updating' : 'Update'}
+                    {updateMutation.isPending ? 'Updating' : 'Update'}
                 </Button>
             </form>
 

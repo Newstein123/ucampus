@@ -67,14 +67,24 @@ export const contributionApi = {
     },
     async uploadAttachment(
         file: File,
-    ): Promise<{ success: boolean; message: string; data: { url: string; path: string; name: string; type: string; size: number } }> {
+        contributionId?: number,
+    ): Promise<{ success: boolean; message: string; data: { id: number; url: string; path: string; name: string; type: string; size: number } }> {
         const formData = new FormData();
         formData.append('file', file);
+        if (contributionId) {
+            formData.append('contribution_id', contributionId.toString());
+        }
         const response = await apiClient.getClient().post<{
             success: boolean;
             message: string;
-            data: { url: string; path: string; name: string; type: string; size: number };
+            data: { id: number; url: string; path: string; name: string; type: string; size: number };
         }>(endpoints.contribution_upload_attachment, formData);
+        return response.data;
+    },
+    async deleteAttachment(attachmentId: number): Promise<{ success: boolean; message: string }> {
+        const response = await apiClient
+            .getClient()
+            .delete<{ success: boolean; message: string }>(endpoints.contribution_delete_attachment.replace('{id}', String(attachmentId)));
         return response.data;
     },
     async requestCollaboration(contributionId: number, reason: string): Promise<{ success: boolean; message: string; data: unknown }> {

@@ -12,6 +12,7 @@ use App\Http\Requests\ContributionController\SearchRequest;
 use App\Http\Requests\ContributionController\ShowRequest;
 use App\Http\Requests\ContributionController\TrendingRequest;
 use App\Http\Requests\ContributionController\UploadAttachmentRequest;
+use App\Http\Requests\ContributionController\DeleteAttachmentRequest;
 use App\Http\Resources\ContributionResource;
 use App\Services\ContributionServiceInterface;
 use Illuminate\Support\Facades\Auth;
@@ -107,8 +108,22 @@ class ContributionController extends Controller
     public function uploadAttachment(UploadAttachmentRequest $request)
     {
         $file = $request->file('file');
-        $result = $this->contributionService->uploadAttachment($file);
+        $contributionId = $request->input('contribution_id'); // Optional, for updates
+        $result = $this->contributionService->uploadAttachment($file, $contributionId ? (int)$contributionId : null);
         return $this->response($result, 'Attachment uploaded successfully');
+    }
+
+    /**
+     * Delete an attachment
+     * 
+     * @param DeleteAttachmentRequest $request
+     * @param int $id Attachment ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteAttachment(DeleteAttachmentRequest $request, int $id)
+    {
+        $this->contributionService->deleteAttachment($id);
+        return $this->response(null, 'Attachment deleted successfully');
     }
 }
 

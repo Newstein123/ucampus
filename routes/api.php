@@ -70,6 +70,7 @@ Route::prefix('contributions')->group(function () {
     Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum')->name('contributions.show');
     Route::post('/', [ContributionController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/upload-attachment', [ContributionController::class, 'uploadAttachment'])->middleware('auth:sanctum');
+    Route::delete('/attachment/{id}', [ContributionController::class, 'deleteAttachment'])->middleware('auth:sanctum');
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');

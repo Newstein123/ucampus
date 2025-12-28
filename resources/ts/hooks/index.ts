@@ -20,6 +20,8 @@ export * from './contribution/useContributionInterestMutation';
 export * from './contribution/useContributionListInfiniteQuery';
 export * from './contribution/useContributionListQuery';
 export * from './contribution/useCreateContributionMutation';
+export * from './contribution/useDeleteAttachmentMutation';
+export * from './contribution/useUpdateContributionMutation';
 
 // Notification hooks
 export * from './notification/useNotificationListQuery';

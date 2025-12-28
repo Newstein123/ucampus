@@ -36,9 +36,9 @@ class ContributionService implements ContributionServiceInterface
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
 
-            // Extract attachment_paths before creating contribution
-            $attachmentPaths = $data['attachment_paths'] ?? [];
-            unset($data['attachment_paths']);
+            // Extract attachment IDs before creating contribution
+            $attachmentIds = $data['attachment_ids'] ?? [];
+            unset($data['attachment_ids']);
 
             $contribution = $this->contributionRepository->create($data);
 
@@ -48,17 +48,12 @@ class ContributionService implements ContributionServiceInterface
                 $contribution->tags()->attach($tagIds);
             }
 
-            // Create attachment records from paths
-            if (!empty($attachmentPaths) && is_array($attachmentPaths)) {
-                foreach ($attachmentPaths as $attachmentData) {
-                    if (is_array($attachmentData) && isset($attachmentData['path'])) {
-                        \App\Models\ContributionAttachment::create([
-                            'contribution_id' => $contribution->id,
-                            'file_path' => $attachmentData['path'],
-                            'file_name' => $attachmentData['name'] ?? basename($attachmentData['path']),
-                            'file_type' => $attachmentData['type'] ?? null,
-                            'file_size' => $attachmentData['size'] ?? null,
-                        ]);
+            // Link attachment records to contribution (attachments were already created during upload)
+            if (!empty($attachmentIds) && is_array($attachmentIds)) {
+                foreach ($attachmentIds as $attachmentId) {
+                    $attachment = \App\Models\ContributionAttachment::find($attachmentId);
+                    if ($attachment) {
+                        $attachment->update(['contribution_id' => $contribution->id]);
                     }
                 }
             }
@@ -107,12 +102,36 @@ class ContributionService implements ContributionServiceInterface
                 unset($data['remove_thumbnail']);
             }
 
+            // Handle attachment IDs (for linking uploaded attachments to contribution)
+            $attachmentIds = $data['attachment_ids'] ?? [];
+            unset($data['attachment_ids']);
+
+            // Handle attachment deletions
+            $deleteAttachmentIds = $data['delete_attachment_ids'] ?? [];
+            unset($data['delete_attachment_ids']);
 
             $contribution = $this->contributionRepository->update($id, $data);
 
             if (isset($data['tags'])) {
                 $tagIds = $this->tagRepository->createMany($data['tags']);
                 $contribution->tags()->sync($tagIds);
+            }
+
+            // Link new attachments to contribution
+            if (!empty($attachmentIds) && is_array($attachmentIds)) {
+                foreach ($attachmentIds as $attachmentId) {
+                    $attachment = \App\Models\ContributionAttachment::find($attachmentId);
+                    if ($attachment) {
+                        $attachment->update(['contribution_id' => $contribution->id]);
+                    }
+                }
+            }
+
+            // Delete attachments
+            if (!empty($deleteAttachmentIds) && is_array($deleteAttachmentIds)) {
+                foreach ($deleteAttachmentIds as $attachmentId) {
+                    $this->deleteAttachment($attachmentId);
+                }
             }
 
             return $contribution;
@@ -230,12 +249,13 @@ class ContributionService implements ContributionServiceInterface
     }
 
     /**
-     * Upload a single attachment file to MinIO
+     * Upload a single attachment file to MinIO and store in database
      * 
      * @param \Illuminate\Http\UploadedFile $file
-     * @return array ['url' => string, 'path' => string, 'name' => string, 'type' => string, 'size' => int]
+     * @param int|null $contributionId Optional contribution ID if updating existing contribution
+     * @return array ['id' => int, 'url' => string, 'path' => string, 'name' => string, 'type' => string, 'size' => int]
      */
-    public function uploadAttachment($file): array
+    public function uploadAttachment($file, ?int $contributionId = null): array
     {
         try {
             // Upload file to MinIO and get relative path
@@ -244,7 +264,17 @@ class ContributionService implements ContributionServiceInterface
             // Get full URL
             $fullUrl = $this->fileService->getFileUrl($relativePath);
 
+            // Store attachment in database
+            $attachment = \App\Models\ContributionAttachment::create([
+                'contribution_id' => $contributionId, // Can be null for new contributions
+                'file_path' => $relativePath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+
             return [
+                'id' => $attachment->id,
                 'url' => $fullUrl,
                 'path' => $relativePath,
                 'name' => $file->getClientOriginalName(),
@@ -253,6 +283,31 @@ class ContributionService implements ContributionServiceInterface
             ];
         } catch (\Exception $e) {
             throw new \Exception('Failed to upload attachment: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete an attachment by ID
+     * 
+     * @param int $attachmentId
+     * @return bool
+     */
+    public function deleteAttachment(int $attachmentId): bool
+    {
+        try {
+            $attachment = \App\Models\ContributionAttachment::findOrFail($attachmentId);
+            
+            // Delete file from storage
+            if ($attachment->file_path) {
+                $this->fileService->deleteFile($attachment->file_path);
+            }
+            
+            // Delete database record
+            $attachment->delete();
+            
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to delete attachment: ' . $e->getMessage());
         }
     }
 

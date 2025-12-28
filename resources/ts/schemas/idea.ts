@@ -21,6 +21,7 @@ export const projectSchema = z.object({
     solution: z.string().min(1, 'Solution is required'),
     impact: z.string().min(1, 'Impact is required'),
     resources: z.string().min(1, 'Resources needed is required'),
+    references: z.array(z.string().url('Please enter a valid URL')).optional(),
     attachments: z.array(z.any()).optional(),
     tags: z.array(z.string()).optional(),
     allow_collab: z.boolean().optional(),

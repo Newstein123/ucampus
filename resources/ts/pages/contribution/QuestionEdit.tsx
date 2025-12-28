@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { contributionApi } from '../../api/contribution';
 import Toast from '../../components/Toast';
+import { useUpdateContributionMutation } from '../../hooks';
 
 const questionSchema = z.object({
     question: z.string().min(1, 'Question is required'),
@@ -29,10 +30,11 @@ const QuestionEdit: React.FC = () => {
     const [tagInput, setTagInput] = useState('');
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [toastOpen, setToastOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+    const updateMutation = useUpdateContributionMutation();
 
     const {
         control,
@@ -89,43 +91,48 @@ const QuestionEdit: React.FC = () => {
         );
     };
 
-    const onSubmit = async (data: QuestionForm) => {
+    const onSubmit = (data: QuestionForm) => {
         if (!id) return;
-        setIsSubmitting(true);
 
-        try {
-            await contributionApi.update(parseInt(id), {
-                title: data.question,
-                content: {
+        updateMutation.mutate(
+            {
+                id: parseInt(id),
+                data: {
                     title: data.question,
-                    question: data.question,
-                    thought: data.thought,
-                    description: data.thought,
-                    answer: null,
-                    problem: null,
-                    solution: null,
-                    impact: null,
-                    why_it_matters: null,
-                    resources: null,
-                    references: null,
+                    content: {
+                        title: data.question,
+                        question: data.question,
+                        thought: data.thought,
+                        description: data.thought,
+                        answer: null,
+                        problem: null,
+                        solution: null,
+                        impact: null,
+                        why_it_matters: null,
+                        resources: null,
+                        references: null,
+                    },
+                    type: 'question',
+                    tags: data.tags || [],
+                    is_public: data.is_public,
+                    // @ts-expect-error - status is not yet in the official type definition
+                    status: 'active',
                 },
-                type: 'question',
-                tags: data.tags || [],
-                is_public: data.is_public,
-                // @ts-expect-error - status is not yet in the official type definition
-                status: 'active',
-            });
-            // Navigate to question detail page with success toast info in state
-            navigate(`/questions/${id}`, { replace: true, state: { toastMessage: 'Question updated successfully!', toastType: 'success' } });
-        } catch (error: unknown) {
-            const err = error as { response?: { data?: { message?: string } } };
-            const errorMsg = err.response?.data?.message || 'Failed to update question';
-            setToastMessage(errorMsg);
-            setToastType('error');
-            setToastOpen(true);
-        } finally {
-            setIsSubmitting(false);
-        }
+            },
+            {
+                onSuccess: () => {
+                    // Navigate to question detail page with success toast info in state
+                    navigate(`/questions/${id}`, { replace: true, state: { toastMessage: 'Question updated successfully!', toastType: 'success' } });
+                },
+                onError: (error) => {
+                    const err = error as { response?: { data?: { message?: string } } };
+                    const errorMsg = err.response?.data?.message || 'Failed to update question';
+                    setToastMessage(errorMsg);
+                    setToastType('error');
+                    setToastOpen(true);
+                },
+            },
+        );
     };
 
     if (isLoading) {
@@ -250,9 +257,9 @@ const QuestionEdit: React.FC = () => {
                         mt: 2,
                         '&:hover': { bgcolor: '#156c0c' },
                     }}
-                    disabled={isSubmitting}
+                    disabled={updateMutation.isPending}
                 >
-                    {isSubmitting ? 'Updating...' : 'Update'}
+                    {updateMutation.isPending ? 'Updating...' : 'Update'}
                 </Button>
             </form>
 

@@ -3,23 +3,22 @@ import { AxiosError } from 'axios';
 
 import { ErrorResponse } from '..';
 import { contributionApi } from '../../api/contribution';
-import { CreateContributionRequest, CreateContributionResponse } from '../../types/contribution';
 
-const useCreateContributionMutation = () => {
+export const useDeleteAttachmentMutation = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<CreateContributionResponse, AxiosError<ErrorResponse>, CreateContributionRequest | FormData>({
-        mutationKey: ['createContribution'],
-        mutationFn: contributionApi.create,
+    return useMutation<{ success: boolean; message: string }, AxiosError<ErrorResponse>, number>({
+        mutationKey: ['deleteAttachment'],
+        mutationFn: (attachmentId: number) => contributionApi.deleteAttachment(attachmentId),
         onSuccess: () => {
-            // Invalidate all contribution list queries to refetch updated data
+            // Invalidate contribution queries that might include attachments
             queryClient.invalidateQueries({ queryKey: ['contributionList'], exact: false });
             queryClient.invalidateQueries({ queryKey: ['contributionListInfinite'], exact: false });
             queryClient.invalidateQueries({ queryKey: ['myContributions'], exact: false });
             queryClient.invalidateQueries({ queryKey: ['contributionTrending'], exact: false });
             queryClient.invalidateQueries({ queryKey: ['contributionSearch'], exact: false });
+            // Invalidate all contribution detail queries
+            queryClient.invalidateQueries({ queryKey: ['contribution'], exact: false });
         },
     });
 };
-
-export default useCreateContributionMutation;

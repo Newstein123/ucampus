@@ -8,6 +8,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { contributionApi } from '../../api/contribution';
+import { useDeleteAttachmentMutation } from '../../hooks';
 import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
 import { ProjectForm, projectSchema } from '../../schemas/idea';
 
@@ -32,6 +33,7 @@ const defaultValues: ProjectForm = {
     solution: '',
     impact: '',
     resources: '',
+    references: [],
     attachments: [],
     tags: [],
     allow_collab: false,
@@ -39,6 +41,7 @@ const defaultValues: ProjectForm = {
 };
 
 interface UploadedAttachment {
+    id: number;
     url: string;
     path: string;
     name: string;
@@ -49,6 +52,7 @@ interface UploadedAttachment {
 const ProjectCreate: React.FC = () => {
     const [activeStep, setActiveStep] = useState(0);
     const [tagInput, setTagInput] = useState('');
+    const [referenceInput, setReferenceInput] = useState('');
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const ideaId = searchParams.get('ideaId');
@@ -56,6 +60,7 @@ const ProjectCreate: React.FC = () => {
     const [uploadedAttachments, setUploadedAttachments] = useState<UploadedAttachment[]>([]);
     const [uploadingAttachments, setUploadingAttachments] = useState<Set<number>>(new Set());
     const createContributionMutation = useCreateContributionMutation();
+    const deleteAttachmentMutation = useDeleteAttachmentMutation();
 
     const {
         control,
@@ -147,33 +152,40 @@ const ProjectCreate: React.FC = () => {
     };
 
     const handleAttachmentChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const fileIndex = (getValues('attachments') || []).length;
+        if (e.target.files && e.target.files.length > 0) {
+            const files = Array.from(e.target.files);
+            const startIndex = (getValues('attachments') || []).length;
 
-            // Add file to form state for display
-            setValue('attachments', [...(getValues('attachments') || []), file]);
+            // Add files to form state for display
+            setValue('attachments', [...(getValues('attachments') || []), ...files]);
 
-            // Upload file immediately
-            setUploadingAttachments((prev) => new Set(prev).add(fileIndex));
-            try {
-                const response = await contributionApi.uploadAttachment(file);
-                setUploadedAttachments((prev) => [...prev, response.data]);
-            } catch (error) {
-                console.error('Failed to upload attachment:', error);
-                alert('Failed to upload attachment. Please try again.');
-                // Remove the file from form state if upload failed
-                setValue(
-                    'attachments',
-                    (getValues('attachments') || []).filter((_f: File, i: number) => i !== fileIndex),
-                );
-            } finally {
-                setUploadingAttachments((prev) => {
-                    const newSet = new Set(prev);
-                    newSet.delete(fileIndex);
-                    return newSet;
-                });
-            }
+            // Upload files immediately (one by one)
+            files.forEach((file, fileOffset) => {
+                const fileIndex = startIndex + fileOffset;
+                setUploadingAttachments((prev) => new Set(prev).add(fileIndex));
+
+                contributionApi
+                    .uploadAttachment(file)
+                    .then((response) => {
+                        setUploadedAttachments((prev) => [...prev, response.data]);
+                    })
+                    .catch((error) => {
+                        console.error('Failed to upload attachment:', error);
+                        alert(`Failed to upload ${file.name}. Please try again.`);
+                        // Remove the file from form state if upload failed
+                        setValue(
+                            'attachments',
+                            (getValues('attachments') || []).filter((_f: File, i: number) => i !== fileIndex),
+                        );
+                    })
+                    .finally(() => {
+                        setUploadingAttachments((prev) => {
+                            const newSet = new Set(prev);
+                            newSet.delete(fileIndex);
+                            return newSet;
+                        });
+                    });
+            });
         }
         // Reset input to allow selecting the same file again
         e.target.value = '';
@@ -194,7 +206,42 @@ const ProjectCreate: React.FC = () => {
         );
     };
 
-    const handleRemoveAttachment = (idx: number) => {
+    const handleAddReference = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && referenceInput.trim()) {
+            const url = referenceInput.trim();
+            // Basic URL validation
+            try {
+                new URL(url);
+                setValue('references', [...(getValues('references') || []), url]);
+                setReferenceInput('');
+            } catch {
+                alert('Please enter a valid URL');
+            }
+            e.preventDefault();
+        }
+    };
+
+    const handleRemoveReference = (reference: string) => {
+        setValue(
+            'references',
+            (getValues('references') || []).filter((r) => r !== reference),
+        );
+    };
+
+    const handleRemoveAttachment = async (idx: number) => {
+        const attachment = uploadedAttachments[idx];
+
+        // If attachment has an ID (was uploaded), delete it from server
+        if (attachment?.id) {
+            try {
+                await deleteAttachmentMutation.mutateAsync(attachment.id);
+            } catch (error) {
+                console.error('Failed to delete attachment:', error);
+                alert('Failed to delete attachment. Please try again.');
+                return;
+            }
+        }
+
         // Remove from form state
         setValue(
             'attachments',
@@ -286,14 +333,20 @@ const ProjectCreate: React.FC = () => {
             }
         }
 
-        // Handle attachments: send uploaded attachment paths using Laravel array notation
+        // Handle attachments: send attachment IDs
         if (uploadedAttachments.length > 0) {
-            uploadedAttachments.forEach((att, index) => {
-                formData.append(`attachment_paths[${index}][path]`, att.path);
-                formData.append(`attachment_paths[${index}][name]`, att.name);
-                formData.append(`attachment_paths[${index}][type]`, att.type);
-                formData.append(`attachment_paths[${index}][size]`, att.size.toString());
+            uploadedAttachments.forEach((att) => {
+                if (att.id) {
+                    formData.append('attachment_ids[]', att.id.toString());
+                }
             });
+        }
+
+        // Handle references: send as array of links
+        if (data.references && Array.isArray(data.references) && data.references.length > 0) {
+            formData.append('content[references]', JSON.stringify(data.references));
+        } else {
+            formData.append('content[references]', '');
         }
 
         createContributionMutation.mutate(formData, {
@@ -555,20 +608,48 @@ const ProjectCreate: React.FC = () => {
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                     Attachments
                 </Typography>
-                <input accept="*" id="attachment-upload" type="file" style={{ display: 'none' }} onChange={handleAttachmentChange} />
+                <input accept="*" id="attachment-upload" type="file" multiple style={{ display: 'none' }} onChange={handleAttachmentChange} />
                 <label htmlFor="attachment-upload">
                     <Button startIcon={<AttachFileIcon />} sx={{ mb: 1, textTransform: 'none', color: '#1F8505' }} component="span">
                         Add attachment
                     </Button>
                 </label>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {(getValues('attachments') || []).map((file, idx) => (
+                    {uploadedAttachments.map((att, idx) => (
                         <Chip
-                            key={idx}
-                            label={uploadingAttachments.has(idx) ? `${file.name} (Uploading...)` : file.name}
+                            key={att.id || idx}
+                            label={uploadingAttachments.has(idx) ? `${att.name} (Uploading...)` : att.name}
                             onDelete={uploadingAttachments.has(idx) ? undefined : () => handleRemoveAttachment(idx)}
                             disabled={uploadingAttachments.has(idx)}
                             sx={{ bgcolor: uploadingAttachments.has(idx) ? '#f5f5f5' : '#e8f5e9', color: '#1F8505' }}
+                        />
+                    ))}
+                </Box>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    References (Links)
+                </Typography>
+                <TextField
+                    fullWidth
+                    placeholder="Add reference URL and press Enter (e.g., https://example.com)"
+                    value={referenceInput}
+                    onChange={(e) => setReferenceInput(e.target.value)}
+                    onKeyDown={handleAddReference}
+                    sx={{ mb: 1 }}
+                />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {(getValues('references') || []).map((ref, idx) => (
+                        <Chip
+                            key={idx}
+                            label={ref}
+                            onDelete={() => handleRemoveReference(ref)}
+                            sx={{ bgcolor: '#e3f2fd', color: '#1976d2' }}
+                            clickable
+                            component="a"
+                            href={ref}
+                            target="_blank"
+                            rel="noopener noreferrer"
                         />
                     ))}
                 </Box>
