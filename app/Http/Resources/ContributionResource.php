@@ -84,6 +84,12 @@ class ContributionResource extends JsonResource
                         'user_id' => $participant->user_id,
                         'name' => $participant->user->name ?? 'Unknown',
                         'username' => $participant->user->username ?? '',
+                        'role_id' => $participant->role_id,
+                        'role' => $participant->role ? [
+                            'id' => $participant->role->id,
+                            'key' => $participant->role->key,
+                            'label' => $participant->role->label,
+                        ] : null,
                         'joined_at' => $participant->joined_at?->diffForHumans() ?? $participant->created_at?->diffForHumans(),
                     ];
                 })->values()->toArray(),

@@ -9,7 +9,7 @@ class ContributionRepository implements ContributionRepositoryInterface
 {
     public function find(int $id)
     {
-        return Contribution::find($id);
+        return Contribution::with(['participants.role', 'participants.user'])->find($id);
     }
 
     public function list(array $filters = [])

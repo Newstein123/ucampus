@@ -320,4 +320,66 @@ class ContributionService implements ContributionServiceInterface
     {
         return $this->contributionRepository->trending($data);
     }
+
+    public function leaveProject(array $data = [])
+    {
+        try {
+            $contributionId = $data['contribution_id'];
+            $userId = $data['user_id'];
+            $leftReason = $data['left_reason'] ?? null;
+            $leftAction = $data['left_action'] ?? 'self';
+
+            // Find the participant
+            $participant = \App\Models\ContributionParticipant::where('contribution_id', $contributionId)
+                ->where('user_id', $userId)
+                ->whereIn('status', ['accepted', 'active'])
+                ->first();
+
+            if (!$participant) {
+                throw new \Exception('You are not a participant in this project');
+            }
+
+            // Check if user is the owner
+            $contribution = $this->contributionRepository->find($contributionId);
+            $isOwner = $contribution->user_id === $userId;
+
+            // Update participant status
+            $participant->update([
+                'status' => 'left',
+                'left_reason' => $leftReason,
+                'left_action' => $leftAction,
+                'left_at' => now(),
+            ]);
+
+            // Determine message based on action
+            if ($leftAction === 'self') {
+                $message = 'Left from the project successfully';
+            } elseif ($leftAction === 'owner') {
+                $message = 'Kicked from the project successfully';
+            } else {
+                $message = 'Removed from the project successfully';
+            }
+
+            // Send notification to project owner if user left themselves
+            if ($leftAction === 'self' && !$isOwner) {
+                $participantUser = \App\Models\User::find($userId);
+                $this->notificationService->create([
+                    'recipient_user_id' => $contribution->user_id,
+                    'contribution_id' => $contributionId,
+                    'type' => 'participant_left',
+                    'source_id' => $participant->id,
+                    'source_type' => \App\Models\ContributionParticipant::class,
+                    'message' => ($participantUser ? $participantUser->name : 'A participant') . ' left your project',
+                    'redirect_url' => route('contributions.show', $contributionId),
+                    'sender_user_id' => $userId,
+                ]);
+            }
+
+            return [
+                'message' => $message,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
 }

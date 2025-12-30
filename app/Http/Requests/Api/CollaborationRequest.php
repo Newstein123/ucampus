@@ -32,7 +32,8 @@ class CollaborationRequest extends FormRequest
     {
         return [
             'contribution_id' => 'required|exists:contributions,id',
-            'reason' => 'required|string|min:10|max:500',
+            'join_reason' => 'required|string|min:10|max:500',
+            'role_id' => 'required|exists:contribution_roles,id',
         ];
     }
 
@@ -44,10 +45,12 @@ class CollaborationRequest extends FormRequest
         return [
             'contribution_id.required' => 'Contribution ID is required.',
             'contribution_id.exists' => 'The specified contribution does not exist.',
-            'reason.required' => 'Reason is required.',
-            'reason.string' => 'Reason must be a string.',
-            'reason.min' => 'Reason must be at least 10 characters.',
-            'reason.max' => 'Reason cannot exceed 500 characters.',
+            'join_reason.required' => 'Reason is required.',
+            'join_reason.string' => 'Reason must be a string.',
+            'join_reason.min' => 'Reason must be at least 10 characters.',
+            'join_reason.max' => 'Reason cannot exceed 500 characters.',
+            'role_id.required' => 'Role is required.',
+            'role_id.exists' => 'The specified role does not exist.',
         ];
     }
 
@@ -71,11 +74,18 @@ class CollaborationRequest extends FormRequest
             // Verify user is not the owner
             if ($this->collaborationRepository->checkIfUserIsOwner($contributionId, $userId)) {
                 $validator->errors()->add('contribution_id', 'Project owner cannot request collaboration');
+                return;
             }
 
-            // Verify user is not already a collaborator
+            // Check if user has left the project - prevent rejoining
+            if ($this->collaborationRepository->checkIfUserHasLeft($contributionId, $userId)) {
+                $validator->errors()->add('contribution_id', 'You have already left this project and cannot rejoin');
+                return;
+            }
+
+            // Verify user is not already a collaborator (pending, accepted, or active)
             if ($this->collaborationRepository->checkIfUserIsCollaborator($contributionId, $userId)) {
-                $validator->errors()->add('contribution_id', 'User is already a collaborator');
+                $validator->errors()->add('contribution_id', 'You already have a pending or active collaboration request for this project');
             }
         });
     }

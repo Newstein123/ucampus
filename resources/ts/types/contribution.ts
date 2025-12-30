@@ -7,11 +7,19 @@ export interface Attachment {
     size: number | null;
 }
 
+export interface ContributionRole {
+    id: number;
+    key: string;
+    label: string;
+}
+
 export interface Participant {
     id: number;
     user_id: number;
     name: string;
     username: string;
+    role_id: number | null;
+    role: ContributionRole | null;
     joined_at: string | null;
 }
 

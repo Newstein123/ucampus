@@ -180,7 +180,7 @@ const IdeaDetails: React.FC = () => {
                     component="img"
                     image={idea.thumbnail_url || DEFAULT_IMAGE}
                     alt={idea?.title || 'thumbnail'}
-                    sx={{ width: '100%', borderRadius: 0, mb: 2, maxHeight: 200, objectFit: 'cover' }}
+                    sx={{ width: '100%', borderRadius: 0, mb: 2, objectFit: 'contain', maxHeight: '70vh' }}
                 />
             )}
 

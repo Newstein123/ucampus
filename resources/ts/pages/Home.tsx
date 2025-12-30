@@ -232,6 +232,11 @@ const Home: React.FC = () => {
                         {item.type === 'question' && (
                             <Box sx={{ px: 2, pb: 1 }}>
                                 <Typography
+                                    sx={{ color: '#444', fontSize: 14, mb: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                >
+                                    {item.content.thought}
+                                </Typography>
+                                <Typography
                                     sx={{
                                         color: '#1F8505',
                                         fontWeight: 600,

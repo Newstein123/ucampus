@@ -13,4 +13,6 @@ interface CollaborationRepositoryInterface
     public function checkIfUserIsCollaborator(int $contributionId, int $userId): bool;
 
     public function checkIfUserIsOwner(int $contributionId, int $userId): bool;
+
+    public function checkIfUserHasLeft(int $contributionId, int $userId): bool;
 }

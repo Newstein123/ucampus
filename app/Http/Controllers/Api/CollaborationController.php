@@ -24,7 +24,8 @@ class CollaborationController extends Controller
             $result = $this->collaborationService->sendRequest(
                 $request->contribution_id,
                 $request->user()->id,
-                $request->reason
+                $request->join_reason,
+                $request->role_id
             );
 
             return response()->json([

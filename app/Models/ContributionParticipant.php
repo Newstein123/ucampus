@@ -13,14 +13,19 @@ class ContributionParticipant extends Model
     protected $fillable = [
         'contribution_id',
         'user_id',
-        'reason',
-        'response',
+        'role_id',
+        'join_reason',
+        'join_response',
         'status',
         'joined_at',
+        'left_reason',
+        'left_action',
+        'left_at',
     ];
 
     protected $casts = [
         'joined_at' => 'datetime',
+        'left_at' => 'datetime',
     ];
 
     public function contribution(): BelongsTo
@@ -31,5 +36,10 @@ class ContributionParticipant extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(ContributionRole::class);
     }
 }

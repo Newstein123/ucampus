@@ -13,6 +13,7 @@ use App\Http\Requests\ContributionController\ShowRequest;
 use App\Http\Requests\ContributionController\TrendingRequest;
 use App\Http\Requests\ContributionController\UploadAttachmentRequest;
 use App\Http\Requests\ContributionController\DeleteAttachmentRequest;
+use App\Http\Requests\ContributionController\LeaveProjectRequest;
 use App\Http\Resources\ContributionResource;
 use App\Services\ContributionServiceInterface;
 use Illuminate\Support\Facades\Auth;
@@ -124,6 +125,20 @@ class ContributionController extends Controller
     {
         $this->contributionService->deleteAttachment($id);
         return $this->response(null, 'Attachment deleted successfully');
+    }
+
+    /**
+     * Leave a project
+     * 
+     * @param LeaveProjectRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function leave(LeaveProjectRequest $request)
+    {
+        $data = $request->validated();
+        $data['user_id'] = Auth::user()->id;
+        $result = $this->contributionService->leaveProject($data);
+        return $this->response(null, $result['message']);
     }
 }
 

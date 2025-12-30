@@ -76,6 +76,9 @@ Route::prefix('contributions')->group(function () {
     Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');
 });
 
+// Project leave route
+Route::middleware('auth:sanctum')->post('/project/leave', [ContributionController::class, 'leave']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('contribution/{id}/bookmarks', [BookmarkController::class, 'store']);
     Route::delete('contribution/{id}/bookmarks', [BookmarkController::class, 'destroy']);
@@ -88,6 +91,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/project/action', [CollaborationController::class, 'action']);
     Route::get('/project/collaboration', [CollaborationController::class, 'list']);
 });
+
+// Contribution Roles Routes
+Route::middleware('auth:sanctum')->get('/contribution-roles', [\App\Http\Controllers\Api\ContributionRoleController::class, 'index']);
 
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->middleware('auth:sanctum');
