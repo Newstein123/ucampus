@@ -21,6 +21,7 @@ export * from './contribution/useContributionListInfiniteQuery';
 export * from './contribution/useContributionListQuery';
 export * from './contribution/useCreateContributionMutation';
 export * from './contribution/useDeleteAttachmentMutation';
+export * from './contribution/useLeaveProjectMutation';
 export * from './contribution/useUpdateContributionMutation';
 
 // Notification hooks

@@ -15,10 +15,31 @@ class CollaborationRepository implements CollaborationRepositoryInterface
             2 => 'rejected',
         ];
 
+        // Check if a record already exists (even with 'left' status) due to unique constraint
+        $existingParticipant = ContributionParticipant::where('contribution_id', $data['contribution_id'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingParticipant) {
+            // If user has left, throw an error
+            if ($existingParticipant->status === 'left') {
+                throw new \Exception('You have already left this project and cannot rejoin');
+            }
+            // If there's an existing record with other status (rejected), update it instead
+            $existingParticipant->update([
+                'join_reason' => $data['join_reason'],
+                'role_id' => $data['role_id'],
+                'status' => $statusMap[$data['status']] ?? 'pending',
+            ]);
+            return $existingParticipant->fresh()->toArray();
+        }
+
+        // Create new participant record
         $participant = ContributionParticipant::create([
             'contribution_id' => $data['contribution_id'],
             'user_id' => $data['user_id'],
-            'reason' => $data['reason'],
+            'join_reason' => $data['join_reason'],
+            'role_id' => $data['role_id'],
             'status' => $statusMap[$data['status']] ?? 'pending',
         ]);
 
@@ -34,10 +55,17 @@ class CollaborationRepository implements CollaborationRepositoryInterface
         ];
 
         $collaborationRequest = ContributionParticipant::findOrFail($requestId);
-        $collaborationRequest->status = $statusMap[$status];
+        $newStatus = $statusMap[$status];
+        $collaborationRequest->status = $newStatus;
+        
+        // Set joined_at when status changes to accepted (user officially joins)
+        if ($newStatus === 'accepted' && !$collaborationRequest->joined_at) {
+            $collaborationRequest->joined_at = now();
+        }
+        
         $collaborationRequest->save();
 
-        return $collaborationRequest->toArray();
+        return $collaborationRequest->fresh()->toArray();
     }
 
     public function getCollaborations(array $filters): array
@@ -64,7 +92,15 @@ class CollaborationRepository implements CollaborationRepositoryInterface
     {
         return ContributionParticipant::where('contribution_id', $contributionId)
             ->where('user_id', $userId)
-            ->whereIn('status', ['active', 'accepted'])
+            ->whereIn('status', ['active', 'accepted', 'pending'])
+            ->exists();
+    }
+
+    public function checkIfUserHasLeft(int $contributionId, int $userId): bool
+    {
+        return ContributionParticipant::where('contribution_id', $contributionId)
+            ->where('user_id', $userId)
+            ->where('status', 'left')
             ->exists();
     }
 

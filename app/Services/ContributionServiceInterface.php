@@ -26,4 +26,6 @@ interface ContributionServiceInterface
     public function search(array $data = []);
 
     public function trending(array $data = []);
+
+    public function leaveProject(array $data = []);
 }

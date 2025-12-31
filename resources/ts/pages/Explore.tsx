@@ -1,5 +1,5 @@
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Button, Card, CardContent, CardMedia, Chip, CircularProgress, IconButton, InputBase, Paper, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Chip, CircularProgress, IconButton, InputBase, Paper, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
@@ -87,12 +87,7 @@ const Explore: React.FC = () => {
             </Box>
             {/* Trending Ideas */}
             <Box sx={{ px: 2, mb: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 16, flex: 1 }}>Trending Ideas</Typography>
-                    <Button size="small" sx={{ color: '#1F8505', fontWeight: 600, textTransform: 'none' }}>
-                        See more
-                    </Button>
-                </Box>
+                <Typography sx={{ fontWeight: 700, fontSize: 16, mb: 1 }}>Trending Ideas</Typography>
                 {isLoadingIdeas ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
                         <CircularProgress size={24} sx={{ color: '#1F8505' }} />
@@ -142,7 +137,17 @@ const Explore: React.FC = () => {
                                         TRENDING
                                     </Box>
                                     <CardContent sx={{ pb: 1 }}>
-                                        <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{idea.title}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 700,
+                                                fontSize: 15,
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                        >
+                                            {idea.title}
+                                        </Typography>
                                         <Typography sx={{ color: '#888', fontSize: 13 }}>{getIdeaDescription(idea)}</Typography>
                                     </CardContent>
                                 </Card>
@@ -155,12 +160,7 @@ const Explore: React.FC = () => {
             </Box>
             {/* Trending Questions */}
             <Box sx={{ px: 2, mb: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 16, flex: 1 }}>Trending Questions</Typography>
-                    <Button size="small" sx={{ color: '#1F8505', fontWeight: 600, textTransform: 'none' }}>
-                        See more
-                    </Button>
-                </Box>
+                <Typography sx={{ fontWeight: 700, fontSize: 16, mb: 1 }}>Trending Questions</Typography>
                 {isLoadingQuestions ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
                         <CircularProgress size={24} sx={{ color: '#1F8505' }} />

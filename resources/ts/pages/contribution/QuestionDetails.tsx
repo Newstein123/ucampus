@@ -145,7 +145,7 @@ const QuestionDetails: React.FC = () => {
                 </Box>
 
                 {/* Question Description */}
-                <Typography sx={{ color: '#222', fontSize: 14, mb: 2, lineHeight: 1.6 }}>{question?.content?.description}</Typography>
+                <Typography sx={{ color: '#222', fontSize: 14, mb: 2, lineHeight: 1.6 }}>{question?.content?.thought}</Typography>
             </Box>
 
             {/* Engagement Metrics */}

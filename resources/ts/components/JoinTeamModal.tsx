@@ -1,17 +1,60 @@
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import {
+    Box,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+    Typography,
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { contributionApi } from '../api/contribution';
+
+interface ContributionRole {
+    id: number;
+    key: string;
+    label: string;
+    is_active: boolean;
+}
 
 interface JoinTeamModalProps {
     open: boolean;
     projectTitle: string;
     onClose: () => void;
-    onSubmit: (reason: string) => Promise<void>;
+    onSubmit: (joinReason: string, roleId: number) => Promise<void>;
     isLoading?: boolean;
 }
 
 const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClose, onSubmit, isLoading = false }) => {
     const [reason, setReason] = useState('');
+    const [roleId, setRoleId] = useState<number | ''>('');
+    const [roles, setRoles] = useState<ContributionRole[]>([]);
+    const [loadingRoles, setLoadingRoles] = useState(false);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (open) {
+            loadRoles();
+        }
+    }, [open]);
+
+    const loadRoles = async () => {
+        setLoadingRoles(true);
+        try {
+            const response = await contributionApi.getContributionRoles();
+            setRoles(response.data || []);
+        } catch (error) {
+            console.error('Failed to load roles:', error);
+        } finally {
+            setLoadingRoles(false);
+        }
+    };
 
     const handleSubmit = async () => {
         const trimmedReason = reason.trim();
@@ -21,14 +64,21 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClo
             return;
         }
 
+        if (!roleId) {
+            setError('Please select a role.');
+            return;
+        }
+
         setError('');
-        await onSubmit(trimmedReason);
+        await onSubmit(trimmedReason, roleId as number);
         // Reset form after successful submission
         setReason('');
+        setRoleId('');
     };
 
     const handleClose = () => {
         setReason('');
+        setRoleId('');
         setError('');
         onClose();
     };
@@ -48,6 +98,40 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClo
             <DialogTitle sx={{ fontWeight: 700, fontSize: 18, pb: 0.5 }}>{projectTitle}</DialogTitle>
 
             <DialogContent sx={{ pt: 2 }}>
+                {/* Role Selection */}
+                <Typography sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>Select Role</Typography>
+                <FormControl
+                    fullWidth
+                    sx={{
+                        mb: 2,
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: 3,
+                            bgcolor: '#f9f9f9',
+                        },
+                    }}
+                >
+                    <InputLabel>Role</InputLabel>
+                    <Select
+                        value={roleId}
+                        label="Role"
+                        onChange={(e) => {
+                            setRoleId(e.target.value as number);
+                            if (error) setError('');
+                        }}
+                        disabled={loadingRoles || isLoading}
+                    >
+                        {loadingRoles ? (
+                            <MenuItem disabled>Loading roles...</MenuItem>
+                        ) : (
+                            roles.map((role) => (
+                                <MenuItem key={role.id} value={role.id}>
+                                    {role.label}
+                                </MenuItem>
+                            ))
+                        )}
+                    </Select>
+                </FormControl>
+
                 {/* Why do you want to join? */}
                 <Typography sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>Why do you want to join?</Typography>
                 <TextField
@@ -62,6 +146,7 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClo
                     }}
                     error={!!error}
                     helperText={error}
+                    disabled={isLoading}
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             borderRadius: 3,

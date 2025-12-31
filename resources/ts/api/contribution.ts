@@ -87,15 +87,32 @@ export const contributionApi = {
             .delete<{ success: boolean; message: string }>(endpoints.contribution_delete_attachment.replace('{id}', String(attachmentId)));
         return response.data;
     },
-    async requestCollaboration(contributionId: number, reason: string): Promise<{ success: boolean; message: string; data: unknown }> {
+    async requestCollaboration(
+        contributionId: number,
+        joinReason: string,
+        roleId: number,
+    ): Promise<{ success: boolean; message: string; data: unknown }> {
         const response = await apiClient.getClient().post<{
             success: boolean;
             message: string;
             data: unknown;
         }>(endpoints.collaboration_request, {
             contribution_id: contributionId,
-            reason,
+            join_reason: joinReason,
+            role_id: roleId,
         });
+        return response.data;
+    },
+    async getContributionRoles(): Promise<{
+        success: boolean;
+        message: string;
+        data: Array<{ id: number; key: string; label: string; is_active: boolean }>;
+    }> {
+        const response = await apiClient.getClient().get<{
+            success: boolean;
+            message: string;
+            data: Array<{ id: number; key: string; label: string; is_active: boolean }>;
+        }>(endpoints.contribution_roles);
         return response.data;
     },
     async collaborationAction(
@@ -118,6 +135,18 @@ export const contributionApi = {
     },
     async search(data: ContributionSearchRequest): Promise<ContributionResponse> {
         const response = await apiClient.getClient().get<ContributionResponse>(endpoints.contribution_search, { params: data });
+        return response.data;
+    },
+    async leaveProject(
+        contributionId: number,
+        leftReason?: string,
+        leftAction: 'self' | 'owner' | 'system' = 'self',
+    ): Promise<{ success: boolean; message: string }> {
+        const response = await apiClient.getClient().post<{ success: boolean; message: string }>(endpoints.project_leave, {
+            contribution_id: contributionId,
+            left_reason: leftReason,
+            left_action: leftAction,
+        });
         return response.data;
     },
 };

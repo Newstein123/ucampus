@@ -4,7 +4,7 @@ namespace App\Services;
 
 interface CollaborationServiceInterface
 {
-    public function sendRequest(int $contributionId, int $userId, string $reason): array;
+    public function sendRequest(int $contributionId, int $userId, string $joinReason, int $roleId): array;
 
     public function handleAction(int $requestId, int $status): array;
 

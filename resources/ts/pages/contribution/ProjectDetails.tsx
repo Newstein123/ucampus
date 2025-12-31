@@ -33,8 +33,10 @@ import { contributionApi } from '../../api/contribution';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import JoinTeamModal from '../../components/JoinTeamModal';
+import LeaveProjectModal from '../../components/LeaveProjectModal';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import Toast from '../../components/Toast';
+import { useLeaveProjectMutation } from '../../hooks';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
 import { Contribution } from '../../types/contribution';
@@ -76,6 +78,29 @@ const ProjectDetails: React.FC = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Leave modal state
+    const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+    const leaveProjectMutation = useLeaveProjectMutation({
+        onSuccess: () => {
+            setToastMessage('Left from the project successfully');
+            setToastType('success');
+            setToastOpen(true);
+            setIsLeaveModalOpen(false);
+            // Reload project data
+            if (id) {
+                contributionApi.show(parseInt(id)).then((res) => {
+                    setProject(res.data);
+                });
+            }
+        },
+        onError: (error) => {
+            const errorMsg = error.response?.data?.message || error.response?.data?.errors?.left_reason?.[0] || 'Failed to leave project';
+            setToastMessage(errorMsg);
+            setToastType('error');
+            setToastOpen(true);
+        },
+    });
+
     // Use the discussions hook
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
@@ -89,18 +114,22 @@ const ProjectDetails: React.FC = () => {
     const canJoin = currentUser && project?.allow_collab && !isOwner;
 
     // Handle join request submission
-    const handleJoinSubmit = async (reason: string) => {
+    const handleJoinSubmit = async (joinReason: string, roleId: number) => {
         if (!id) return;
         setIsSubmitting(true);
         try {
-            await contributionApi.requestCollaboration(parseInt(id), reason);
+            await contributionApi.requestCollaboration(parseInt(id), joinReason, roleId);
             setIsModalOpen(false);
             setToastMessage('Your request was sent!');
             setToastType('success');
             setToastOpen(true);
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
-            const errorMsg = err.response?.data?.errors?.contribution_id?.[0] || err.response?.data?.message || 'Failed to send request';
+            const errorMsg =
+                err.response?.data?.errors?.contribution_id?.[0] ||
+                err.response?.data?.errors?.role_id?.[0] ||
+                err.response?.data?.message ||
+                'Failed to send request';
             setToastMessage(errorMsg);
             setToastType('error');
             setToastOpen(true);
@@ -128,6 +157,20 @@ const ProjectDetails: React.FC = () => {
     const handleDeleteClick = () => {
         handleMenuClose();
         setIsDeleteModalOpen(true);
+    };
+
+    // Handle leave project
+    const handleLeaveClick = () => {
+        setIsLeaveModalOpen(true);
+    };
+
+    const handleLeaveConfirm = (leftReason?: string) => {
+        if (!id) return;
+        leaveProjectMutation.mutate({
+            contributionId: parseInt(id),
+            leftReason,
+            leftAction: 'self',
+        });
     };
 
     const handleDeleteConfirm = async () => {
@@ -207,7 +250,7 @@ const ProjectDetails: React.FC = () => {
                 component="img"
                 image={project?.thumbnail_url || DEFAULT_IMAGE}
                 alt={project?.title || 'thumbnail'}
-                sx={{ width: '100%', borderRadius: 0, mb: 2, maxHeight: 200, objectFit: 'cover' }}
+                sx={{ width: '100%', borderRadius: 0, mb: 2, objectFit: 'contain', maxHeight: '70vh' }}
             />
 
             {/* Description */}
@@ -353,12 +396,8 @@ const ProjectDetails: React.FC = () => {
                 {currentUser && project?.participants?.some((member) => member.user_id === currentUser.id) ? (
                     <Button
                         variant="outlined"
-                        onClick={() => {
-                            // Leave functionality - API not implemented yet
-                            setToastMessage('Leave team functionality coming soon');
-                            setToastType('error');
-                            setToastOpen(true);
-                        }}
+                        onClick={handleLeaveClick}
+                        disabled={leaveProjectMutation.isPending}
                         sx={{
                             borderColor: '#f44336',
                             color: '#f44336',
@@ -375,7 +414,7 @@ const ProjectDetails: React.FC = () => {
                             },
                         }}
                     >
-                        Leave
+                        {leaveProjectMutation.isPending ? 'Leaving...' : 'Leave'}
                     </Button>
                 ) : (
                     canJoin && (
@@ -499,6 +538,15 @@ const ProjectDetails: React.FC = () => {
                 isLoading={isDeleting}
                 confirmText="Delete"
                 confirmColor="error"
+            />
+
+            {/* Leave Project Modal */}
+            <LeaveProjectModal
+                open={isLeaveModalOpen}
+                projectTitle={project?.title || 'this project'}
+                onClose={() => setIsLeaveModalOpen(false)}
+                onSubmit={handleLeaveConfirm}
+                isLoading={leaveProjectMutation.isPending}
             />
         </SinglePageLayout>
     );

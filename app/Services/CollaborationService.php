@@ -15,16 +15,22 @@ class CollaborationService implements CollaborationServiceInterface
         private CollaborationRepositoryInterface $collaborationRepository
     ) {}
 
-    public function sendRequest(int $contributionId, int $userId, string $reason): array
+    public function sendRequest(int $contributionId, int $userId, string $joinReason, int $roleId): array
     {
         try {
             DB::beginTransaction();
+
+            // Check if user has left the project - prevent rejoining
+            if ($this->collaborationRepository->checkIfUserHasLeft($contributionId, $userId)) {
+                throw new Exception('You have already left this project and cannot rejoin');
+            }
 
             // Create collaboration request
             $result = $this->collaborationRepository->createRequest([
                 'contribution_id' => $contributionId,
                 'user_id' => $userId,
-                'reason' => $reason,
+                'join_reason' => $joinReason,
+                'role_id' => $roleId,
                 'status' => 0, // Pending
             ]);
 
