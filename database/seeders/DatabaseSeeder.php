@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             ContributionSeeder::class,
             ContributionRoleSeeder::class,
             DiscussionSeeder::class,
+            ProjectSeeder::class,
         ]);
 
         // connect tags to contributions

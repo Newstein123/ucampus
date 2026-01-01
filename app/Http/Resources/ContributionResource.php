@@ -19,8 +19,12 @@ class ContributionResource extends JsonResource
         $fileService = app(FileService::class);
 
         // Get full URLs for files
-        $thumbnailUrl = $this->thumbnail_url ? $fileService->getFileUrl($this->thumbnail_url) : null;
-        
+        if (!$this->is_sample) {
+            $thumbnailUrl = $this->thumbnail_url ? $fileService->getFileUrl($this->thumbnail_url) : null;
+        } else {
+            $thumbnailUrl = $this->thumbnail_url;
+        }
+
         // Legacy attachments from JSON field - convert to same format as new attachments
         $legacyAttachments = [];
         if ($this->attachments && is_array($this->attachments)) {
@@ -40,7 +44,7 @@ class ContributionResource extends JsonResource
                 }
             }
         }
-        
+
         // New attachments from contribution_attachments table
         $newAttachments = $this->contributionAttachments->map(function ($attachment) {
             return [
@@ -56,10 +60,54 @@ class ContributionResource extends JsonResource
         // Combine legacy and new attachments into single array
         $allAttachments = array_merge($legacyAttachments, $newAttachments);
 
+        // Prepare participants data - include accepted/active for display, but also include current user's record for status checking
+        $currentUser = $request->user();
+        $allParticipants = $this->participants;
+
+        // If user is logged in, make sure their participant record is included for status checking
+        if ($currentUser) {
+            $userParticipant = $this->participants->where('user_id', $currentUser->id)->first();
+            if ($userParticipant && !$allParticipants->contains('id', $userParticipant->id)) {
+                $allParticipants->push($userParticipant);
+            }
+        }
+
+        $participantsData = $allParticipants
+            ->filter(function ($participant) use ($currentUser) {
+                // Show accepted/active for display, but include current user's record regardless of status for checks
+                return in_array($participant->status, ['accepted', 'active']) ||
+                    ($currentUser && $participant->user_id === $currentUser->id);
+            })
+            ->map(function ($participant) {
+                return [
+                    'id' => $participant->id,
+                    'user_id' => $participant->user_id,
+                    'name' => $participant->user->name ?? 'Unknown',
+                    'username' => $participant->user->username ?? '',
+                    'role_id' => $participant->role_id,
+                    'role' => $participant->role ? [
+                        'id' => $participant->role->id,
+                        'key' => $participant->role->key,
+                        'label' => $participant->role->label,
+                    ] : null,
+                    'joined_at' => $participant->joined_at?->diffForHumans() ?? $participant->created_at?->diffForHumans(),
+                    'status' => $participant->status, // Include status for frontend checks
+                ];
+            })->values()->toArray();
+
+        // Content is already decoded as array due to model cast, but handle both cases
+        $content = $this->content;
+        if (is_string($content)) {
+            $content = json_decode($content, true) ?? [];
+        }
+        if (!is_array($content)) {
+            $content = [];
+        }
+
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'content' => json_decode($this->content, true),
+            'content' => $content,
             'type' => $this->type,
             'tags' => $this->tags->pluck('name')->toArray(),
             'allow_collab' => $this->allow_collab,
@@ -71,29 +119,13 @@ class ContributionResource extends JsonResource
             'is_interested' => $user ? $this->interests()->where('user_id', $user->id)->exists() : false,
             'is_bookmarked' => $user ? $user->bookmarkedContributions()->where('contribution_id', $this->id)->exists() : false,
             'thumbnail_url' => $thumbnailUrl,
-            
+
             // Combined attachments array
             'attachments' => $allAttachments,
 
-            // Team members (accepted participants only)
-            'participants' => $this->participants
-                ->where('status', 'accepted')
-                ->map(function ($participant) {
-                    return [
-                        'id' => $participant->id,
-                        'user_id' => $participant->user_id,
-                        'name' => $participant->user->name ?? 'Unknown',
-                        'username' => $participant->user->username ?? '',
-                        'role_id' => $participant->role_id,
-                        'role' => $participant->role ? [
-                            'id' => $participant->role->id,
-                            'key' => $participant->role->key,
-                            'label' => $participant->role->label,
-                        ] : null,
-                        'joined_at' => $participant->joined_at?->diffForHumans() ?? $participant->created_at?->diffForHumans(),
-                    ];
-                })->values()->toArray(),
-            
+            // Team members with status field included
+            'participants' => $participantsData,
+
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

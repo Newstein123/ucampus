@@ -16,12 +16,17 @@ export * from './auth/useUserProfileQuery';
 export * from './auth/useUserRegisterMutation';
 
 // Contribution hooks
+export * from './contribution/useApproveEditRequestMutation';
 export * from './contribution/useContributionInterestMutation';
 export * from './contribution/useContributionListInfiniteQuery';
 export * from './contribution/useContributionListQuery';
 export * from './contribution/useCreateContributionMutation';
+export * from './contribution/useCreateEditRequestMutation';
 export * from './contribution/useDeleteAttachmentMutation';
+export * from './contribution/useEditRequestsQuery';
 export * from './contribution/useLeaveProjectMutation';
+export * from './contribution/useMyEditRequestsQuery';
+export * from './contribution/useRejectEditRequestMutation';
 export * from './contribution/useUpdateContributionMutation';
 
 // Notification hooks

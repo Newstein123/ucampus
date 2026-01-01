@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\CollaborationController;
 use App\Http\Controllers\Api\ContributionController;
 use App\Http\Controllers\Api\DiscussionController;
+use App\Http\Controllers\Api\EditRequestController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Models\Notification;
@@ -74,6 +75,10 @@ Route::prefix('contributions')->group(function () {
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');
+    
+    // Edit Requests Routes
+    Route::post('/{id}/edit-requests', [EditRequestController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/{id}/edit-requests', [EditRequestController::class, 'index'])->middleware('auth:sanctum');
 });
 
 // Project leave route
@@ -94,6 +99,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Contribution Roles Routes
 Route::middleware('auth:sanctum')->get('/contribution-roles', [\App\Http\Controllers\Api\ContributionRoleController::class, 'index']);
+
+// Edit Requests Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/edit-requests/{id}/approve', [EditRequestController::class, 'approve']);
+    Route::post('/edit-requests/{id}/reject', [EditRequestController::class, 'reject']);
+    Route::get('/my/edit-requests', [EditRequestController::class, 'myRequests']);
+});
 
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->middleware('auth:sanctum');

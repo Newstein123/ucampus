@@ -1,10 +1,16 @@
 import {
+    ApproveEditRequestResponse,
     ContributionListRequest,
     ContributionResponse,
     ContributionSearchRequest,
     ContributionTrendingRequest,
     CreateContributionRequest,
     CreateContributionResponse,
+    CreateEditRequestRequest,
+    CreateEditRequestResponse,
+    EditRequestListResponse,
+    RejectEditRequestRequest,
+    RejectEditRequestResponse,
 } from '../types/contribution';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
@@ -146,6 +152,39 @@ export const contributionApi = {
             contribution_id: contributionId,
             left_reason: leftReason,
             left_action: leftAction,
+        });
+        return response.data;
+    },
+    // Edit Request APIs
+    async createEditRequest(contributionId: number, data: CreateEditRequestRequest): Promise<CreateEditRequestResponse> {
+        const response = await apiClient
+            .getClient()
+            .post<CreateEditRequestResponse>(endpoints.edit_request_create.replace('{id}', String(contributionId)), data);
+        return response.data;
+    },
+    async listEditRequests(contributionId: number, status?: string): Promise<EditRequestListResponse> {
+        const response = await apiClient
+            .getClient()
+            .get<EditRequestListResponse>(endpoints.edit_request_list.replace('{id}', String(contributionId)), {
+                params: status ? { status } : {},
+            });
+        return response.data;
+    },
+    async approveEditRequest(editRequestId: number): Promise<ApproveEditRequestResponse> {
+        const response = await apiClient
+            .getClient()
+            .post<ApproveEditRequestResponse>(endpoints.edit_request_approve.replace('{id}', String(editRequestId)));
+        return response.data;
+    },
+    async rejectEditRequest(editRequestId: number, data: RejectEditRequestRequest): Promise<RejectEditRequestResponse> {
+        const response = await apiClient
+            .getClient()
+            .post<RejectEditRequestResponse>(endpoints.edit_request_reject.replace('{id}', String(editRequestId)), data);
+        return response.data;
+    },
+    async getMyEditRequests(status?: string): Promise<EditRequestListResponse> {
+        const response = await apiClient.getClient().get<EditRequestListResponse>(endpoints.edit_request_my, {
+            params: status ? { status } : {},
         });
         return response.data;
     },

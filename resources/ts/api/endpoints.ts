@@ -40,6 +40,13 @@ export const endpoints = Object.freeze({
     project_leave: '/project/leave',
     contribution_roles: '/contribution-roles',
 
+    // Edit Request endpoints
+    edit_request_create: '/contributions/{id}/edit-requests',
+    edit_request_list: '/contributions/{id}/edit-requests',
+    edit_request_approve: '/edit-requests/{id}/approve',
+    edit_request_reject: '/edit-requests/{id}/reject',
+    edit_request_my: '/my/edit-requests',
+
     auth_social_login: '/auth/{provider}/login',
     auth_forgot_password: '/auth/forgot-password',
     auth_reset_password: '/auth/reset-password',

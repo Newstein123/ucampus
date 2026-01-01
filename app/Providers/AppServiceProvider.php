@@ -56,6 +56,14 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\DiscussionServiceInterface::class,
             \App\Services\DiscussionService::class
         );
+        $this->app->bind(
+            \App\Repositories\EditRequestRepositoryInterface::class,
+            \App\Repositories\EditRequestRepository::class
+        );
+        $this->app->bind(
+            \App\Services\EditRequestServiceInterface::class,
+            \App\Services\EditRequestService::class
+        );
     }
 
     /**

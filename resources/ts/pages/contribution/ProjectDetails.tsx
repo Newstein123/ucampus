@@ -32,11 +32,19 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
+import EditRequestsSection from '../../components/EditRequestsSection';
 import JoinTeamModal from '../../components/JoinTeamModal';
 import LeaveProjectModal from '../../components/LeaveProjectModal';
 import SinglePageLayout from '../../components/SinglePageLayout';
+import SubmitEditRequestModal from '../../components/SubmitEditRequestModal';
 import Toast from '../../components/Toast';
-import { useLeaveProjectMutation } from '../../hooks';
+import {
+    useApproveEditRequestMutation,
+    useCreateEditRequestMutation,
+    useEditRequestsQuery,
+    useLeaveProjectMutation,
+    useRejectEditRequestMutation,
+} from '../../hooks';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
 import { Contribution } from '../../types/contribution';
@@ -112,6 +120,20 @@ const ProjectDetails: React.FC = () => {
     const isOwner = currentUser?.id === project?.user?.id;
     // Check if user can join: must be logged in, project allows collaboration, and not the owner
     const canJoin = currentUser && project?.allow_collab && !isOwner;
+    // Check if user is an active collaborator (accepted or active status)
+    const isCollaborator =
+        currentUser &&
+        project?.participants?.some((member) => member.user_id === currentUser.id && (member.status === 'accepted' || member.status === 'active'));
+
+    // Edit Request state
+    const [isEditRequestModalOpen, setIsEditRequestModalOpen] = useState(false);
+    const { data: editRequestsData } = useEditRequestsQuery(parseInt(id || '0'));
+    const editRequests = editRequestsData?.data?.edit_requests || [];
+
+    // Edit Request mutations
+    const createEditRequestMutation = useCreateEditRequestMutation();
+    const approveEditRequestMutation = useApproveEditRequestMutation();
+    const rejectEditRequestMutation = useRejectEditRequestMutation();
 
     // Handle join request submission
     const handleJoinSubmit = async (joinReason: string, roleId: number) => {
@@ -161,16 +183,99 @@ const ProjectDetails: React.FC = () => {
 
     // Handle leave project
     const handleLeaveClick = () => {
+        handleMenuClose();
         setIsLeaveModalOpen(true);
     };
 
-    const handleLeaveConfirm = (leftReason?: string) => {
+    // Handle suggest edit request
+    const handleSuggestEditClick = () => {
+        handleMenuClose();
+        setIsEditRequestModalOpen(true);
+    };
+
+    const handleLeaveConfirm = async (leftReason?: string) => {
         if (!id) return;
         leaveProjectMutation.mutate({
             contributionId: parseInt(id),
             leftReason,
             leftAction: 'self',
         });
+    };
+
+    // Edit Request handlers
+    const handleSubmitEditRequest = async (contentKey: string, newValue: string, oldValue: string, note?: string) => {
+        if (!id) return;
+        createEditRequestMutation.mutate(
+            {
+                contributionId: parseInt(id),
+                data: {
+                    changes: {
+                        content_key: contentKey,
+                        new_value: newValue,
+                        old_value: oldValue,
+                    },
+                    note: note,
+                },
+            },
+            {
+                onSuccess: () => {
+                    setToastMessage('Edit request submitted successfully');
+                    setToastType('success');
+                    setToastOpen(true);
+                    setIsEditRequestModalOpen(false);
+                },
+                onError: (error) => {
+                    const errorMsg = error.response?.data?.message || 'Failed to submit edit request';
+                    setToastMessage(errorMsg);
+                    setToastType('error');
+                    setToastOpen(true);
+                },
+            },
+        );
+    };
+
+    const handleApproveEditRequest = (editRequestId: number) => {
+        approveEditRequestMutation.mutate(editRequestId, {
+            onSuccess: () => {
+                setToastMessage('Edit request approved successfully');
+                setToastType('success');
+                setToastOpen(true);
+                // Reload project to show updated content
+                if (id) {
+                    contributionApi.show(parseInt(id)).then((res) => {
+                        setProject(res.data);
+                    });
+                }
+            },
+            onError: (error) => {
+                const errorMsg = error.response?.data?.message || 'Failed to approve edit request';
+                setToastMessage(errorMsg);
+                setToastType('error');
+                setToastOpen(true);
+            },
+        });
+    };
+
+    const handleRejectEditRequest = (editRequestId: number, note?: string) => {
+        rejectEditRequestMutation.mutate(
+            {
+                editRequestId,
+                data: { note },
+            },
+            {
+                onSuccess: () => {
+                    setToastMessage('Edit request rejected');
+                    setToastType('success');
+                    setToastOpen(true);
+                },
+                onError: (error) => {
+                    const errorMsg = error.response?.data?.message || 'Failed to reject edit request';
+                    setToastMessage(errorMsg);
+                    setToastType('error');
+                    setToastOpen(true);
+                },
+            },
+        );
     };
 
     const handleDeleteConfirm = async () => {
@@ -212,7 +317,7 @@ const ProjectDetails: React.FC = () => {
         <SinglePageLayout
             title={t('Project Details')}
             rightElement={
-                isOwner ? (
+                isOwner || isCollaborator ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
                         <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
@@ -326,6 +431,28 @@ const ProjectDetails: React.FC = () => {
                     ) : null;
                 })()}
 
+                {/* Edit Requests Section (for owners) */}
+                {isOwner && editRequests.length > 0 && (
+                    <EditRequestsSection
+                        editRequests={editRequests}
+                        isOwner={isOwner}
+                        onApprove={handleApproveEditRequest}
+                        onReject={handleRejectEditRequest}
+                        isApproving={approveEditRequestMutation.isPending}
+                        isRejecting={rejectEditRequestMutation.isPending}
+                    />
+                )}
+
+                {/* Edit Requests Section (for collaborators to see their own requests) */}
+                {isCollaborator && !isOwner && editRequests.length > 0 && (
+                    <EditRequestsSection
+                        editRequests={editRequests.filter((req) => req.user.id === currentUser?.id)}
+                        isOwner={false}
+                        onApprove={() => {}}
+                        onReject={() => {}}
+                    />
+                )}
+
                 {/* Attachments */}
                 {project?.attachments && project.attachments.length > 0 && (
                     <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
@@ -392,15 +519,14 @@ const ProjectDetails: React.FC = () => {
                         <Typography sx={{ color: '#888', fontSize: 14 }}>No members yet</Typography>
                     </Box>
                 )}
-                {/* Check if user is already a team member */}
-                {currentUser && project?.participants?.some((member) => member.user_id === currentUser.id) ? (
+                {/* Action buttons moved to 3-dot menu */}
+                {canJoin && (
                     <Button
-                        variant="outlined"
-                        onClick={handleLeaveClick}
-                        disabled={leaveProjectMutation.isPending}
+                        variant="contained"
+                        onClick={() => setIsModalOpen(true)}
                         sx={{
-                            borderColor: '#f44336',
-                            color: '#f44336',
+                            bgcolor: '#1F8505',
+                            color: '#fff',
                             borderRadius: '25px',
                             textTransform: 'none',
                             fontWeight: 600,
@@ -408,58 +534,34 @@ const ProjectDetails: React.FC = () => {
                             py: 1.5,
                             px: 4,
                             width: '100%',
+                            position: 'relative',
                             '&:hover': {
-                                borderColor: '#d32f2f',
-                                bgcolor: '#fff5f5',
+                                bgcolor: '#165d04',
                             },
                         }}
                     >
-                        {leaveProjectMutation.isPending ? 'Leaving...' : 'Leave'}
-                    </Button>
-                ) : (
-                    canJoin && (
-                        <Button
-                            variant="contained"
-                            onClick={() => setIsModalOpen(true)}
+                        Join this team
+                        <Box
                             sx={{
+                                position: 'absolute',
+                                right: -8,
+                                top: -8,
                                 bgcolor: '#1F8505',
                                 color: '#fff',
-                                borderRadius: '25px',
-                                textTransform: 'none',
+                                borderRadius: '50%',
+                                width: 24,
+                                height: 24,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 12,
                                 fontWeight: 600,
-                                fontSize: 16,
-                                py: 1.5,
-                                px: 4,
-                                width: '100%',
-                                position: 'relative',
-                                '&:hover': {
-                                    bgcolor: '#165d04',
-                                },
+                                border: '2px solid #fff',
                             }}
                         >
-                            Join this team
-                            <Box
-                                sx={{
-                                    position: 'absolute',
-                                    right: -8,
-                                    top: -8,
-                                    bgcolor: '#1F8505',
-                                    color: '#fff',
-                                    borderRadius: '50%',
-                                    width: 24,
-                                    height: 24,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: 12,
-                                    fontWeight: 600,
-                                    border: '2px solid #fff',
-                                }}
-                            >
-                                <MailIcon sx={{ fontSize: 14 }} />
-                            </Box>
-                        </Button>
-                    )
+                            <MailIcon sx={{ fontSize: 14 }} />
+                        </Box>
+                    </Button>
                 )}
             </Box>
             {/* Engagement Metrics */}
@@ -493,7 +595,7 @@ const ProjectDetails: React.FC = () => {
             {/* Success/Error Toast */}
             <Toast open={toastOpen} message={toastMessage} type={toastType} onClose={() => setToastOpen(false)} />
 
-            {/* Owner Actions Menu */}
+            {/* Actions Menu - Different items for Owner vs Collaborator */}
             <Menu
                 anchorEl={menuAnchorEl}
                 open={isMenuOpen}
@@ -509,23 +611,48 @@ const ProjectDetails: React.FC = () => {
                 PaperProps={{
                     sx: {
                         borderRadius: 2,
-                        minWidth: 150,
+                        minWidth: 180,
                         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                     },
                 }}
             >
-                <MenuItem onClick={handleEdit} sx={{ py: 1.5 }}>
-                    <ListItemIcon>
-                        <EditIcon sx={{ color: '#1F8505' }} />
-                    </ListItemIcon>
-                    <Typography sx={{ fontWeight: 500 }}>Edit</Typography>
-                </MenuItem>
-                <MenuItem onClick={handleDeleteClick} sx={{ py: 1.5 }}>
-                    <ListItemIcon>
-                        <DeleteIcon sx={{ color: '#f44336' }} />
-                    </ListItemIcon>
-                    <Typography sx={{ fontWeight: 500, color: '#f44336' }}>Delete</Typography>
-                </MenuItem>
+                {/* Owner Menu Items */}
+                {isOwner && (
+                    <>
+                        <MenuItem onClick={handleEdit} sx={{ py: 1.5 }}>
+                            <ListItemIcon>
+                                <EditIcon sx={{ color: '#1F8505' }} />
+                            </ListItemIcon>
+                            <Typography sx={{ fontWeight: 500 }}>Edit</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleDeleteClick} sx={{ py: 1.5 }}>
+                            <ListItemIcon>
+                                <DeleteIcon sx={{ color: '#f44336' }} />
+                            </ListItemIcon>
+                            <Typography sx={{ fontWeight: 500, color: '#f44336' }}>Delete</Typography>
+                        </MenuItem>
+                    </>
+                )}
+
+                {/* Collaborator Menu Items */}
+                {isCollaborator && !isOwner && (
+                    <>
+                        <MenuItem onClick={handleSuggestEditClick} sx={{ py: 1.5 }}>
+                            <ListItemIcon>
+                                <EditIcon sx={{ color: '#1F8505' }} />
+                            </ListItemIcon>
+                            <Typography sx={{ fontWeight: 500 }}>Suggest an Edit</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleLeaveClick} disabled={leaveProjectMutation.isPending} sx={{ py: 1.5 }}>
+                            <ListItemIcon>
+                                <DeleteIcon sx={{ color: '#f44336' }} />
+                            </ListItemIcon>
+                            <Typography sx={{ fontWeight: 500, color: '#f44336' }}>
+                                {leaveProjectMutation.isPending ? 'Leaving...' : 'Leave'}
+                            </Typography>
+                        </MenuItem>
+                    </>
+                )}
             </Menu>
 
             {/* Delete Confirmation Modal */}
@@ -548,6 +675,17 @@ const ProjectDetails: React.FC = () => {
                 onSubmit={handleLeaveConfirm}
                 isLoading={leaveProjectMutation.isPending}
             />
+
+            {/* Submit Edit Request Modal */}
+            {project && (
+                <SubmitEditRequestModal
+                    open={isEditRequestModalOpen}
+                    currentContent={project.content}
+                    onClose={() => setIsEditRequestModalOpen(false)}
+                    onSubmit={handleSubmitEditRequest}
+                    isLoading={createEditRequestMutation.isPending}
+                />
+            )}
         </SinglePageLayout>
     );
 };

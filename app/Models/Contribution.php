@@ -80,4 +80,12 @@ class Contribution extends Model
     {
         return $this->hasMany(Discussion::class);
     }
+
+    /**
+     * Get all edit requests for this contribution
+     */
+    public function editRequests()
+    {
+        return $this->hasMany(ContributionEditRequest::class);
+    }
 }
