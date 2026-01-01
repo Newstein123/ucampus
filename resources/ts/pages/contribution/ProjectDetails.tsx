@@ -118,12 +118,17 @@ const ProjectDetails: React.FC = () => {
 
     // Check if current user is the project owner
     const isOwner = currentUser?.id === project?.user?.id;
-    // Check if user can join: must be logged in, project allows collaboration, and not the owner
-    const canJoin = currentUser && project?.allow_collab && !isOwner;
     // Check if user is an active collaborator (accepted or active status)
     const isCollaborator =
         currentUser &&
         project?.participants?.some((member) => member.user_id === currentUser.id && (member.status === 'accepted' || member.status === 'active'));
+    // Check if user has a pending request
+    const hasPendingRequest =
+        currentUser && project?.participants?.some((member) => member.user_id === currentUser.id && member.status === 'pending');
+    // Check if user can join: must be logged in, project allows collaboration, not the owner, and not already a collaborator
+    const canJoin = currentUser && project?.allow_collab && !isOwner && !isCollaborator;
+    // Show button if user can join OR has pending request (but hide if already joined)
+    const showJoinButton = canJoin || hasPendingRequest;
 
     // Edit Request state
     const [isEditRequestModalOpen, setIsEditRequestModalOpen] = useState(false);
@@ -520,12 +525,13 @@ const ProjectDetails: React.FC = () => {
                     </Box>
                 )}
                 {/* Action buttons moved to 3-dot menu */}
-                {canJoin && (
+                {showJoinButton && (
                     <Button
                         variant="contained"
                         onClick={() => setIsModalOpen(true)}
+                        disabled={!!hasPendingRequest}
                         sx={{
-                            bgcolor: '#1F8505',
+                            bgcolor: hasPendingRequest ? '#ccc' : '#1F8505',
                             color: '#fff',
                             borderRadius: '25px',
                             textTransform: 'none',
@@ -536,31 +542,37 @@ const ProjectDetails: React.FC = () => {
                             width: '100%',
                             position: 'relative',
                             '&:hover': {
-                                bgcolor: '#165d04',
+                                bgcolor: hasPendingRequest ? '#ccc' : '#165d04',
+                            },
+                            '&:disabled': {
+                                bgcolor: '#ccc',
+                                color: '#666',
                             },
                         }}
                     >
-                        Join this team
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                right: -8,
-                                top: -8,
-                                bgcolor: '#1F8505',
-                                color: '#fff',
-                                borderRadius: '50%',
-                                width: 24,
-                                height: 24,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 12,
-                                fontWeight: 600,
-                                border: '2px solid #fff',
-                            }}
-                        >
-                            <MailIcon sx={{ fontSize: 14 }} />
-                        </Box>
+                        {hasPendingRequest ? 'Your request is pending' : 'Join this team'}
+                        {!hasPendingRequest && (
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    right: -8,
+                                    top: -8,
+                                    bgcolor: '#1F8505',
+                                    color: '#fff',
+                                    borderRadius: '50%',
+                                    width: 24,
+                                    height: 24,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    border: '2px solid #fff',
+                                }}
+                            >
+                                <MailIcon sx={{ fontSize: 14 }} />
+                            </Box>
+                        )}
                     </Button>
                 )}
             </Box>
