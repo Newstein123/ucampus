@@ -64,6 +64,14 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\EditRequestServiceInterface::class,
             \App\Services\EditRequestService::class
         );
+        $this->app->bind(
+            \App\Repositories\ContributionNoteRepositoryInterface::class,
+            \App\Repositories\ContributionNoteRepository::class
+        );
+        $this->app->bind(
+            \App\Services\ContributionNoteServiceInterface::class,
+            \App\Services\ContributionNoteService::class
+        );
     }
 
     /**

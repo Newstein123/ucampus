@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\CollaborationController;
 use App\Http\Controllers\Api\ContributionController;
+use App\Http\Controllers\Api\ContributionNoteController;
 use App\Http\Controllers\Api\DiscussionController;
 use App\Http\Controllers\Api\EditRequestController;
 use App\Http\Controllers\Api\NotificationController;
@@ -105,6 +106,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/edit-requests/{id}/approve', [EditRequestController::class, 'approve']);
     Route::post('/edit-requests/{id}/reject', [EditRequestController::class, 'reject']);
     Route::get('/my/edit-requests', [EditRequestController::class, 'myRequests']);
+});
+
+// Contribution Notes Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('contribution-notes')->group(function () {
+        Route::get('/', [ContributionNoteController::class, 'index']);
+        Route::post('/', [ContributionNoteController::class, 'store']);
+        Route::put('/{id}', [ContributionNoteController::class, 'update']);
+        Route::delete('/{id}', [ContributionNoteController::class, 'destroy']);
+    });
 });
 
 Route::prefix('notifications')->group(function () {
