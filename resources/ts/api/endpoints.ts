@@ -47,6 +47,10 @@ export const endpoints = Object.freeze({
     edit_request_reject: '/edit-requests/{id}/reject',
     edit_request_my: '/my/edit-requests',
 
+    // Tag endpoints
+    tag_trending: '/tags/trending',
+    tag_search: '/tags/search',
+
     auth_social_login: '/auth/{provider}/login',
     auth_forgot_password: '/auth/forgot-password',
     auth_reset_password: '/auth/reset-password',

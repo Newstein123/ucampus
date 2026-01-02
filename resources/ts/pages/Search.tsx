@@ -99,21 +99,40 @@ const Search: React.FC = () => {
     const q = searchParams.get('q') || '';
     const [searchQuery, setSearchQuery] = useState(q);
     const [sortOption, setSortOption] = useState<SortOption>((searchParams.get('sort') as SortOption) || 'latest');
+
     const [filterTypes, setFilterTypes] = useState<FilterType[]>(() => {
         const typeParam = searchParams.get('type');
-        if (typeParam) {
+        // If type=tag, don't set filter types (tag search is special)
+        if (typeParam === 'tag') {
+            return ['idea', 'question', 'project'];
+        }
+        if (typeParam && ['idea', 'question', 'project'].includes(typeParam)) {
             return [typeParam as FilterType];
         }
         return ['idea', 'question', 'project'];
     });
 
-    // Update search query when URL param changes
+    // Update search query and filter types when URL params change
     useEffect(() => {
         setSearchQuery(q);
-    }, [q]);
+        const currentTypeParam = searchParams.get('type');
+        if (currentTypeParam === 'tag') {
+            // Don't change filter types for tag search
+        } else if (currentTypeParam && ['idea', 'question', 'project'].includes(currentTypeParam)) {
+            setFilterTypes([currentTypeParam as FilterType]);
+        } else if (!currentTypeParam) {
+            // Reset to all types if no type param
+            setFilterTypes(['idea', 'question', 'project']);
+        }
+    }, [q, searchParams]);
+
+    // Get type from URL params (reactive - recalculated on every render)
+    const urlTypeParam = searchParams.get('type');
+    const isTagSearch = urlTypeParam === 'tag';
 
     // API only supports single type, so if multiple types are selected, don't filter by type
-    const type = filterTypes.length === 1 ? filterTypes[0] : undefined;
+    // If it's a tag search, use 'tag' as the type; otherwise use filter types
+    const type = isTagSearch ? 'tag' : filterTypes.length === 1 ? filterTypes[0] : undefined;
 
     const { data: searchData, isLoading } = useContributionSearchQuery({
         q: q || undefined,
@@ -142,16 +161,41 @@ const Search: React.FC = () => {
         },
     });
 
+    // Track previous sort and filter values to detect actual changes
+    const prevSortRef = React.useRef(sortOption);
+    const prevFiltersRef = React.useRef(filterTypes);
+
     useEffect(() => {
-        // Update URL params when filters change
+        // Only update URL when sort or filters actually change (not on initial mount or query changes)
+        const sortChanged = prevSortRef.current !== sortOption;
+        const filtersChanged = JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filterTypes);
+
+        if (!sortChanged && !filtersChanged) {
+            // No actual change to sort/filters, skip URL update
+            return;
+        }
+
+        // Update refs
+        prevSortRef.current = sortOption;
+        prevFiltersRef.current = filterTypes;
+
+        // Update URL params when filters or sort change
+        const currentTypeParam = searchParams.get('type');
+        const currentQ = searchParams.get('q');
         const params = new URLSearchParams();
-        if (q) params.set('q', q);
+        // Preserve current query from URL
+        if (currentQ) params.set('q', currentQ);
         if (sortOption !== 'latest') params.set('sort', sortOption);
-        if (filterTypes.length === 1) {
+
+        // Only preserve type=tag if it was already set (user is just changing filters/sort on tag search)
+        if (currentTypeParam === 'tag') {
+            // Preserve tag search type when only filters/sort change
+            params.set('type', 'tag');
+        } else if (filterTypes.length === 1) {
             params.set('type', filterTypes[0]);
         }
         setSearchParams(params, { replace: true });
-    }, [q, sortOption, filterTypes, setSearchParams]);
+    }, [sortOption, filterTypes, setSearchParams, searchParams]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -159,9 +203,12 @@ const Search: React.FC = () => {
             const params = new URLSearchParams();
             params.set('q', searchQuery.trim());
             if (sortOption !== 'latest') params.set('sort', sortOption);
+            // Manual search form submit should NOT preserve type=tag
+            // Only use filter types for regular search
             if (filterTypes.length === 1) {
                 params.set('type', filterTypes[0]);
             }
+            // Explicitly remove type=tag for manual searches
             setSearchParams(params, { replace: true });
         }
     };

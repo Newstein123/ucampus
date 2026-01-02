@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
+    const ContibutionDetailUrl = 'contribution/';
     use HasFactory;
 
     protected $fillable = [

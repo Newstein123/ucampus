@@ -177,17 +177,22 @@ class ContributionService implements ContributionServiceInterface
                 $contribution->interests()->attach($userId);
                 $message = 'Contribution interest added successfully';
 
-                // Send notification only when adding interest
-                $this->notificationService->create([
-                    'recipient_user_id' => $contribution->user_id,
-                    'contribution_id' => $data['contribution_id'],
-                    'type' => 'interest',
-                    'source_id' => $data['contribution_id'],
-                    'source_type' => \App\Models\Contribution::class,
-                    'message' => 'You have a new interest in your contribution',
-                    'redirect_url' => route('contributions.show', $data['contribution_id']),
-                    'sender_user_id' => $data['user_id'],
-                ]);
+                // Send notification only when adding interest and user is not the owner
+                if ($contribution->user_id !== $userId) {
+                    // Get relative path for contribution based on type
+                    $redirectPath = $this->getContributionRedirectPath($data['contribution_id'], $contribution->type);
+
+                    $this->notificationService->create([
+                        'recipient_user_id' => $contribution->user_id,
+                        'contribution_id' => $data['contribution_id'],
+                        'type' => 'interest',
+                        'source_id' => $data['contribution_id'],
+                        'source_type' => \App\Models\Contribution::class,
+                        'message' => 'You have a new interest in your contribution',
+                        'redirect_url' => $redirectPath,
+                        'sender_user_id' => $data['user_id'],
+                    ]);
+                }
             }
 
             return [
@@ -296,15 +301,15 @@ class ContributionService implements ContributionServiceInterface
     {
         try {
             $attachment = \App\Models\ContributionAttachment::findOrFail($attachmentId);
-            
+
             // Delete file from storage
             if ($attachment->file_path) {
                 $this->fileService->deleteFile($attachment->file_path);
             }
-            
+
             // Delete database record
             $attachment->delete();
-            
+
             return true;
         } catch (\Exception $e) {
             throw new \Exception('Failed to delete attachment: ' . $e->getMessage());
@@ -363,6 +368,9 @@ class ContributionService implements ContributionServiceInterface
             // Send notification to project owner if user left themselves
             if ($leftAction === 'self' && !$isOwner) {
                 $participantUser = \App\Models\User::find($userId);
+                // Get relative path for contribution based on type
+                $redirectPath = $this->getContributionRedirectPath($contributionId, $contribution->type);
+
                 $this->notificationService->create([
                     'recipient_user_id' => $contribution->user_id,
                     'contribution_id' => $contributionId,
@@ -370,7 +378,7 @@ class ContributionService implements ContributionServiceInterface
                     'source_id' => $participant->id,
                     'source_type' => \App\Models\ContributionParticipant::class,
                     'message' => ($participantUser ? $participantUser->name : 'A participant') . ' left your project',
-                    'redirect_url' => route('contributions.show', $contributionId),
+                    'redirect_url' => $redirectPath,
                     'sender_user_id' => $userId,
                 ]);
             }
@@ -381,5 +389,24 @@ class ContributionService implements ContributionServiceInterface
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    /**
+     * Get relative redirect path for contribution based on type
+     */
+    private function getContributionRedirectPath(int $contributionId, ?string $type = null): string
+    {
+        // If type is provided, use it; otherwise fetch from contribution
+        if (!$type) {
+            $contribution = $this->contributionRepository->find($contributionId);
+            $type = $contribution?->type;
+        }
+
+        return match ($type) {
+            'project' => "/projects/{$contributionId}",
+            'idea' => "/ideas/{$contributionId}",
+            'question' => "/questions/{$contributionId}",
+            default => "/projects/{$contributionId}", // Default to projects
+        };
     }
 }

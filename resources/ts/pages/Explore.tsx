@@ -3,15 +3,16 @@ import { Box, Card, CardContent, CardMedia, Chip, CircularProgress, IconButton, 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { useTagSearchQuery, useTrendingTagsQuery } from '../hooks';
 import useContributionTrendingQuery from '../hooks/contribution/useContributionTrendingQuery';
 import { Contribution } from '../types/contribution';
 
-const trendingTags = ['#EDUCATION', '#TECHNOLOGY', '#CULTURE', '#INNOVATION', '#COMMUNITY'];
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
 const Explore: React.FC = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
+    const [tagSearchQuery, setTagSearchQuery] = useState('');
 
     // Fetch trending ideas (5 items)
     const { data: trendingIdeasData, isLoading: isLoadingIdeas } = useContributionTrendingQuery({
@@ -27,6 +28,14 @@ const Explore: React.FC = () => {
         page: 1,
     });
 
+    // Fetch trending tags
+    const { data: trendingTagsData, isLoading: isLoadingTags } = useTrendingTagsQuery(10);
+    const trendingTags = trendingTagsData?.data || [];
+
+    // Fetch tag search results
+    const { data: tagSearchData, isLoading: isLoadingTagSearch } = useTagSearchQuery(tagSearchQuery, 20, tagSearchQuery.trim().length > 0);
+    const tagSearchResults = tagSearchData?.data || [];
+
     const trendingIdeas = trendingIdeasData?.data || [];
     const trendingQuestions = trendingQuestionsData?.data || [];
 
@@ -35,6 +44,10 @@ const Explore: React.FC = () => {
         if (searchQuery.trim()) {
             navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
         }
+    };
+
+    const handleTagClick = (tagName: string) => {
+        navigate(`/search?q=${encodeURIComponent(tagName)}&type=tag`);
     };
 
     const getIdeaDescription = (item: Contribution) => {
@@ -70,20 +83,82 @@ const Explore: React.FC = () => {
                     placeholder="Search"
                     inputProps={{ 'aria-label': 'search' }}
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setTagSearchQuery(e.target.value);
+                    }}
                 />
                 <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
                     <SearchIcon />
                 </IconButton>
             </Paper>
+            {/* Tag Search Results */}
+            {tagSearchQuery.trim().length > 0 && (
+                <Box sx={{ px: 2, mb: 2 }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: 16, mb: 1 }}>Tag Search Results</Typography>
+                    {isLoadingTagSearch ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                            <CircularProgress size={24} sx={{ color: '#1F8505' }} />
+                        </Box>
+                    ) : (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {tagSearchResults.length > 0 ? (
+                                tagSearchResults.map((tag) => (
+                                    <Chip
+                                        key={tag.id}
+                                        label={`#${tag.name.toUpperCase()}`}
+                                        onClick={() => handleTagClick(tag.name)}
+                                        sx={{
+                                            bgcolor: '#e8f5e9',
+                                            color: '#1F8505',
+                                            fontWeight: 600,
+                                            fontSize: 14,
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                bgcolor: '#c8e6c9',
+                                            },
+                                        }}
+                                    />
+                                ))
+                            ) : (
+                                <Typography sx={{ color: '#888', fontSize: 14, py: 1 }}>No tags found</Typography>
+                            )}
+                        </Box>
+                    )}
+                </Box>
+            )}
             {/* Trending Tags */}
             <Box sx={{ px: 2, mb: 2 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 16, mb: 1 }}>Trending Tags</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {trendingTags.map((tag) => (
-                        <Chip key={tag} label={tag} sx={{ bgcolor: '#e8f5e9', color: '#1F8505', fontWeight: 600, fontSize: 14 }} />
-                    ))}
-                </Box>
+                {isLoadingTags ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                        <CircularProgress size={24} sx={{ color: '#1F8505' }} />
+                    </Box>
+                ) : (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {trendingTags.length > 0 ? (
+                            trendingTags.map((tag) => (
+                                <Chip
+                                    key={tag.id}
+                                    label={`#${tag.name.toUpperCase()}`}
+                                    onClick={() => handleTagClick(tag.name)}
+                                    sx={{
+                                        bgcolor: '#e8f5e9',
+                                        color: '#1F8505',
+                                        fontWeight: 600,
+                                        fontSize: 14,
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            bgcolor: '#c8e6c9',
+                                        },
+                                    }}
+                                />
+                            ))
+                        ) : (
+                            <Typography sx={{ color: '#888', fontSize: 14, py: 1 }}>No trending tags found</Typography>
+                        )}
+                    </Box>
+                )}
             </Box>
             {/* Trending Ideas */}
             <Box sx={{ px: 2, mb: 2 }}>

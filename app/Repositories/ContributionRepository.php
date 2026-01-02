@@ -99,13 +99,23 @@ class ContributionRepository implements ContributionRepositoryInterface
             ->with(['user', 'tags'])
             ->where('is_public', true);
 
-        // Filter by type
-        if (isset($filters['type']) && !empty($filters['type'])) {
+        // Check if this is a tag search
+        $isTagSearch = isset($filters['type']) && $filters['type'] === 'tag';
+
+        // Filter by type (but exclude 'tag' as it's a special search type)
+        if (isset($filters['type']) && !empty($filters['type']) && !$isTagSearch) {
             $query->where('type', $filters['type']);
         }
 
-        // Freeword search (searches title and content)
-        if (isset($filters['q']) && !empty($filters['q'])) {
+        // Tag search: search contributions that have tags matching the query
+        if ($isTagSearch && isset($filters['q']) && !empty($filters['q'])) {
+            $searchTerm = '%' . $filters['q'] . '%';
+            $query->whereHas('tags', function (Builder $q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm);
+            });
+        }
+        // Freeword search (searches title and content) - only if not tag search
+        elseif (isset($filters['q']) && !empty($filters['q'])) {
             $searchTerm = '%' . $filters['q'] . '%';
             $query->where(function (Builder $q) use ($searchTerm) {
                 $q->where('title', 'like', $searchTerm)

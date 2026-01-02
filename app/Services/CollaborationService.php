@@ -88,6 +88,9 @@ class CollaborationService implements CollaborationServiceInterface
                             : "Request from {$participant->user->name} to join \"{$participant->contribution->title}\" was rejected",
                     ]);
                 
+                // Get relative path for contribution based on type
+                $redirectPath = $this->getContributionRedirectPath($participant->contribution_id, $participant->contribution->type);
+                
                 // Create notification for requester
                 $notification = Notification::create([
                     'recipient_user_id' => $participant->user_id,
@@ -98,7 +101,7 @@ class CollaborationService implements CollaborationServiceInterface
                     'message' => $status === 1 
                         ? "You've been accepted to join the project \"{$participant->contribution->title}\""
                         : "Your request to join the project \"{$participant->contribution->title}\" was rejected.",
-                    'redirect_url' => "/contribution/{$participant->contribution_id}",
+                    'redirect_url' => $redirectPath,
                     'is_read' => false,
                 ]);
 
@@ -135,5 +138,24 @@ class CollaborationService implements CollaborationServiceInterface
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    /**
+     * Get relative redirect path for contribution based on type
+     */
+    private function getContributionRedirectPath(int $contributionId, ?string $type = null): string
+    {
+        // If type is provided, use it; otherwise fetch from contribution
+        if (!$type) {
+            $contribution = Contribution::find($contributionId);
+            $type = $contribution?->type;
+        }
+        
+        return match ($type) {
+            'project' => "/projects/{$contributionId}",
+            'idea' => "/ideas/{$contributionId}",
+            'question' => "/questions/{$contributionId}",
+            default => "/projects/{$contributionId}", // Default to projects
+        };
     }
 }

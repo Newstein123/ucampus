@@ -72,6 +72,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\ContributionNoteServiceInterface::class,
             \App\Services\ContributionNoteService::class
         );
+        $this->app->bind(
+            \App\Services\TagServiceInterface::class,
+            \App\Services\TagService::class
+        );
     }
 
     /**

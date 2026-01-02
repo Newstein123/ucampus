@@ -32,7 +32,7 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     px: 2,
-                    pt: 5,
+                    pt: 1,
                     pb: 0,
                     position: 'sticky',
                     top: 0,

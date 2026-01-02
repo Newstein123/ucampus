@@ -150,6 +150,9 @@ const ProjectDetails: React.FC = () => {
             setToastMessage('Your request was sent!');
             setToastType('success');
             setToastOpen(true);
+            // Reload project data to reflect the new pending status
+            const res = await contributionApi.show(parseInt(id));
+            setProject(res.data);
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
             const errorMsg =

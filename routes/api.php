@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\DiscussionController;
 use App\Http\Controllers\Api\EditRequestController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
-use App\Models\Notification;
+use App\Http\Controllers\Api\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
@@ -76,7 +76,7 @@ Route::prefix('contributions')->group(function () {
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');
-    
+
     // Edit Requests Routes
     Route::post('/{id}/edit-requests', [EditRequestController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/{id}/edit-requests', [EditRequestController::class, 'index'])->middleware('auth:sanctum');
@@ -100,6 +100,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Contribution Roles Routes
 Route::middleware('auth:sanctum')->get('/contribution-roles', [\App\Http\Controllers\Api\ContributionRoleController::class, 'index']);
+
+// Tag Routes
+Route::get('/tags/trending', [TagController::class, 'trending']);
+Route::get('/tags/search', [TagController::class, 'search']);
 
 // Edit Requests Routes
 Route::middleware('auth:sanctum')->group(function () {

@@ -28,6 +28,8 @@ export * from './contribution/useLeaveProjectMutation';
 export * from './contribution/useMyEditRequestsQuery';
 export * from './contribution/useRejectEditRequestMutation';
 export * from './contribution/useUpdateContributionMutation';
+export * from './tag/useTagSearchQuery';
+export * from './tag/useTrendingTagsQuery';
 
 // Notification hooks
 export * from './notification/useNotificationListQuery';

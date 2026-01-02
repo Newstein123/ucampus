@@ -140,7 +140,15 @@ export const contributionApi = {
         return response.data;
     },
     async search(data: ContributionSearchRequest): Promise<ContributionResponse> {
-        const response = await apiClient.getClient().get<ContributionResponse>(endpoints.contribution_search, { params: data });
+        // Build params object, explicitly including type if present
+        const params: Record<string, unknown> = {};
+        if (data.q) params.q = data.q;
+        if (data.type) params.type = data.type;
+        if (data.sort) params.sort = data.sort;
+        if (data.per_page) params.per_page = data.per_page;
+        if (data.page) params.page = data.page;
+
+        const response = await apiClient.getClient().get<ContributionResponse>(endpoints.contribution_search, { params });
         return response.data;
     },
     async leaveProject(

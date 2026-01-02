@@ -22,7 +22,7 @@ class SearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'nullable|string|in:idea,question,guide,research,project',
+            'type' => 'nullable|string|in:idea,question,guide,research,project,tag',
             'q' => 'nullable|string|max:255',
             'sort' => 'nullable|string|in:latest,oldest,most_liked,most_viewed,most_commented',
             'per_page' => 'nullable|integer|min:1|max:50',

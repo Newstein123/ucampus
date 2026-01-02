@@ -1,29 +1,30 @@
-import { KeyboardArrowRight } from '@mui/icons-material';
 import { Box, Button, MobileStepper, Paper, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { selectUser } from '../store/slices/authSlice';
 
 const Onboarding: React.FC = () => {
     const [activeStep, setActiveStep] = useState(0);
-    const user = useSelector(selectUser);
-    console.log(user);
     const navigate = useNavigate();
     const steps = [
         {
             title: 'What is U Campus?',
             content:
                 'U Campus is envisioned as a free, community-driven digital platform uniquely designed to empower Myanmar youth. It will serve as a dynamic space for sharing ideas, exploring deep questions, and collaborating on real-world projects that foster learning, creativity, and tangible impact.',
+            image: '/assets/onboarding/intro.png',
+            imageAlt: 'What is U Campus?',
         },
         {
             title: 'Join Our Community',
             content:
                 'Connect with like-minded individuals, share your ideas, and collaborate on projects that make a difference. Our platform is designed to foster creativity and innovation.',
+            image: '/assets/onboarding/join-our-community.png',
+            imageAlt: 'Join Our Community',
         },
         {
             title: 'Get Started',
             content: "You're all set! Start exploring the platform, connect with others, and begin your journey of learning and collaboration.",
+            image: '/assets/onboarding/get-started.png',
+            imageAlt: 'Get Started',
         },
     ];
 
@@ -60,30 +61,16 @@ const Onboarding: React.FC = () => {
 
             <Box
                 sx={{
-                    bgcolor: '#d9f5d6',
                     width: '90%',
-                    height: 220,
                     borderRadius: 3,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     mb: 3,
+                    overflow: 'hidden',
                 }}
             >
-                <Box
-                    sx={{
-                        width: 48,
-                        height: 48,
-                        bgcolor: '#e6f7e6',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#b0c4b1',
-                    }}
-                >
-                    <KeyboardArrowRight fontSize="large" />
-                </Box>
+                <img src={steps[activeStep].image} alt={steps[activeStep].imageAlt} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </Box>
 
             <MobileStepper

@@ -69,14 +69,35 @@ const Notifications: React.FC = () => {
         }
 
         if (notification.redirect_url) {
-            const url = notification.redirect_url;
-            if (url.startsWith('/')) {
-                navigate(url);
-            } else if (url.startsWith('http://') || url.startsWith('https://')) {
-                window.open(url, '_blank');
-            } else {
-                navigate(url);
-            }
+            const url = notification.redirect_url.trim();
+            console.log('URL:', url);
+
+            // if (url.startsWith('/')) {
+            //     // Relative path - navigate within app
+            //     navigate(url);
+            // } else if (url.startsWith('http://') || url.startsWith('https://')) {
+            //     // Full URL - check if it's from same origin
+            //     try {
+            //         const urlObj = new URL(url);
+            //         const currentOrigin = window.location.origin;
+
+            //         if (urlObj.origin === currentOrigin) {
+            //             // Same origin - extract path and navigate within app
+            //             const path = urlObj.pathname + urlObj.search + urlObj.hash;
+            //             navigate(path);
+            //         } else {
+            //             // External URL - open in new tab
+            //             window.open(url, '_blank');
+            //         }
+            //     } catch (error) {
+            //         // Invalid URL - try to navigate as-is
+            //         console.error('Error parsing URL:', error);
+            //         navigate(url);
+            //     }
+            // } else {
+            //     // Fallback - navigate as-is (treat as relative path)
+            //     navigate(url.startsWith('/') ? url : '/' + url);
+            // }
         }
     };
 

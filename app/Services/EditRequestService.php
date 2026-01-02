@@ -38,6 +38,9 @@ class EditRequestService implements EditRequestServiceInterface
                 'status' => 'pending',
             ], ['user']);
 
+            // Get relative path for contribution based on type
+            $redirectPath = $this->getContributionRedirectPath($contributionId, $contribution->type);
+
             // Send notification to project owner
             $this->notificationService->create([
                 'recipient_user_id' => $contribution->user_id,
@@ -46,7 +49,7 @@ class EditRequestService implements EditRequestServiceInterface
                 'source_id' => $editRequest->id,
                 'source_type' => ContributionEditRequest::class,
                 'message' => 'A collaborator submitted an edit request for your project',
-                'redirect_url' => route('contributions.show', $contributionId),
+                'redirect_url' => $redirectPath,
                 'sender_user_id' => $userId,
             ]);
 
@@ -141,7 +144,12 @@ class EditRequestService implements EditRequestServiceInterface
 
             DB::commit();
 
+            // Get contribution to determine type for redirect path
+            $contribution = $this->contributionRepository->find($editRequest->contribution_id);
+            $redirectPath = $this->getContributionRedirectPath($editRequest->contribution_id, $contribution?->type);
+
             // Send notification to requester
+
             $this->notificationService->create([
                 'recipient_user_id' => $editRequest->user_id,
                 'contribution_id' => $editRequest->contribution_id,
@@ -149,7 +157,7 @@ class EditRequestService implements EditRequestServiceInterface
                 'source_id' => $editRequestId,
                 'source_type' => ContributionEditRequest::class,
                 'message' => 'Your edit request has been approved',
-                'redirect_url' => route('contributions.show', $editRequest->contribution_id),
+                'redirect_url' => $redirectPath,
                 'sender_user_id' => $reviewerId,
             ]);
 
@@ -180,6 +188,10 @@ class EditRequestService implements EditRequestServiceInterface
                 'review_note' => $note,
             ], ['reviewer']);
 
+            // Get contribution to determine type for redirect path
+            $contribution = $this->contributionRepository->find($editRequest->contribution_id);
+            $redirectPath = $this->getContributionRedirectPath($editRequest->contribution_id, $contribution?->type);
+
             // Send notification to requester
             $this->notificationService->create([
                 'recipient_user_id' => $editRequest->user_id,
@@ -188,7 +200,7 @@ class EditRequestService implements EditRequestServiceInterface
                 'source_id' => $editRequestId,
                 'source_type' => ContributionEditRequest::class,
                 'message' => 'Your edit request has been rejected',
-                'redirect_url' => route('contributions.show', $editRequest->contribution_id),
+                'redirect_url' => $redirectPath,
                 'sender_user_id' => $reviewerId,
             ]);
 
@@ -207,5 +219,24 @@ class EditRequestService implements EditRequestServiceInterface
             Log::error('Failed to get user edit requests: ' . $e->getMessage());
             throw new \Exception('Failed to get user edit requests: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get relative redirect path for contribution based on type
+     */
+    private function getContributionRedirectPath(int $contributionId, ?string $type = null): string
+    {
+        // If type is provided, use it; otherwise fetch from contribution
+        if (!$type) {
+            $contribution = $this->contributionRepository->find($contributionId);
+            $type = $contribution?->type;
+        }
+
+        return match ($type) {
+            'project' => "/projects/{$contributionId}",
+            'idea' => "/ideas/{$contributionId}",
+            'question' => "/questions/{$contributionId}",
+            default => "/projects/{$contributionId}", // Default to projects
+        };
     }
 }
