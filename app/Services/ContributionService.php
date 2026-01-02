@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\ContributionRepositoryInterface;
 use App\Repositories\TagRepositoryInterface;
+use Illuminate\Support\Facades\Cache;
 
 class ContributionService implements ContributionServiceInterface
 {
@@ -201,6 +202,22 @@ class ContributionService implements ContributionServiceInterface
 
     public function find(int $id)
     {
+        return $this->contributionRepository->find($id);
+    }
+
+    public function view(int $id)
+    {
+        // Use cache to prevent double counting (e.g. strict mode or rapid refreshes)
+        // Key: view_lock_IP_ID
+        $ip = request()->ip();
+        $key = "view_lock_{$ip}_{$id}";
+        
+        if (!Cache::has($key)) {
+            $this->contributionRepository->incrementViews($id);
+            // Lock for 10 seconds
+            Cache::put($key, true, 3);
+        }
+        
         return $this->contributionRepository->find($id);
     }
 

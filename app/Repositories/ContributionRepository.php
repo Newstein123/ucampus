@@ -173,4 +173,12 @@ class ContributionRepository implements ContributionRepositoryInterface
 
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
+
+    public function incrementViews(int $id): void
+    {
+        $contribution = Contribution::find($id);
+        if ($contribution) {
+            $contribution->increment('views_count');
+        }
+    }
 }

@@ -433,7 +433,13 @@ const Login: React.FC = () => {
                 </Button>
 
                 <Typography align="center" sx={{ fontSize: 15, mb: 2 }}>
-                    Not a member? <span onClick={() => navigate('/register')}>Register now</span>
+                    Not a member?{' '}
+                    <span
+                        onClick={() => navigate('/register')}
+                        style={{ color: '#188600', fontWeight: 600, textDecoration: 'none', cursor: 'pointer' }}
+                    >
+                        Register now
+                    </span>
                 </Typography>
 
                 <Divider sx={{ my: 2 }}>Or continue with</Divider>
