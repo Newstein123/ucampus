@@ -27,5 +27,7 @@ interface ContributionServiceInterface
 
     public function trending(array $data = []);
 
+    public function view(int $id);
+
     public function leaveProject(array $data = []);
 }

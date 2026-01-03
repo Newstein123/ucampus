@@ -1,4 +1,5 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -17,6 +18,7 @@ import { useDiscussions } from '../../hooks/useDiscussions';
 
 import { contributionApi } from '../../api/contribution';
 import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
+import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
 import { Contribution } from '../../types/contribution';
 
 const QuestionDetails: React.FC = () => {
@@ -66,6 +68,29 @@ const QuestionDetails: React.FC = () => {
         load();
     }, [id]);
 
+    // Bookmark mutation
+    const bookmarkMutation = useContributionBookmarkMutation({
+        onSuccess: () => {
+            if (question) {
+                setQuestion({
+                    ...question,
+                    is_bookmarked: !question.is_bookmarked,
+                });
+            }
+        },
+        onError: (error) => {
+            console.error('Failed to update bookmark:', error);
+            setToastMessage('Failed to update bookmark');
+            setToastType('error');
+            setToastOpen(true);
+        },
+    });
+
+    const handleBookmark = () => {
+        if (!id) return;
+        bookmarkMutation.mutate(parseInt(id));
+    };
+
     const isOwner = userProfile?.data?.id === question?.user?.id;
 
     // Menu handlers
@@ -114,13 +139,37 @@ const QuestionDetails: React.FC = () => {
             rightElement={
                 isOwner ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                        <IconButton
+                            size="small"
+                            onClick={handleBookmark}
+                            disabled={bookmarkMutation.isPending}
+                            sx={{
+                                color: question?.is_bookmarked ? '#1F8505' : '#ccc',
+                                '&:hover': {
+                                    color: question?.is_bookmarked ? '#165d04' : '#1F8505',
+                                },
+                            }}
+                        >
+                            {question?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                        </IconButton>
                         <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
                             <MoreVertIcon sx={{ fontSize: 20 }} />
                         </IconButton>
                     </Box>
                 ) : (
-                    <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                    <IconButton
+                        size="small"
+                        onClick={handleBookmark}
+                        disabled={bookmarkMutation.isPending}
+                        sx={{
+                            color: question?.is_bookmarked ? '#1F8505' : '#ccc',
+                            '&:hover': {
+                                color: question?.is_bookmarked ? '#165d04' : '#1F8505',
+                            },
+                        }}
+                    >
+                        {question?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                    </IconButton>
                 )
             }
         >

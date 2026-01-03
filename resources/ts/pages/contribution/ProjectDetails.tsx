@@ -1,4 +1,5 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -45,6 +46,7 @@ import {
     useLeaveProjectMutation,
     useRejectEditRequestMutation,
 } from '../../hooks';
+import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
 import { Contribution } from '../../types/contribution';
@@ -139,6 +141,32 @@ const ProjectDetails: React.FC = () => {
     const createEditRequestMutation = useCreateEditRequestMutation();
     const approveEditRequestMutation = useApproveEditRequestMutation();
     const rejectEditRequestMutation = useRejectEditRequestMutation();
+
+    // Bookmark mutation
+    const bookmarkMutation = useContributionBookmarkMutation({
+        onSuccess: () => {
+            if (project) {
+                // Manually update local state for immediate feedback if needed,
+                // though usually we relying on invalidation or just the optimistic update logic inside hook/cache
+                // But here since 'project' is local state, we might need to toggle it if not using query cache for this specific detailed view
+                setProject({
+                    ...project,
+                    is_bookmarked: !project.is_bookmarked,
+                });
+            }
+        },
+        onError: (error) => {
+            console.error('Failed to update bookmark:', error);
+            setToastMessage('Failed to update bookmark');
+            setToastType('error');
+            setToastOpen(true);
+        },
+    });
+
+    const handleBookmark = () => {
+        if (!id) return;
+        bookmarkMutation.mutate(parseInt(id));
+    };
 
     // Handle join request submission
     const handleJoinSubmit = async (joinReason: string, roleId: number) => {
@@ -327,13 +355,37 @@ const ProjectDetails: React.FC = () => {
             rightElement={
                 isOwner || isCollaborator ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                        <IconButton
+                            size="small"
+                            onClick={handleBookmark}
+                            disabled={bookmarkMutation.isPending}
+                            sx={{
+                                color: project?.is_bookmarked ? '#1F8505' : '#ccc',
+                                '&:hover': {
+                                    color: project?.is_bookmarked ? '#165d04' : '#1F8505',
+                                },
+                            }}
+                        >
+                            {project?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                        </IconButton>
                         <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
                             <MoreVertIcon sx={{ fontSize: 20 }} />
                         </IconButton>
                     </Box>
                 ) : (
-                    <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                    <IconButton
+                        size="small"
+                        onClick={handleBookmark}
+                        disabled={bookmarkMutation.isPending}
+                        sx={{
+                            color: project?.is_bookmarked ? '#1F8505' : '#ccc',
+                            '&:hover': {
+                                color: project?.is_bookmarked ? '#165d04' : '#1F8505',
+                            },
+                        }}
+                    >
+                        {project?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                    </IconButton>
                 )
             }
         >
@@ -456,8 +508,8 @@ const ProjectDetails: React.FC = () => {
                     <EditRequestsSection
                         editRequests={editRequests.filter((req) => req.user.id === currentUser?.id)}
                         isOwner={false}
-                        onApprove={() => {}}
-                        onReject={() => {}}
+                        onApprove={() => { }}
+                        onReject={() => { }}
                     />
                 )}
 
@@ -583,11 +635,11 @@ const ProjectDetails: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, p: 2, pb: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <FavoriteBorderIcon sx={{ color: '#666', fontSize: 20 }} />
-                    <Typography sx={{ fontSize: 14, color: '#666' }}>{10}</Typography>
+                    <Typography sx={{ fontSize: 14, color: '#666' }}>{project?.likes_count || 0}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <VisibilityIcon sx={{ color: '#666', fontSize: 20 }} />
-                    <Typography sx={{ fontSize: 14, color: '#666' }}>{0}</Typography>
+                    <Typography sx={{ fontSize: 14, color: '#666' }}>{project?.views_count || 0}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <ChatBubbleOutlineIcon sx={{ color: '#666', fontSize: 20 }} />
