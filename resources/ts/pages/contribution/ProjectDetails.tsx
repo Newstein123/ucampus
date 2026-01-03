@@ -508,8 +508,8 @@ const ProjectDetails: React.FC = () => {
                     <EditRequestsSection
                         editRequests={editRequests.filter((req) => req.user.id === currentUser?.id)}
                         isOwner={false}
-                        onApprove={() => { }}
-                        onReject={() => { }}
+                        onApprove={() => {}}
+                        onReject={() => {}}
                     />
                 )}
 
