@@ -24,7 +24,23 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
     maxWidth = 600,
 }) => {
     return (
-        <Box sx={{ maxWidth, mx: 'auto', minHeight: '100vh', bgcolor: bgColor, p: 0 }}>
+        <Box
+            sx={{
+                maxWidth,
+                mx: 'auto',
+                minHeight: '100vh',
+                bgcolor: bgColor,
+                p: 0,
+                // iOS PWA safe area handling
+                '@media (display-mode: standalone)': {
+                    '@supports (-webkit-touch-callout: none)': {
+                        paddingTop: 'env(safe-area-inset-top)',
+                        paddingBottom: 'env(safe-area-inset-bottom)',
+                        minHeight: '-webkit-fill-available',
+                    },
+                },
+            }}
+        >
             {/* Header */}
             <Box
                 sx={{
@@ -38,6 +54,12 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                     top: 0,
                     bgcolor: bgColor,
                     zIndex: 10,
+                    // iOS PWA safe area for header
+                    '@media (display-mode: standalone)': {
+                        '@supports (-webkit-touch-callout: none)': {
+                            top: 'env(safe-area-inset-top)',
+                        },
+                    },
                 }}
             >
                 {showBackButton ? (
