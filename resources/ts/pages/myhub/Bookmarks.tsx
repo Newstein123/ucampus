@@ -107,7 +107,16 @@ const Bookmarks: React.FC = () => {
         >
             {/* Bookmarks List */}
             {bookmarks.length === 0 ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 8 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: 'calc(100vh - 120px)',
+                        pb: 10,
+                    }}
+                >
                     <Typography variant="h6" sx={{ color: '#888', fontWeight: 600 }}>
                         No bookmarks yet
                     </Typography>

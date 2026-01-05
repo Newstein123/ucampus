@@ -141,10 +141,16 @@ const Home: React.FC = () => {
     const handleHomeRestart = useCallback(() => {
         console.log('handleHomeRestart called');
 
-        // Scroll to top of the page
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // For iOS PWA: scroll the main content container, not window
+        // The .pwa-main-content element is the actual scrollable container in PWA mode
+        const mainContent = document.querySelector('.pwa-main-content');
+        if (mainContent) {
+            mainContent.scrollTop = 0;
+        }
+        // Also scroll window for non-PWA browsers
+        window.scrollTo(0, 0);
 
-        // Invalidate and refetch the query to get fresh data and reset pagination
+        // Invalidate and refetch the query to get fresh data
         console.log('Invalidating and refetching data...');
         queryClient.invalidateQueries({ queryKey: ['contributionList', type] });
     }, [queryClient, type]);
