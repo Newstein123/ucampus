@@ -68,6 +68,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
     *,
     ::after,
     ::before,
@@ -173,25 +174,27 @@
 /* Hide Safari UI elements in PWA mode */
 @media (display-mode: standalone) {
     @supports (-webkit-touch-callout: none) {
-        body {
+
+        html,
+        body,
+        #root {
             /* Prevent Safari from showing the address bar */
             -webkit-overflow-scrolling: touch;
             padding-bottom: 0;
-            height: -webkit-fill-available;
+            /* height: -webkit-fill-available; */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
+        }
+
+        /* Hide scrollbar for all elements in PWA */
+        *::-webkit-scrollbar {
+            display: none !important;
         }
 
         /* Fix header to top with safe area */
-        .header-fixed {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding-top: env(safe-area-inset-top);
-            z-index: 100;
-            background: var(--background);
-            transform: translateZ(0); /* Force GPU acceleration */
-            -webkit-transform: translateZ(0);
-        }
+
 
         /* Fix bottom nav with safe area */
         .bottom-navigation {

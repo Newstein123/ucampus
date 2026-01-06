@@ -40,6 +40,54 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     const path = location.pathname;
 
+    // Scroll to hide header/footer logic for PWA
+    const [showNavbar, setShowNavbar] = React.useState(true);
+    const lastScrollY = React.useRef(0);
+    const mainContentRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const handleScroll = () => {
+            // Only apply in PWA mode
+            if (!window.matchMedia('(display-mode: standalone)').matches) return;
+
+            // Only apply scroll-to-hide on Home page
+            const isHomePage = path === '/' || path.startsWith('/home');
+            if (!isHomePage) {
+                setShowNavbar(true);
+                return;
+            }
+
+            const currentScrollY = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+
+            // Sensitivity threshold to prevent micro-jitter
+            if (Math.abs(currentScrollY - lastScrollY.current) < 10) return;
+
+            // Show navbar at the top, when scrolling up, or at the bottom
+            if (currentScrollY <= 0 || (currentScrollY + windowHeight >= documentHeight - 20)) {
+                setShowNavbar(true);
+            } else if (currentScrollY > lastScrollY.current) {
+                // Scrolling down -> Hide
+                setShowNavbar(false);
+            } else {
+                // Scrolling up -> Show
+                setShowNavbar(true);
+            }
+            lastScrollY.current = currentScrollY;
+        };
+
+
+
+        // Also listen to window scroll for non-PWA fallback or mismatched containers
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [path]);
+
     const navigationValue = (() => {
         if (path === '/' || path.startsWith('/home')) return 'home';
         if (path.startsWith('/explore')) return 'explore';
@@ -61,7 +109,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 position: 'relative',
                 '@media (display-mode: standalone)': {
                     '@supports (-webkit-touch-callout: none)': {
-                        height: '-webkit-fill-available',
+                        // height: '-webkit-fill-available', // Removed to allow window scroll
+                        minHeight: '100vh',
                     },
                 },
             }}
@@ -79,11 +128,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     zIndex: 1100,
                     bgcolor: 'rgba(255, 255, 255, 0.8)',
                     backdropFilter: 'blur(8px)',
+                    transition: 'transform 0.3s ease-in-out',
+                    transform: showNavbar ? 'translateY(0)' : 'translateY(-100%)',
                     '@media (display-mode: standalone)': {
                         '@supports (-webkit-touch-callout: none)': {
+                            paddingTop: 'env(safe-area-inset-top)',
+                            // Fixed positioning for all pages to prevent rubber-banding
                             position: 'fixed',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            margin: '0 auto',
                             width: '100%',
                             maxWidth: 600,
                         },
@@ -102,6 +157,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
             {/* Main Content */}
             <Box
+                ref={mainContentRef}
                 className="pwa-main-content"
                 sx={{
                     flex: 1,
@@ -109,21 +165,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     pb: 8,
                     '@media (display-mode: standalone)': {
                         '@supports (-webkit-touch-callout: none)': {
-                            mt: 'calc(60px + env(safe-area-inset-top))',
                             mb: 'env(safe-area-inset-bottom)',
-                            overflowY: 'auto',
-                            WebkitOverflowScrolling: 'touch',
-                            WebkitScrollbarWidth: 'none',
-                            scrollbarWidth: 'none',
-                            '::-webkit-scrollbar': {
-                                display: 'none',
-                            },
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: 'auto',
+                            // Add top spacing for fixed header
+                            paddingTop: 'calc(60px + env(safe-area-inset-top))',
+                            // Ensure enough padding for fixed footer + PWA safe area
+                            pb: 10,
                         },
                     },
                 }}
@@ -137,7 +183,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     position: 'fixed',
                     bottom: 0,
                     left: '50%',
-                    transform: 'translateX(-50%)',
+                    transform: showNavbar ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
+                    transition: 'transform 0.3s ease-in-out',
                     width: '100%',
                     maxWidth: 600,
                     borderTop: '1px solid #eee',

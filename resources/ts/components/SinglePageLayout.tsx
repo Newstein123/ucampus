@@ -23,6 +23,34 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
     contentBgColor = '#fff',
     maxWidth = 600,
 }) => {
+    // Scroll to hide header logic for PWA
+    const [showNavbar, setShowNavbar] = React.useState(true);
+    const lastScrollY = React.useRef(0);
+
+    React.useEffect(() => {
+        const handleScroll = () => {
+            // Only apply in PWA mode
+            if (!window.matchMedia('(display-mode: standalone)').matches) return;
+
+            const currentScrollY = window.scrollY;
+
+            // Show navbar at the top or when scrolling up
+            if (currentScrollY <= 0) {
+                setShowNavbar(true);
+            } else if (currentScrollY > lastScrollY.current) {
+                // Scrolling down -> Hide
+                setShowNavbar(false);
+            } else {
+                // Scrolling up -> Show
+                setShowNavbar(true);
+            }
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
         <Box
             sx={{
@@ -53,10 +81,18 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                     top: 0,
                     bgcolor: bgColor,
                     zIndex: 10,
+                    transition: 'transform 0.3s ease-in-out',
+                    transform: showNavbar ? 'translateY(0)' : 'translateY(-100%)',
                     // iOS PWA safe area for header
                     '@media (display-mode: standalone)': {
                         '@supports (-webkit-touch-callout: none)': {
                             paddingTop: 'calc(8px + env(safe-area-inset-top))',
+                            position: 'fixed',
+                            left: 0,
+                            right: 0,
+                            margin: '0 auto',
+                            width: '100%',
+                            maxWidth: 600,
                         },
                     },
                 }}
@@ -82,7 +118,19 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
             </Box>
 
             {/* Content */}
-            <Box sx={{ bgcolor: contentBgColor, minHeight: 'calc(100vh - 60px)' }}>{children}</Box>
+            <Box
+                sx={{
+                    bgcolor: contentBgColor,
+                    minHeight: 'calc(100vh - 60px)',
+                    '@media (display-mode: standalone)': {
+                        '@supports (-webkit-touch-callout: none)': {
+                            paddingTop: 'calc(48px + env(safe-area-inset-top))', // Approx header height
+                        },
+                    },
+                }}
+            >
+                {children}
+            </Box>
         </Box>
     );
 };
