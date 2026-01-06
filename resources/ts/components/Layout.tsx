@@ -65,7 +65,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             if (Math.abs(currentScrollY - lastScrollY.current) < 10) return;
 
             // Show navbar at the top, when scrolling up, or at the bottom
-            if (currentScrollY <= 0 || (currentScrollY + windowHeight >= documentHeight - 20)) {
+            if (currentScrollY <= 0 || currentScrollY + windowHeight >= documentHeight - 20) {
                 setShowNavbar(true);
             } else if (currentScrollY > lastScrollY.current) {
                 // Scrolling down -> Hide
@@ -77,13 +77,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             lastScrollY.current = currentScrollY;
         };
 
-
-
         // Also listen to window scroll for non-PWA fallback or mismatched containers
         window.addEventListener('scroll', handleScroll, { passive: true });
 
         return () => {
-
             window.removeEventListener('scroll', handleScroll);
         };
     }, [path]);
