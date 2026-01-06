@@ -145,14 +145,14 @@ const Home: React.FC = () => {
         // The .pwa-main-content element is the actual scrollable container in PWA mode
         const mainContent = document.querySelector('.pwa-main-content');
         if (mainContent) {
-            mainContent.scrollTop = 0;
+            mainContent.scrollTo({ top: 0, behavior: 'smooth' });
         }
         // Also scroll window for non-PWA browsers
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         // Invalidate and refetch the query to get fresh data
-        console.log('Invalidating and refetching data...');
-        queryClient.invalidateQueries({ queryKey: ['contributionList', type] });
+        console.log('Resetting and refetching data...');
+        queryClient.resetQueries({ queryKey: ['contributionList', type] });
     }, [queryClient, type]);
 
     // Register restart callback
