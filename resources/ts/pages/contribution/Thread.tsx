@@ -72,10 +72,53 @@ const Thread: React.FC = () => {
     // Profile name is not needed - removed unused state
 
     const handleLikePost = async (postId: number) => {
+        // Optimistically update the UI immediately
+        if (parentDiscussion && parentDiscussion.id === postId) {
+            // Update parent discussion
+            setParentDiscussion({
+                ...parentDiscussion,
+                is_interested: !parentDiscussion.is_interested,
+                interests: parentDiscussion.is_interested ? parentDiscussion.interests - 1 : parentDiscussion.interests + 1,
+            });
+        } else {
+            // Update thread discussions
+            setThreadDiscussions((prev) =>
+                prev.map((post) =>
+                    post.id === postId
+                        ? {
+                              ...post,
+                              is_interested: !post.is_interested,
+                              interests: post.is_interested ? post.interests - 1 : post.interests + 1,
+                          }
+                        : post,
+                ),
+            );
+        }
+
         try {
             await discussionApi.updateInterest({ discussion_id: postId });
         } catch (err) {
             console.error('Failed to update interest:', err);
+            // Revert optimistic update on error
+            if (parentDiscussion && parentDiscussion.id === postId) {
+                setParentDiscussion({
+                    ...parentDiscussion,
+                    is_interested: !parentDiscussion.is_interested,
+                    interests: parentDiscussion.is_interested ? parentDiscussion.interests - 1 : parentDiscussion.interests + 1,
+                });
+            } else {
+                setThreadDiscussions((prev) =>
+                    prev.map((post) =>
+                        post.id === postId
+                            ? {
+                                  ...post,
+                                  is_interested: !post.is_interested,
+                                  interests: post.is_interested ? post.interests - 1 : post.interests + 1,
+                              }
+                            : post,
+                    ),
+                );
+            }
         }
     };
 

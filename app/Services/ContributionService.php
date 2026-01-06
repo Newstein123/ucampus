@@ -17,6 +17,12 @@ class ContributionService implements ContributionServiceInterface
 
     public function list(array $data = [])
     {
+        // When listing for the public feed (no user_id filter), only show public contributions
+        // This ensures drafts (non-public) only appear in the user's own hub
+        if (!isset($data['user_id'])) {
+            $data['is_public'] = true;
+        }
+        
         return $this->contributionRepository->list($data);
     }
 
