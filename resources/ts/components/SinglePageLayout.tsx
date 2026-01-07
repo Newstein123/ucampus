@@ -62,7 +62,6 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                 // iOS PWA safe area handling
                 '@media (display-mode: standalone)': {
                     '@supports (-webkit-touch-callout: none)': {
-                        paddingBottom: 'env(safe-area-inset-bottom)',
                         minHeight: '-webkit-fill-available',
                     },
                 },
@@ -124,7 +123,9 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                     minHeight: 'calc(100vh - 60px)',
                     '@media (display-mode: standalone)': {
                         '@supports (-webkit-touch-callout: none)': {
+                            minHeight: '100vh',
                             paddingTop: 'calc(48px + env(safe-area-inset-top))', // Approx header height
+                            paddingBottom: 'env(safe-area-inset-bottom)',
                         },
                     },
                 }}
