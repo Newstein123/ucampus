@@ -64,7 +64,16 @@ export const contributionApi = {
             success: boolean;
             message: string;
             data: { is_bookmarked: boolean; message: string };
-        }>(`${endpoints.contribution_bookmark}/${contributionId}/bookmarks`);
+        }>(`${endpoints.contribution_bookmark}/${contributionId}/bookmarks`, { contribution_id: contributionId });
+        return response.data;
+    },
+    async unbookmark(contributionId: number): Promise<{ success: boolean; message: string }> {
+        const response = await apiClient.getClient().delete<{
+            success: boolean;
+            message: string;
+        }>(`${endpoints.contribution_bookmark}/${contributionId}/bookmarks`, {
+            data: { contribution_id: contributionId },
+        });
         return response.data;
     },
     async getBookmarks(): Promise<ContributionResponse> {

@@ -1,12 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Link as MuiLink, TextField, Typography } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Link as MuiLink, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import AppButton from '../components/AppButton';
+import BackButton from '../components/BackButton';
 import { ErrorResponse } from '../hooks';
 import useUserRegisterMutation from '../hooks/auth/useUserRegisterMutation';
 import { step1Schema, step2Schema } from '../schemas/register';
@@ -14,7 +16,24 @@ import { step1Schema, step2Schema } from '../schemas/register';
 type Step1Form = z.infer<typeof step1Schema>;
 type Step2Form = z.infer<typeof step2Schema>;
 
-const locations = ['Yangon', 'Mandalay', 'Naypyidaw', 'Other'];
+const locations = [
+    'Ayeyarwady',
+    'Bago',
+    'Chin',
+    'Kachin',
+    'Kayah',
+    'Kayin',
+    'Magway',
+    'Mandalay',
+    'Mon',
+    'Naypyidaw',
+    'Rakhine',
+    'Sagaing',
+    'Shan',
+    'Tanintharyi',
+    'Yangon',
+    'Other',
+];
 
 const Register: React.FC = () => {
     const [step, setStep] = useState(1);
@@ -68,9 +87,12 @@ const Register: React.FC = () => {
                 py: 4,
             }}
         >
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, ml: 1 }}>
-                Sign up
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, ml: 1 }}>
+                {step === 2 && <BackButton onClick={() => setStep(1)} sx={{ ml: -2 }} />}
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    Sign up
+                </Typography>
+            </Box>
             <Typography sx={{ color: '#888', mb: 3, ml: 1 }}>{step === 1 ? 'Create an account to get started' : 'Finish your profile'}</Typography>
 
             {step === 1 && (
@@ -161,25 +183,9 @@ const Register: React.FC = () => {
                                 {apiError.password_confirmation}
                             </Typography>
                         )}
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{
-                                bgcolor: '#198d0f',
-                                color: '#fff',
-                                fontWeight: 600,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                mt: 3,
-                                mb: 2,
-                                fontSize: 18,
-                                py: 1.5,
-                                '&:hover': { bgcolor: '#156c0c' },
-                            }}
-                        >
+                        <AppButton type="submit" fullWidth sx={{ mt: 3, mb: 2 }}>
                             Next
-                        </Button>
+                        </AppButton>
                     </form>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Typography variant="body2" color="text.secondary">
@@ -301,25 +307,9 @@ const Register: React.FC = () => {
                             {step2Form.formState.errors.terms.message}
                         </Typography>
                     )}
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{
-                            bgcolor: '#198d0f',
-                            color: '#fff',
-                            fontWeight: 600,
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            mt: 3,
-                            mb: 2,
-                            fontSize: 18,
-                            py: 1.5,
-                            '&:hover': { bgcolor: '#156c0c' },
-                        }}
-                    >
+                    <AppButton type="submit" fullWidth sx={{ mt: 3, mb: 2 }}>
                         Register
-                    </Button>
+                    </AppButton>
                 </form>
             )}
         </Box>

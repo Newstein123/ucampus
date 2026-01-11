@@ -12,9 +12,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
     Avatar,
     Box,
-    Button,
     CardMedia,
     Chip,
+    CircularProgress,
     IconButton,
     List,
     ListItem,
@@ -31,6 +31,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import EditRequestsSection from '../../components/EditRequestsSection';
@@ -71,6 +72,7 @@ const ProjectDetails: React.FC = () => {
         }
     }, [location.state]);
     const [project, setProject] = useState<Contribution | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const currentUser = useSelector(selectUser);
 
     // Modal and toast state
@@ -339,15 +341,29 @@ const ProjectDetails: React.FC = () => {
     useEffect(() => {
         const load = async () => {
             if (!id) return;
+            setIsLoading(true);
             try {
                 const res = await contributionApi.show(parseInt(id));
                 setProject(res.data);
             } catch (err) {
                 console.error('Failed to load project:', err);
+            } finally {
+                setIsLoading(false);
             }
         };
         load();
     }, [id]);
+
+    // Show loading spinner while fetching data
+    if (isLoading) {
+        return (
+            <SinglePageLayout title={t('Project Details')}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </SinglePageLayout>
+        );
+    }
 
     return (
         <SinglePageLayout
@@ -581,24 +597,17 @@ const ProjectDetails: React.FC = () => {
                 )}
                 {/* Action buttons moved to 3-dot menu */}
                 {showJoinButton && (
-                    <Button
-                        variant="contained"
+                    <AppButton
                         onClick={() => setIsModalOpen(true)}
                         disabled={!!hasPendingRequest}
                         sx={{
-                            bgcolor: hasPendingRequest ? '#ccc' : '#1F8505',
-                            color: '#fff',
+                            bgcolor: hasPendingRequest ? '#ccc' : undefined,
                             borderRadius: '25px',
-                            textTransform: 'none',
-                            fontWeight: 600,
                             fontSize: 16,
                             py: 1.5,
                             px: 4,
                             width: '100%',
                             position: 'relative',
-                            '&:hover': {
-                                bgcolor: hasPendingRequest ? '#ccc' : '#165d04',
-                            },
                             '&:disabled': {
                                 bgcolor: '#ccc',
                                 color: '#666',
@@ -628,7 +637,7 @@ const ProjectDetails: React.FC = () => {
                                 <MailIcon sx={{ fontSize: 14 }} />
                             </Box>
                         )}
-                    </Button>
+                    </AppButton>
                 )}
             </Box>
             {/* Engagement Metrics */}

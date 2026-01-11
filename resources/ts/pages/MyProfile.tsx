@@ -1,9 +1,10 @@
 import EditIcon from '@mui/icons-material/Edit';
-import { Avatar, Box, Button, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Avatar, Box, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import AppButton from '../components/AppButton';
 import Layout from '../components/Layout';
 import useUserLogoutMutation from '../hooks/auth/useUserLogoutMutation';
 import useUserProfileQuery from '../hooks/auth/useUserProfileQuery';
@@ -83,9 +84,9 @@ const MyProfile: React.FC = () => {
                     <ListItemText primary={t('Change password')} onClick={() => navigate('/change-password')} sx={{ cursor: 'pointer' }} />
                 </ListItem>
             </List>
-            <Button variant="contained" color="error" fullWidth onClick={handleLogout} sx={{ mt: 1, textTransform: 'none', fontWeight: 600 }}>
+            <AppButton fullWidth onClick={handleLogout} sx={{ mt: 1, py: 1, fontSize: 14, bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}>
                 {t('Logout')}
-            </Button>
+            </AppButton>
         </Layout>
     );
 };

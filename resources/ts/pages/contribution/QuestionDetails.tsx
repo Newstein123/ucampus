@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Avatar, Box, Chip, IconButton, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material';
+import { Avatar, Box, Chip, CircularProgress, IconButton, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -28,6 +28,7 @@ const QuestionDetails: React.FC = () => {
     const location = useLocation();
     const { data: userProfile } = useUserProfileQuery();
     const [question, setQuestion] = useState<Contribution | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
@@ -59,16 +60,7 @@ const QuestionDetails: React.FC = () => {
         }
     }, [location.state]);
 
-    useEffect(() => {
-        const load = async () => {
-            if (!id) return;
-            const res = await contributionApi.show(parseInt(id));
-            setQuestion(res.data);
-        };
-        load();
-    }, [id]);
-
-    // Bookmark mutation
+    // Bookmark mutation - must be before any early returns
     const bookmarkMutation = useContributionBookmarkMutation({
         onSuccess: () => {
             if (question) {
@@ -85,6 +77,31 @@ const QuestionDetails: React.FC = () => {
             setToastOpen(true);
         },
     });
+
+    useEffect(() => {
+        const load = async () => {
+            if (!id) return;
+            setIsLoading(true);
+            try {
+                const res = await contributionApi.show(parseInt(id));
+                setQuestion(res.data);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        load();
+    }, [id]);
+
+    // Show loading spinner while fetching data
+    if (isLoading) {
+        return (
+            <SinglePageLayout title={t('Question Details')}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </SinglePageLayout>
+        );
+    }
 
     const handleBookmark = () => {
         if (!id) return;

@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
+import AppButton from '../components/AppButton';
 import { ErrorResponse } from '../hooks';
 import useSocialAuthQuery from '../hooks/auth/useSocialAuthQuery';
 import useUserLoginMutation from '../hooks/auth/useUserLoginMuatation';
@@ -411,26 +412,20 @@ const Login: React.FC = () => {
                     </Typography>
                 </Box>
 
-                <Button
+                <AppButton
                     type="submit"
                     fullWidth
-                    variant="contained"
                     disabled={userLoginMutation.isPending}
                     sx={{
-                        bgcolor: '#1abc60',
-                        color: '#fff',
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        py: 1.2,
-                        mb: 2,
-                        textTransform: 'none',
-                        fontSize: 16,
+                        bgcolor: '#1abc60', // Keeping the specific green for login if intended, or remove to use default
                         '&:hover': { bgcolor: '#168f48' },
-                        '&:disabled': { bgcolor: '#ccc' },
+                        mb: 2,
+                        py: 1.2,
+                        fontSize: 16,
                     }}
                 >
                     {userLoginMutation.isPending ? 'Logging in...' : 'Login'}
-                </Button>
+                </AppButton>
 
                 <Typography align="center" sx={{ fontSize: 15, mb: 2 }}>
                     Not a member?{' '}

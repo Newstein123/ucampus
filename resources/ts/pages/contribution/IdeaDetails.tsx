@@ -8,11 +8,12 @@ import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Avatar, Box, Button, CardMedia, Chip, IconButton, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
+import { Avatar, Box, CardMedia, Chip, CircularProgress, IconButton, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import SinglePageLayout from '../../components/SinglePageLayout';
@@ -31,6 +32,7 @@ const IdeaDetails: React.FC = () => {
     const location = useLocation();
     const { data: userProfile } = useUserProfileQuery();
     const [idea, setIdea] = useState<Contribution | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
@@ -62,16 +64,7 @@ const IdeaDetails: React.FC = () => {
         }
     }, [location.state]);
 
-    useEffect(() => {
-        const load = async () => {
-            if (!id) return;
-            const res = await contributionApi.show(parseInt(id));
-            setIdea(res.data);
-        };
-        load();
-    }, [id]);
-
-    // Bookmark mutation
+    // Bookmark mutation - must be before any early returns
     const bookmarkMutation = useContributionBookmarkMutation({
         onSuccess: () => {
             if (idea) {
@@ -88,6 +81,31 @@ const IdeaDetails: React.FC = () => {
             setToastOpen(true);
         },
     });
+
+    useEffect(() => {
+        const load = async () => {
+            if (!id) return;
+            setIsLoading(true);
+            try {
+                const res = await contributionApi.show(parseInt(id));
+                setIdea(res.data);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        load();
+    }, [id]);
+
+    // Show loading spinner while fetching data
+    if (isLoading) {
+        return (
+            <SinglePageLayout title={t('Idea Details')}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </SinglePageLayout>
+        );
+    }
 
     const handleBookmark = () => {
         if (!id) return;
@@ -203,22 +221,9 @@ const IdeaDetails: React.FC = () => {
                 {/* Upgrade to Project Button - Only show if user is the owner */}
                 {isOwner && (
                     <Box sx={{ mb: 2 }}>
-                        <Button
-                            variant="contained"
-                            startIcon={<UpgradeIcon />}
-                            onClick={handleUpgradeToProject}
-                            sx={{
-                                bgcolor: '#1F8505',
-                                color: '#fff',
-                                fontWeight: 600,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                '&:hover': { bgcolor: '#156c0c' },
-                            }}
-                            fullWidth
-                        >
+                        <AppButton startIcon={<UpgradeIcon />} onClick={handleUpgradeToProject} fullWidth sx={{ py: 1, fontSize: 14 }}>
                             Upgrade to Project
-                        </Button>
+                        </AppButton>
                     </Box>
                 )}
             </Box>
