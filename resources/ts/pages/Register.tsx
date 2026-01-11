@@ -291,8 +291,7 @@ const Register: React.FC = () => {
                         label={
                             <span>
                                 I&apos;ve read and agree with the{' '}
-                                <span style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Terms and Conditions</span> and the{' '}
-                                <span style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Privacy Policy</span>.
+                                <a href="/terms-and-conditions" style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Terms and Conditions</a> and the{' '}
                             </span>
                         }
                     />
