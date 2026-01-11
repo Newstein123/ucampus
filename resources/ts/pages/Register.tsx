@@ -291,7 +291,10 @@ const Register: React.FC = () => {
                         label={
                             <span>
                                 I&apos;ve read and agree with the{' '}
-                                <a href="/terms-and-conditions" style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Terms and Conditions</a> and the{' '}
+                                <a href="/terms-and-conditions" style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>
+                                    Terms and Conditions
+                                </a>{' '}
+                                and the{' '}
                             </span>
                         }
                     />
