@@ -48,9 +48,9 @@ import {
     useRejectEditRequestMutation,
 } from '../../hooks';
 import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
+import useContributionDetailQuery from '../../hooks/contribution/useContributionDetailQuery';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
-import { Contribution } from '../../types/contribution';
 import { downloadFile } from '../../utils/pwa';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
@@ -60,6 +60,11 @@ const ProjectDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const location = useLocation();
+    // Use TanStack Query for fetching project data
+    const { data: projectResponse, isLoading, refetch } = useContributionDetailQuery(parseInt(id || '0'));
+    const project = projectResponse?.data;
+    const currentUser = useSelector(selectUser);
+
     // Show toast if navigation passed a success message
     useEffect(() => {
         if (location.state && typeof location.state === 'object') {
@@ -71,9 +76,6 @@ const ProjectDetails: React.FC = () => {
             }
         }
     }, [location.state]);
-    const [project, setProject] = useState<Contribution | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const currentUser = useSelector(selectUser);
 
     // Modal and toast state
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,12 +100,8 @@ const ProjectDetails: React.FC = () => {
             setToastType('success');
             setToastOpen(true);
             setIsLeaveModalOpen(false);
-            // Reload project data
-            if (id) {
-                contributionApi.show(parseInt(id)).then((res) => {
-                    setProject(res.data);
-                });
-            }
+            // Reload project data using refetch
+            refetch();
         },
         onError: (error) => {
             const errorMsg = error.response?.data?.message || error.response?.data?.errors?.left_reason?.[0] || 'Failed to leave project';
@@ -144,19 +142,8 @@ const ProjectDetails: React.FC = () => {
     const approveEditRequestMutation = useApproveEditRequestMutation();
     const rejectEditRequestMutation = useRejectEditRequestMutation();
 
-    // Bookmark mutation
+    // Bookmark mutation - uses query invalidation for cache updates
     const bookmarkMutation = useContributionBookmarkMutation({
-        onSuccess: () => {
-            if (project) {
-                // Manually update local state for immediate feedback if needed,
-                // though usually we relying on invalidation or just the optimistic update logic inside hook/cache
-                // But here since 'project' is local state, we might need to toggle it if not using query cache for this specific detailed view
-                setProject({
-                    ...project,
-                    is_bookmarked: !project.is_bookmarked,
-                });
-            }
-        },
         onError: (error) => {
             console.error('Failed to update bookmark:', error);
             setToastMessage('Failed to update bookmark');
@@ -180,9 +167,8 @@ const ProjectDetails: React.FC = () => {
             setToastMessage('Your request was sent!');
             setToastType('success');
             setToastOpen(true);
-            // Reload project data to reflect the new pending status
-            const res = await contributionApi.show(parseInt(id));
-            setProject(res.data);
+            // Reload project data using refetch
+            await refetch();
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
             const errorMsg =
@@ -278,12 +264,8 @@ const ProjectDetails: React.FC = () => {
                 setToastMessage('Edit request approved successfully');
                 setToastType('success');
                 setToastOpen(true);
-                // Reload project to show updated content
-                if (id) {
-                    contributionApi.show(parseInt(id)).then((res) => {
-                        setProject(res.data);
-                    });
-                }
+                // Reload project to show updated content using refetch
+                refetch();
             },
             onError: (error) => {
                 const errorMsg = error.response?.data?.message || 'Failed to approve edit request';
@@ -337,22 +319,6 @@ const ProjectDetails: React.FC = () => {
             setIsDeleteModalOpen(false);
         }
     };
-
-    useEffect(() => {
-        const load = async () => {
-            if (!id) return;
-            setIsLoading(true);
-            try {
-                const res = await contributionApi.show(parseInt(id));
-                setProject(res.data);
-            } catch (err) {
-                console.error('Failed to load project:', err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        load();
-    }, [id]);
 
     // Show loading spinner while fetching data
     if (isLoading) {

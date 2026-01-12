@@ -19,7 +19,7 @@ import { useDiscussions } from '../../hooks/useDiscussions';
 import { contributionApi } from '../../api/contribution';
 import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
 import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
-import { Contribution } from '../../types/contribution';
+import useContributionDetailQuery from '../../hooks/contribution/useContributionDetailQuery';
 
 const QuestionDetails: React.FC = () => {
     const { t } = useTranslation();
@@ -27,8 +27,8 @@ const QuestionDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { data: userProfile } = useUserProfileQuery();
-    const [question, setQuestion] = useState<Contribution | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const { data: questionResponse, isLoading } = useContributionDetailQuery(parseInt(id || '0'));
+    const question = questionResponse?.data;
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
@@ -60,16 +60,8 @@ const QuestionDetails: React.FC = () => {
         }
     }, [location.state]);
 
-    // Bookmark mutation - must be before any early returns
+    // Bookmark mutation - uses query invalidation for cache updates
     const bookmarkMutation = useContributionBookmarkMutation({
-        onSuccess: () => {
-            if (question) {
-                setQuestion({
-                    ...question,
-                    is_bookmarked: !question.is_bookmarked,
-                });
-            }
-        },
         onError: (error) => {
             console.error('Failed to update bookmark:', error);
             setToastMessage('Failed to update bookmark');
@@ -77,20 +69,6 @@ const QuestionDetails: React.FC = () => {
             setToastOpen(true);
         },
     });
-
-    useEffect(() => {
-        const load = async () => {
-            if (!id) return;
-            setIsLoading(true);
-            try {
-                const res = await contributionApi.show(parseInt(id));
-                setQuestion(res.data);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        load();
-    }, [id]);
 
     // Show loading spinner while fetching data
     if (isLoading) {

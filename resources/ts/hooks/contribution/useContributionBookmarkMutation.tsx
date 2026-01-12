@@ -116,6 +116,9 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
             // Invalidate the bookmarks list so the Bookmarks page refreshes
             queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
 
+            // Invalidate the contribution detail query so detail pages get fresh data
+            queryClient.invalidateQueries({ queryKey: ['contributionDetail', contributionId] });
+
             options?.onSuccess?.(data);
         },
 
