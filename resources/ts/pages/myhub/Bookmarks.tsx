@@ -29,8 +29,8 @@ const Bookmarks: React.FC = () => {
     // Mutation for unbookmarking multiple items
     const unbookmarkMutation = useMutation({
         mutationFn: async (ids: number[]) => {
-            // Unbookmark each selected item
-            const promises = ids.map((id) => contributionApi.bookmark(id));
+            // Unbookmark each selected item using explicit unbookmark API
+            const promises = ids.map((id) => contributionApi.unbookmark(id));
             return Promise.all(promises);
         },
         onSuccess: () => {

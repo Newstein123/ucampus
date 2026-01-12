@@ -12,9 +12,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
     Avatar,
     Box,
-    Button,
     CardMedia,
     Chip,
+    CircularProgress,
     IconButton,
     List,
     ListItem,
@@ -31,6 +31,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import EditRequestsSection from '../../components/EditRequestsSection';
@@ -47,9 +48,9 @@ import {
     useRejectEditRequestMutation,
 } from '../../hooks';
 import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
+import useContributionDetailQuery from '../../hooks/contribution/useContributionDetailQuery';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
-import { Contribution } from '../../types/contribution';
 import { downloadFile } from '../../utils/pwa';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
@@ -59,6 +60,11 @@ const ProjectDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const location = useLocation();
+    // Use TanStack Query for fetching project data
+    const { data: projectResponse, isLoading, refetch } = useContributionDetailQuery(parseInt(id || '0'));
+    const project = projectResponse?.data;
+    const currentUser = useSelector(selectUser);
+
     // Show toast if navigation passed a success message
     useEffect(() => {
         if (location.state && typeof location.state === 'object') {
@@ -70,8 +76,6 @@ const ProjectDetails: React.FC = () => {
             }
         }
     }, [location.state]);
-    const [project, setProject] = useState<Contribution | null>(null);
-    const currentUser = useSelector(selectUser);
 
     // Modal and toast state
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -96,12 +100,8 @@ const ProjectDetails: React.FC = () => {
             setToastType('success');
             setToastOpen(true);
             setIsLeaveModalOpen(false);
-            // Reload project data
-            if (id) {
-                contributionApi.show(parseInt(id)).then((res) => {
-                    setProject(res.data);
-                });
-            }
+            // Reload project data using refetch
+            refetch();
         },
         onError: (error) => {
             const errorMsg = error.response?.data?.message || error.response?.data?.errors?.left_reason?.[0] || 'Failed to leave project';
@@ -142,19 +142,8 @@ const ProjectDetails: React.FC = () => {
     const approveEditRequestMutation = useApproveEditRequestMutation();
     const rejectEditRequestMutation = useRejectEditRequestMutation();
 
-    // Bookmark mutation
+    // Bookmark mutation - uses query invalidation for cache updates
     const bookmarkMutation = useContributionBookmarkMutation({
-        onSuccess: () => {
-            if (project) {
-                // Manually update local state for immediate feedback if needed,
-                // though usually we relying on invalidation or just the optimistic update logic inside hook/cache
-                // But here since 'project' is local state, we might need to toggle it if not using query cache for this specific detailed view
-                setProject({
-                    ...project,
-                    is_bookmarked: !project.is_bookmarked,
-                });
-            }
-        },
         onError: (error) => {
             console.error('Failed to update bookmark:', error);
             setToastMessage('Failed to update bookmark');
@@ -178,9 +167,8 @@ const ProjectDetails: React.FC = () => {
             setToastMessage('Your request was sent!');
             setToastType('success');
             setToastOpen(true);
-            // Reload project data to reflect the new pending status
-            const res = await contributionApi.show(parseInt(id));
-            setProject(res.data);
+            // Reload project data using refetch
+            await refetch();
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
             const errorMsg =
@@ -276,12 +264,8 @@ const ProjectDetails: React.FC = () => {
                 setToastMessage('Edit request approved successfully');
                 setToastType('success');
                 setToastOpen(true);
-                // Reload project to show updated content
-                if (id) {
-                    contributionApi.show(parseInt(id)).then((res) => {
-                        setProject(res.data);
-                    });
-                }
+                // Reload project to show updated content using refetch
+                refetch();
             },
             onError: (error) => {
                 const errorMsg = error.response?.data?.message || 'Failed to approve edit request';
@@ -336,18 +320,16 @@ const ProjectDetails: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        const load = async () => {
-            if (!id) return;
-            try {
-                const res = await contributionApi.show(parseInt(id));
-                setProject(res.data);
-            } catch (err) {
-                console.error('Failed to load project:', err);
-            }
-        };
-        load();
-    }, [id]);
+    // Show loading spinner while fetching data
+    if (isLoading) {
+        return (
+            <SinglePageLayout title={t('Project Details')}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </SinglePageLayout>
+        );
+    }
 
     return (
         <SinglePageLayout
@@ -581,24 +563,17 @@ const ProjectDetails: React.FC = () => {
                 )}
                 {/* Action buttons moved to 3-dot menu */}
                 {showJoinButton && (
-                    <Button
-                        variant="contained"
+                    <AppButton
                         onClick={() => setIsModalOpen(true)}
                         disabled={!!hasPendingRequest}
                         sx={{
-                            bgcolor: hasPendingRequest ? '#ccc' : '#1F8505',
-                            color: '#fff',
+                            bgcolor: hasPendingRequest ? '#ccc' : undefined,
                             borderRadius: '25px',
-                            textTransform: 'none',
-                            fontWeight: 600,
                             fontSize: 16,
                             py: 1.5,
                             px: 4,
                             width: '100%',
                             position: 'relative',
-                            '&:hover': {
-                                bgcolor: hasPendingRequest ? '#ccc' : '#165d04',
-                            },
                             '&:disabled': {
                                 bgcolor: '#ccc',
                                 color: '#666',
@@ -628,7 +603,7 @@ const ProjectDetails: React.FC = () => {
                                 <MailIcon sx={{ fontSize: 14 }} />
                             </Box>
                         )}
-                    </Button>
+                    </AppButton>
                 )}
             </Box>
             {/* Engagement Metrics */}

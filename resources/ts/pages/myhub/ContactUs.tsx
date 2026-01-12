@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Button, Grid, Paper, TextField, Typography } from '@mui/material';
+import { Box, Grid, Paper, TextField, Typography } from '@mui/material';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import AppButton from '../../components/AppButton';
 import SinglePageLayout from '../../components/SinglePageLayout';
 
 const contactSchema = z.object({
@@ -84,14 +85,9 @@ const ContactUs: React.FC = () => {
                             />
                         )}
                     />
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{ bgcolor: '#1F8505', borderRadius: 2, fontWeight: 600, fontSize: 16, mt: 1, mb: 2, '&:hover': { bgcolor: '#176b03' } }}
-                        fullWidth
-                    >
+                    <AppButton type="submit" fullWidth sx={{ mt: 1, mb: 2, py: 1.2, fontSize: 16 }}>
                         {t('Submit')}
-                    </Button>
+                    </AppButton>
                 </Box>
                 <Typography sx={{ color: '#888', fontSize: 14, mb: 1, mt: 2 }}>{t('Alternatively, reach us at')}</Typography>
                 <Grid container spacing={1}>

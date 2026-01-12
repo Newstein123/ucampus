@@ -1,6 +1,7 @@
 import { Box, Button, MobileStepper, Paper, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AppButton from '../components/AppButton';
 
 const Onboarding: React.FC = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -126,21 +127,18 @@ const Onboarding: React.FC = () => {
                             Back
                         </Button>
                     )}
-                    <Button
-                        variant="contained"
+                    <AppButton
                         onClick={handleNext}
                         sx={{
                             bgcolor: '#4caf50',
-                            color: '#fff',
-                            fontWeight: 600,
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            flex: activeStep > 0 ? 1 : 1,
                             '&:hover': { bgcolor: '#388e3c' },
+                            flex: 1,
+                            py: 1,
+                            fontSize: 14,
                         }}
                     >
                         {activeStep === steps.length - 1 ? 'Get Started' : 'Next'}
-                    </Button>
+                    </AppButton>
                 </Box>
             </Paper>
         </Box>

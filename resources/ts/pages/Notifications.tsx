@@ -23,6 +23,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { contributionApi } from '../api/contribution';
+import AppButton from '../components/AppButton';
 import SinglePageLayout from '../components/SinglePageLayout';
 import useNotificationListQuery from '../hooks/notification/useNotificationListQuery';
 import useNotificationReadMutation from '../hooks/notification/useNotificationReadMutation';
@@ -396,26 +397,19 @@ const Notifications: React.FC = () => {
                                                     >
                                                         View
                                                     </Button>
-                                                    <Button
-                                                        variant="contained"
+                                                    <AppButton
                                                         size="small"
                                                         disabled={processingIds.has(notification.id)}
                                                         onClick={(e) => handleAccept(e, notification)}
                                                         sx={{
-                                                            bgcolor: '#1F8505',
-                                                            color: 'white',
                                                             borderRadius: '20px',
-                                                            textTransform: 'none',
                                                             fontSize: '12px',
                                                             px: 2,
                                                             py: 0.5,
-                                                            '&:hover': {
-                                                                bgcolor: '#165d04',
-                                                            },
                                                         }}
                                                     >
                                                         Accept
-                                                    </Button>
+                                                    </AppButton>
                                                     <Button
                                                         variant="outlined"
                                                         size="small"
