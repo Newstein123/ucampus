@@ -29,24 +29,5 @@ class BookmarkListRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $user = Auth::user();
-            if (! $user) {
-                return;
-            }
 
-            $query = $user->bookmarkedContributions();
-            $type = $this->input('type');
-            if ($type) {
-                $query->where('type', $type);
-            }
-
-            $exists = $query->exists();
-            if (! $exists) {
-                $validator->errors()->add('bookmarks', 'No bookmarks found for the given criteria.');
-            }
-        });
-    }
 }
