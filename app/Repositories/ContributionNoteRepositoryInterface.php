@@ -6,7 +6,7 @@ interface ContributionNoteRepositoryInterface
 {
     public function create(array $data);
 
-    public function findByContribution(int $contributionId, int $perPage = 10, int $page = 1);
+    public function findByContribution(int $contributionId, int $perPage = 10, int $page = 1, ?string $contentKey = null);
 
     public function findById(int $id);
 

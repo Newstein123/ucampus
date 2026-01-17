@@ -16,7 +16,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Content } from '../types/contribution';
 
 interface SubmitEditRequestModalProps {
@@ -25,6 +25,7 @@ interface SubmitEditRequestModalProps {
     onClose: () => void;
     onSubmit: (contentKey: string, newValue: string, oldValue: string, note?: string) => Promise<void>;
     isLoading?: boolean;
+    preselectedField?: string;
 }
 
 const CONTENT_FIELDS = [
@@ -36,8 +37,15 @@ const CONTENT_FIELDS = [
     { key: 'references', label: 'References' },
 ];
 
-const SubmitEditRequestModal: React.FC<SubmitEditRequestModalProps> = ({ open, currentContent, onClose, onSubmit, isLoading = false }) => {
-    const [selectedField, setSelectedField] = useState<string>('');
+const SubmitEditRequestModal: React.FC<SubmitEditRequestModalProps> = ({
+    open,
+    currentContent,
+    onClose,
+    onSubmit,
+    isLoading = false,
+    preselectedField,
+}) => {
+    const [selectedField, setSelectedField] = useState<string>(preselectedField || '');
     const [newValue, setNewValue] = useState<string>('');
     const [references, setReferences] = useState<string[]>([]);
     const [newReferenceUrl, setNewReferenceUrl] = useState<string>('');
@@ -63,22 +71,25 @@ const SubmitEditRequestModal: React.FC<SubmitEditRequestModalProps> = ({ open, c
         return [];
     };
 
-    const handleFieldChange = (fieldKey: string) => {
-        setSelectedField(fieldKey);
-        const currentValue = currentContent[fieldKey as keyof Content] || '';
+    const handleFieldChange = useCallback(
+        (fieldKey: string) => {
+            setSelectedField(fieldKey);
+            const currentValue = currentContent[fieldKey as keyof Content] || '';
 
-        if (fieldKey === 'references') {
-            // Handle references as array
-            const refs = parseReferences(currentValue);
-            setReferences(refs);
-            setNewValue('');
-        } else {
-            // Handle other fields as string
-            setNewValue(typeof currentValue === 'string' ? currentValue : JSON.stringify(currentValue));
-            setReferences([]);
-        }
-        setError('');
-    };
+            if (fieldKey === 'references') {
+                // Handle references as array
+                const refs = parseReferences(currentValue);
+                setReferences(refs);
+                setNewValue('');
+            } else {
+                // Handle other fields as string
+                setNewValue(typeof currentValue === 'string' ? currentValue : JSON.stringify(currentValue));
+                setReferences([]);
+            }
+            setError('');
+        },
+        [currentContent],
+    );
 
     const handleAddReference = (e?: React.KeyboardEvent) => {
         if (e && e.key !== 'Enter') {
@@ -115,7 +126,7 @@ const SubmitEditRequestModal: React.FC<SubmitEditRequestModalProps> = ({ open, c
         setReferences(references.filter((_, i) => i !== index));
     };
 
-    // Reset when modal closes
+    // Reset when modal closes or set preselected field
     useEffect(() => {
         if (!open) {
             setSelectedField('');
@@ -124,8 +135,11 @@ const SubmitEditRequestModal: React.FC<SubmitEditRequestModalProps> = ({ open, c
             setNewReferenceUrl('');
             setNote('');
             setError('');
+        } else if (preselectedField) {
+            setSelectedField(preselectedField);
+            handleFieldChange(preselectedField);
         }
-    }, [open]);
+    }, [open, preselectedField, handleFieldChange]);
 
     const handleSubmit = async () => {
         if (!selectedField) {
@@ -210,26 +224,30 @@ const SubmitEditRequestModal: React.FC<SubmitEditRequestModalProps> = ({ open, c
 
             <DialogContent sx={{ pt: 2 }}>
                 {/* Field Selection */}
-                <Typography sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>Select Field to Edit</Typography>
-                <FormControl
-                    fullWidth
-                    sx={{
-                        mb: 2,
-                        '& .MuiOutlinedInput-root': {
-                            borderRadius: 3,
-                            bgcolor: '#f9f9f9',
-                        },
-                    }}
-                >
-                    <InputLabel>Field</InputLabel>
-                    <Select value={selectedField} label="Field" onChange={(e) => handleFieldChange(e.target.value)} disabled={isLoading}>
-                        {CONTENT_FIELDS.map((field) => (
-                            <MenuItem key={field.key} value={field.key}>
-                                {field.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                {!preselectedField && (
+                    <>
+                        <Typography sx={{ fontWeight: 600, fontSize: 14, mb: 1 }}>Select Field to Edit</Typography>
+                        <FormControl
+                            fullWidth
+                            sx={{
+                                mb: 2,
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 3,
+                                    bgcolor: '#f9f9f9',
+                                },
+                            }}
+                        >
+                            <InputLabel>Field</InputLabel>
+                            <Select value={selectedField} label="Field" onChange={(e) => handleFieldChange(e.target.value)} disabled={isLoading}>
+                                {CONTENT_FIELDS.map((field) => (
+                                    <MenuItem key={field.key} value={field.key}>
+                                        {field.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </>
+                )}
 
                 {/* Current Value Display */}
                 {selectedField && (

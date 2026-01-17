@@ -22,6 +22,7 @@ class CreateContributionNoteRequest extends FormRequest
         return [
             'contribution_id' => 'required|integer|exists:contributions,id',
             'type' => 'required|string|in:idea,concern,improvement',
+            'content_key' => 'nullable|string|in:problem,solution,impact,description,resources,references',
             'note' => 'required|string|max:5000',
         ];
     }

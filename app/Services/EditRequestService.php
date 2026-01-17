@@ -60,10 +60,10 @@ class EditRequestService implements EditRequestServiceInterface
         }
     }
 
-    public function list(int $contributionId, ?string $status = null): Collection
+    public function list(int $contributionId, ?string $status = null, ?string $contentKey = null): Collection
     {
         try {
-            return $this->editRequestRepository->listByContribution($contributionId, $status);
+            return $this->editRequestRepository->listByContribution($contributionId, $status, $contentKey);
         } catch (\Exception $e) {
             Log::error('Failed to list edit requests: ' . $e->getMessage());
             throw new \Exception('Failed to list edit requests: ' . $e->getMessage());

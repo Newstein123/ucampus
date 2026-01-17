@@ -8,9 +8,11 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LinkIcon from '@mui/icons-material/Link';
 import MailIcon from '@mui/icons-material/Mail';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import NoteIcon from '@mui/icons-material/Note';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
     Avatar,
+    Badge,
     Box,
     CardMedia,
     Chip,
@@ -26,31 +28,37 @@ import {
     Paper,
     Typography,
 } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
+import AddNoteModal from '../../components/AddNoteModal';
 import AppButton from '../../components/AppButton';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
-import EditRequestsSection from '../../components/EditRequestsSection';
+import FieldNotesList from '../../components/FieldNotesList';
 import JoinTeamModal from '../../components/JoinTeamModal';
 import LeaveProjectModal from '../../components/LeaveProjectModal';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import SubmitEditRequestModal from '../../components/SubmitEditRequestModal';
 import Toast from '../../components/Toast';
 import {
-    useApproveEditRequestMutation,
     useCreateEditRequestMutation,
+    useCreateNoteMutation,
     useEditRequestsQuery,
     useLeaveProjectMutation,
-    useRejectEditRequestMutation,
+    useNotesQuery,
+    useRejectNoteMutation,
+    useResolveNoteMutation,
+    useUpdateNoteMutation,
 } from '../../hooks';
 import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
 import useContributionDetailQuery from '../../hooks/contribution/useContributionDetailQuery';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
+import { ContributionNote, NoteType } from '../../types/contribution';
 import { downloadFile } from '../../utils/pwa';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
@@ -59,6 +67,7 @@ const ProjectDetails: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const location = useLocation();
     // Use TanStack Query for fetching project data
     const { data: projectResponse, isLoading, refetch } = useContributionDetailQuery(parseInt(id || '0'));
@@ -134,13 +143,54 @@ const ProjectDetails: React.FC = () => {
 
     // Edit Request state
     const [isEditRequestModalOpen, setIsEditRequestModalOpen] = useState(false);
+    const [selectedFieldForEdit, setSelectedFieldForEdit] = useState<string | null>(null);
     const { data: editRequestsData } = useEditRequestsQuery(parseInt(id || '0'));
     const editRequests = editRequestsData?.data?.edit_requests || [];
 
+    // Helper function to count pending edit requests by field (for owners)
+    const getPendingEditRequestCount = (fieldKey: string): number => {
+        return editRequests.filter((req) => req.status === 'pending' && req.changes.content_key === fieldKey).length;
+    };
+
+    // Helper function to check if there are any edit requests (pending for owners, any for collaborators)
+    const hasEditRequestsForField = (fieldKey: string): boolean => {
+        if (isOwner) {
+            // Owners see pending requests
+            return getPendingEditRequestCount(fieldKey) > 0;
+        }
+        // Collaborators see if there are any edit requests (pending or history) for this field
+        if (isCollaborator) {
+            return editRequests.some((req) => req.changes.content_key === fieldKey);
+        }
+        return false;
+    };
+
     // Edit Request mutations
     const createEditRequestMutation = useCreateEditRequestMutation();
-    const approveEditRequestMutation = useApproveEditRequestMutation();
-    const rejectEditRequestMutation = useRejectEditRequestMutation();
+
+    // Notes state - field-specific
+    const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+    const [selectedFieldForNote, setSelectedFieldForNote] = useState<string | null>(null);
+    const [editingNote, setEditingNote] = useState<ContributionNote | null>(null);
+
+    // Field-specific note queries
+    const { data: problemNotesData } = useNotesQuery(parseInt(id || '0'), 100, 1, 'problem');
+    const { data: solutionNotesData } = useNotesQuery(parseInt(id || '0'), 100, 1, 'solution');
+    const { data: impactNotesData } = useNotesQuery(parseInt(id || '0'), 100, 1, 'impact');
+    const { data: resourcesNotesData } = useNotesQuery(parseInt(id || '0'), 100, 1, 'resources');
+    const { data: referencesNotesData } = useNotesQuery(parseInt(id || '0'), 100, 1, 'references');
+
+    const problemNotes = problemNotesData?.data || [];
+    const solutionNotes = solutionNotesData?.data || [];
+    const impactNotes = impactNotesData?.data || [];
+    const resourcesNotes = resourcesNotesData?.data || [];
+    const referencesNotes = referencesNotesData?.data || [];
+
+    // Notes mutations
+    const createNoteMutation = useCreateNoteMutation();
+    const updateNoteMutation = useUpdateNoteMutation();
+    const resolveNoteMutation = useResolveNoteMutation();
+    const rejectNoteMutation = useRejectNoteMutation();
 
     // Bookmark mutation - uses query invalidation for cache updates
     const bookmarkMutation = useContributionBookmarkMutation({
@@ -212,9 +262,18 @@ const ProjectDetails: React.FC = () => {
     };
 
     // Handle suggest edit request
-    const handleSuggestEditClick = () => {
+    const handleSuggestEditClick = (fieldKey?: string) => {
         handleMenuClose();
+        if (fieldKey) {
+            setSelectedFieldForEdit(fieldKey);
+        }
         setIsEditRequestModalOpen(true);
+    };
+
+    // Handle add note for field
+    const handleAddNoteClick = (fieldKey: string) => {
+        setSelectedFieldForNote(fieldKey);
+        setIsNoteModalOpen(true);
     };
 
     const handleLeaveConfirm = async (leftReason?: string) => {
@@ -247,6 +306,7 @@ const ProjectDetails: React.FC = () => {
                     setToastType('success');
                     setToastOpen(true);
                     setIsEditRequestModalOpen(false);
+                    setSelectedFieldForEdit(null);
                 },
                 onError: (error) => {
                     const errorMsg = error.response?.data?.message || 'Failed to submit edit request';
@@ -258,17 +318,74 @@ const ProjectDetails: React.FC = () => {
         );
     };
 
-    const handleApproveEditRequest = (editRequestId: number) => {
-        approveEditRequestMutation.mutate(editRequestId, {
+    const handleSubmitNote = async (contributionId: number, type: NoteType, noteText: string, contentKey?: string) => {
+        if (editingNote) {
+            // Update existing note
+            updateNoteMutation.mutate(
+                {
+                    noteId: editingNote.id,
+                    data: { type, note: noteText },
+                },
+                {
+                    onSuccess: () => {
+                        setToastMessage('Note updated successfully');
+                        setToastType('success');
+                        setToastOpen(true);
+                        setIsNoteModalOpen(false);
+                        setEditingNote(null);
+                        setSelectedFieldForNote(null);
+                    },
+                    onError: (error) => {
+                        const errorMsg = error.response?.data?.message || 'Failed to update note';
+                        setToastMessage(errorMsg);
+                        setToastType('error');
+                        setToastOpen(true);
+                    },
+                },
+            );
+        } else {
+            // Create new note
+            createNoteMutation.mutate(
+                {
+                    contribution_id: contributionId,
+                    type,
+                    content_key: contentKey || null,
+                    note: noteText,
+                },
+                {
+                    onSuccess: () => {
+                        setToastMessage('Note added successfully');
+                        setToastType('success');
+                        setToastOpen(true);
+                        setIsNoteModalOpen(false);
+                        setSelectedFieldForNote(null);
+                    },
+                    onError: (error) => {
+                        const errorMsg = error.response?.data?.message || 'Failed to add note';
+                        setToastMessage(errorMsg);
+                        setToastType('error');
+                        setToastOpen(true);
+                    },
+                },
+            );
+        }
+    };
+
+    const handleResolveNote = (noteId: number) => {
+        resolveNoteMutation.mutate(noteId, {
             onSuccess: () => {
-                setToastMessage('Edit request approved successfully');
+                setToastMessage('Note resolved successfully');
                 setToastType('success');
                 setToastOpen(true);
-                // Reload project to show updated content using refetch
-                refetch();
+                // Force refetch all field-specific note queries
+                if (id) {
+                    const contributionId = parseInt(id);
+                    // Refetch all field-specific queries
+                    queryClient.refetchQueries({ queryKey: ['contributionNotes', contributionId] });
+                }
             },
             onError: (error) => {
-                const errorMsg = error.response?.data?.message || 'Failed to approve edit request';
+                const errorMsg = error.response?.data?.message || 'Failed to resolve note';
                 setToastMessage(errorMsg);
                 setToastType('error');
                 setToastOpen(true);
@@ -276,26 +393,26 @@ const ProjectDetails: React.FC = () => {
         });
     };
 
-    const handleRejectEditRequest = (editRequestId: number, note?: string) => {
-        rejectEditRequestMutation.mutate(
-            {
-                editRequestId,
-                data: { note },
+    const handleRejectNote = (noteId: number) => {
+        rejectNoteMutation.mutate(noteId, {
+            onSuccess: () => {
+                setToastMessage('Note rejected successfully');
+                setToastType('success');
+                setToastOpen(true);
+                // Force refetch all field-specific note queries
+                if (id) {
+                    const contributionId = parseInt(id);
+                    // Refetch all field-specific queries
+                    queryClient.refetchQueries({ queryKey: ['contributionNotes', contributionId] });
+                }
             },
-            {
-                onSuccess: () => {
-                    setToastMessage('Edit request rejected');
-                    setToastType('success');
-                    setToastOpen(true);
-                },
-                onError: (error) => {
-                    const errorMsg = error.response?.data?.message || 'Failed to reject edit request';
-                    setToastMessage(errorMsg);
-                    setToastType('error');
-                    setToastOpen(true);
-                },
+            onError: (error) => {
+                const errorMsg = error.response?.data?.message || 'Failed to reject note';
+                setToastMessage(errorMsg);
+                setToastType('error');
+                setToastOpen(true);
             },
-        );
+        });
     };
 
     const handleDeleteConfirm = async () => {
@@ -407,19 +524,298 @@ const ProjectDetails: React.FC = () => {
 
             {/* Project Details Sections */}
             <Box sx={{ p: 2, pt: 0 }}>
-                {/* Problem & Solution */}
-                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Problem</Typography>
-                    <Typography sx={{ color: '#444', fontSize: 14, mb: 2 }}>{project?.content?.problem}</Typography>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Solution</Typography>
-                    <Typography sx={{ color: '#444', fontSize: 14, mb: 2 }}>{project?.content?.solution}</Typography>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Who Benefits</Typography>
-                    <Typography sx={{ color: '#444', fontSize: 14 }}>{project?.content?.impact}</Typography>
+                {/* Problem */}
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0', position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: 15 }}>Problem</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {isCollaborator && !isOwner && (
+                                <>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleAddNoteClick('problem')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <NoteIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleSuggestEditClick('problem')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <EditIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                </>
+                            )}
+                        </Box>
+                    </Box>
+                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{project?.content?.problem}</Typography>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            gap: 2,
+                            mt: 1,
+                        }}
+                    >
+                        {hasEditRequestsForField('problem') && (
+                            <Box
+                                component="button"
+                                onClick={() => navigate(`/projects/${id}/edit-requests?field=problem`)}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    border: 'none',
+                                    background: 'none',
+                                    cursor: 'pointer',
+                                    color: '#ff9800',
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    '&:hover': { textDecoration: 'underline' },
+                                }}
+                            >
+                                Edit requests
+                                {isOwner && getPendingEditRequestCount('problem') > 0 && (
+                                    <Badge
+                                        badgeContent={getPendingEditRequestCount('problem')}
+                                        color="error"
+                                        sx={{
+                                            '& .MuiBadge-badge': {
+                                                bgcolor: '#ff9800',
+                                                color: '#fff',
+                                                fontSize: 10,
+                                                minWidth: 18,
+                                                height: 18,
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </Box>
+                        )}
+                    </Box>
+                    <FieldNotesList
+                        notes={problemNotes}
+                        isOwner={isOwner}
+                        onResolve={handleResolveNote}
+                        onReject={handleRejectNote}
+                        isResolving={resolveNoteMutation.isPending}
+                        isRejecting={rejectNoteMutation.isPending}
+                    />
+                </Paper>
+
+                {/* Solution */}
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0', position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: 15 }}>Solution</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {isCollaborator && !isOwner && (
+                                <>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleAddNoteClick('solution')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <NoteIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleSuggestEditClick('solution')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <EditIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                </>
+                            )}
+                        </Box>
+                    </Box>
+                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{project?.content?.solution}</Typography>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            gap: 2,
+                            mt: 1,
+                        }}
+                    >
+                        {hasEditRequestsForField('solution') && (
+                            <Box
+                                component="button"
+                                onClick={() => navigate(`/projects/${id}/edit-requests?field=solution`)}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    border: 'none',
+                                    background: 'none',
+                                    cursor: 'pointer',
+                                    color: '#ff9800',
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    '&:hover': { textDecoration: 'underline' },
+                                }}
+                            >
+                                Edit requests
+                                {isOwner && getPendingEditRequestCount('solution') > 0 && (
+                                    <Badge
+                                        badgeContent={getPendingEditRequestCount('solution')}
+                                        color="error"
+                                        sx={{
+                                            '& .MuiBadge-badge': {
+                                                bgcolor: '#ff9800',
+                                                color: '#fff',
+                                                fontSize: 10,
+                                                minWidth: 18,
+                                                height: 18,
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </Box>
+                        )}
+                    </Box>
+                    <FieldNotesList
+                        notes={solutionNotes}
+                        isOwner={isOwner}
+                        onResolve={handleResolveNote}
+                        onReject={handleRejectNote}
+                        isResolving={resolveNoteMutation.isPending}
+                        isRejecting={rejectNoteMutation.isPending}
+                    />
+                </Paper>
+
+                {/* Who Benefits */}
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0', position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: 15 }}>Who Benefits</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {isCollaborator && !isOwner && (
+                                <>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleAddNoteClick('impact')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <NoteIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleSuggestEditClick('impact')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <EditIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                </>
+                            )}
+                        </Box>
+                    </Box>
+                    <Typography sx={{ color: '#444', fontSize: 14, mb: 1 }}>{project?.content?.impact}</Typography>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            gap: 2,
+                            mt: 1,
+                        }}
+                    >
+                        {hasEditRequestsForField('impact') && (
+                            <Box
+                                component="button"
+                                onClick={() => navigate(`/projects/${id}/edit-requests?field=impact`)}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    border: 'none',
+                                    background: 'none',
+                                    cursor: 'pointer',
+                                    color: '#ff9800',
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    '&:hover': { textDecoration: 'underline' },
+                                }}
+                            >
+                                Edit requests
+                                {isOwner && getPendingEditRequestCount('impact') > 0 && (
+                                    <Badge
+                                        badgeContent={getPendingEditRequestCount('impact')}
+                                        color="error"
+                                        sx={{
+                                            '& .MuiBadge-badge': {
+                                                bgcolor: '#ff9800',
+                                                color: '#fff',
+                                                fontSize: 10,
+                                                minWidth: 18,
+                                                height: 18,
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </Box>
+                        )}
+                    </Box>
+                    <FieldNotesList
+                        notes={impactNotes}
+                        isOwner={isOwner}
+                        onResolve={handleResolveNote}
+                        onReject={handleRejectNote}
+                        isResolving={resolveNoteMutation.isPending}
+                        isRejecting={rejectNoteMutation.isPending}
+                    />
                 </Paper>
 
                 {/* Resources */}
-                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>Resources</Typography>
+                <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0', position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: 15 }}>Resources</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {isCollaborator && !isOwner && (
+                                <>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleAddNoteClick('resources')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <NoteIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleSuggestEditClick('resources')}
+                                        sx={{
+                                            color: '#1F8505',
+                                            '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                        }}
+                                    >
+                                        <EditIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                </>
+                            )}
+                        </Box>
+                    </Box>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {(project?.content?.resources ? String(project.content.resources).split(/[,\n]/) : []).map((r, i) => (
                             <li key={i} style={{ color: '#444', fontSize: 14, marginBottom: 2 }}>
@@ -427,6 +823,59 @@ const ProjectDetails: React.FC = () => {
                             </li>
                         ))}
                     </ul>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            gap: 2,
+                            mt: 1,
+                        }}
+                    >
+                        {hasEditRequestsForField('resources') && (
+                            <Box
+                                component="button"
+                                onClick={() => navigate(`/projects/${id}/edit-requests?field=resources`)}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    border: 'none',
+                                    background: 'none',
+                                    cursor: 'pointer',
+                                    color: '#ff9800',
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    '&:hover': { textDecoration: 'underline' },
+                                }}
+                            >
+                                Edit requests
+                                {isOwner && getPendingEditRequestCount('resources') > 0 && (
+                                    <Badge
+                                        badgeContent={getPendingEditRequestCount('resources')}
+                                        color="error"
+                                        sx={{
+                                            '& .MuiBadge-badge': {
+                                                bgcolor: '#ff9800',
+                                                color: '#fff',
+                                                fontSize: 10,
+                                                minWidth: 18,
+                                                height: 18,
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </Box>
+                        )}
+                    </Box>
+                    <FieldNotesList
+                        notes={resourcesNotes}
+                        isOwner={isOwner}
+                        onResolve={handleResolveNote}
+                        onReject={handleRejectNote}
+                        isResolving={resolveNoteMutation.isPending}
+                        isRejecting={rejectNoteMutation.isPending}
+                    />
                 </Paper>
 
                 {/* References */}
@@ -444,8 +893,36 @@ const ProjectDetails: React.FC = () => {
                         }
                     }
                     return references.length > 0 ? (
-                        <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-                            <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 1 }}>References</Typography>
+                        <Paper sx={{ p: 2, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0', position: 'relative' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography sx={{ fontWeight: 700, fontSize: 15 }}>References</Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    {isCollaborator && !isOwner && (
+                                        <>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleAddNoteClick('references')}
+                                                sx={{
+                                                    color: '#1F8505',
+                                                    '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                                }}
+                                            >
+                                                <NoteIcon sx={{ fontSize: 18 }} />
+                                            </IconButton>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleSuggestEditClick('references')}
+                                                sx={{
+                                                    color: '#1F8505',
+                                                    '&:hover': { bgcolor: 'rgba(31, 133, 5, 0.1)' },
+                                                }}
+                                            >
+                                                <EditIcon sx={{ fontSize: 18 }} />
+                                            </IconButton>
+                                        </>
+                                    )}
+                                </Box>
+                            </Box>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 {references.map((ref, idx) => (
                                     <Box
@@ -469,31 +946,62 @@ const ProjectDetails: React.FC = () => {
                                     </Box>
                                 ))}
                             </Box>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    mt: 1,
+                                }}
+                            >
+                                {hasEditRequestsForField('references') && (
+                                    <Box
+                                        component="button"
+                                        onClick={() => navigate(`/projects/${id}/edit-requests?field=references`)}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                            border: 'none',
+                                            background: 'none',
+                                            cursor: 'pointer',
+                                            color: '#ff9800',
+                                            fontSize: 13,
+                                            fontWeight: 600,
+                                            '&:hover': { textDecoration: 'underline' },
+                                        }}
+                                    >
+                                        Edit requests
+                                        {isOwner && getPendingEditRequestCount('references') > 0 && (
+                                            <Badge
+                                                badgeContent={getPendingEditRequestCount('references')}
+                                                color="error"
+                                                sx={{
+                                                    '& .MuiBadge-badge': {
+                                                        bgcolor: '#ff9800',
+                                                        color: '#fff',
+                                                        fontSize: 10,
+                                                        minWidth: 18,
+                                                        height: 18,
+                                                    },
+                                                }}
+                                            />
+                                        )}
+                                    </Box>
+                                )}
+                            </Box>
+                            <FieldNotesList
+                                notes={referencesNotes}
+                                isOwner={isOwner}
+                                onResolve={handleResolveNote}
+                                onReject={handleRejectNote}
+                                isResolving={resolveNoteMutation.isPending}
+                                isRejecting={rejectNoteMutation.isPending}
+                            />
                         </Paper>
                     ) : null;
                 })()}
-
-                {/* Edit Requests Section (for owners) */}
-                {isOwner && editRequests.length > 0 && (
-                    <EditRequestsSection
-                        editRequests={editRequests}
-                        isOwner={isOwner}
-                        onApprove={handleApproveEditRequest}
-                        onReject={handleRejectEditRequest}
-                        isApproving={approveEditRequestMutation.isPending}
-                        isRejecting={rejectEditRequestMutation.isPending}
-                    />
-                )}
-
-                {/* Edit Requests Section (for collaborators to see their own requests) */}
-                {isCollaborator && !isOwner && editRequests.length > 0 && (
-                    <EditRequestsSection
-                        editRequests={editRequests.filter((req) => req.user.id === currentUser?.id)}
-                        isOwner={false}
-                        onApprove={() => {}}
-                        onReject={() => {}}
-                    />
-                )}
 
                 {/* Attachments */}
                 {project?.attachments && project.attachments.length > 0 && (
@@ -678,22 +1186,12 @@ const ProjectDetails: React.FC = () => {
 
                 {/* Collaborator Menu Items */}
                 {isCollaborator && !isOwner && (
-                    <>
-                        <MenuItem onClick={handleSuggestEditClick} sx={{ py: 1.5 }}>
-                            <ListItemIcon>
-                                <EditIcon sx={{ color: '#1F8505' }} />
-                            </ListItemIcon>
-                            <Typography sx={{ fontWeight: 500 }}>Suggest an Edit</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={handleLeaveClick} disabled={leaveProjectMutation.isPending} sx={{ py: 1.5 }}>
-                            <ListItemIcon>
-                                <DeleteIcon sx={{ color: '#f44336' }} />
-                            </ListItemIcon>
-                            <Typography sx={{ fontWeight: 500, color: '#f44336' }}>
-                                {leaveProjectMutation.isPending ? 'Leaving...' : 'Leave'}
-                            </Typography>
-                        </MenuItem>
-                    </>
+                    <MenuItem onClick={handleLeaveClick} disabled={leaveProjectMutation.isPending} sx={{ py: 1.5 }}>
+                        <ListItemIcon>
+                            <DeleteIcon sx={{ color: '#f44336' }} />
+                        </ListItemIcon>
+                        <Typography sx={{ fontWeight: 500, color: '#f44336' }}>{leaveProjectMutation.isPending ? 'Leaving...' : 'Leave'}</Typography>
+                    </MenuItem>
                 )}
             </Menu>
 
@@ -723,9 +1221,30 @@ const ProjectDetails: React.FC = () => {
                 <SubmitEditRequestModal
                     open={isEditRequestModalOpen}
                     currentContent={project.content}
-                    onClose={() => setIsEditRequestModalOpen(false)}
+                    onClose={() => {
+                        setIsEditRequestModalOpen(false);
+                        setSelectedFieldForEdit(null);
+                    }}
                     onSubmit={handleSubmitEditRequest}
                     isLoading={createEditRequestMutation.isPending}
+                    preselectedField={selectedFieldForEdit || undefined}
+                />
+            )}
+
+            {/* Add/Edit Note Modal */}
+            {id && (
+                <AddNoteModal
+                    open={isNoteModalOpen}
+                    contributionId={parseInt(id)}
+                    note={editingNote}
+                    contentKey={selectedFieldForNote || undefined}
+                    onClose={() => {
+                        setIsNoteModalOpen(false);
+                        setEditingNote(null);
+                        setSelectedFieldForNote(null);
+                    }}
+                    onSubmit={handleSubmitNote}
+                    isLoading={createNoteMutation.isPending || updateNoteMutation.isPending}
                 />
             )}
         </SinglePageLayout>

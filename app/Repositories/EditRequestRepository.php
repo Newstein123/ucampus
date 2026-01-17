@@ -35,13 +35,17 @@ class EditRequestRepository implements EditRequestRepositoryInterface
         return $query->find($id);
     }
 
-    public function listByContribution(int $contributionId, ?string $status = null): Collection
+    public function listByContribution(int $contributionId, ?string $status = null, ?string $contentKey = null): Collection
     {
         $query = ContributionEditRequest::where('contribution_id', $contributionId)
             ->with(['user:id,name', 'reviewer:id,name']);
 
         if ($status) {
             $query->where('status', $status);
+        }
+
+        if ($contentKey) {
+            $query->where('changes->content_key', $contentKey);
         }
 
         return $query->orderBy('created_at', 'desc')->get();
@@ -79,4 +83,3 @@ class EditRequestRepository implements EditRequestRepositoryInterface
             ->exists();
     }
 }
-

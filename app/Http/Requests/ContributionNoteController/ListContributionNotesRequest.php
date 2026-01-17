@@ -21,6 +21,7 @@ class ListContributionNotesRequest extends FormRequest
     {
         return [
             'contribution_id' => 'required|integer|exists:contributions,id',
+            'content_key' => 'nullable|string|in:problem,solution,impact,description,resources,references',
             'per_page' => 'nullable|integer|min:1|max:100',
             'page' => 'nullable|integer|min:1',
         ];

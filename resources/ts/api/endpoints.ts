@@ -51,6 +51,14 @@ export const endpoints = Object.freeze({
     tag_trending: '/tags/trending',
     tag_search: '/tags/search',
 
+    // Contribution Note endpoints
+    contribution_notes_list: '/contribution-notes',
+    contribution_notes_create: '/contribution-notes',
+    contribution_notes_update: '/contribution-notes/{id}',
+    contribution_notes_delete: '/contribution-notes/{id}',
+    contribution_notes_resolve: '/contribution-notes/{id}/resolve',
+    contribution_notes_reject: '/contribution-notes/{id}/reject',
+
     auth_social_login: '/auth/{provider}/login',
     auth_forgot_password: '/auth/forgot-password',
     auth_reset_password: '/auth/reset-password',

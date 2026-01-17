@@ -119,6 +119,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ContributionNoteController::class, 'store']);
         Route::put('/{id}', [ContributionNoteController::class, 'update']);
         Route::delete('/{id}', [ContributionNoteController::class, 'destroy']);
+        Route::post('/{id}/resolve', [ContributionNoteController::class, 'resolve']);
+        Route::post('/{id}/reject', [ContributionNoteController::class, 'reject']);
     });
 });
 
