@@ -71,22 +71,25 @@ const SubmitEditRequestModal: React.FC<SubmitEditRequestModalProps> = ({
         return [];
     };
 
-    const handleFieldChange = useCallback((fieldKey: string) => {
-        setSelectedField(fieldKey);
-        const currentValue = currentContent[fieldKey as keyof Content] || '';
+    const handleFieldChange = useCallback(
+        (fieldKey: string) => {
+            setSelectedField(fieldKey);
+            const currentValue = currentContent[fieldKey as keyof Content] || '';
 
-        if (fieldKey === 'references') {
-            // Handle references as array
-            const refs = parseReferences(currentValue);
-            setReferences(refs);
-            setNewValue('');
-        } else {
-            // Handle other fields as string
-            setNewValue(typeof currentValue === 'string' ? currentValue : JSON.stringify(currentValue));
-            setReferences([]);
-        }
-        setError('');
-    }, [currentContent]);
+            if (fieldKey === 'references') {
+                // Handle references as array
+                const refs = parseReferences(currentValue);
+                setReferences(refs);
+                setNewValue('');
+            } else {
+                // Handle other fields as string
+                setNewValue(typeof currentValue === 'string' ? currentValue : JSON.stringify(currentValue));
+                setReferences([]);
+            }
+            setError('');
+        },
+        [currentContent],
+    );
 
     const handleAddReference = (e?: React.KeyboardEvent) => {
         if (e && e.key !== 'Enter') {

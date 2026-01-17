@@ -34,8 +34,8 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
-import AppButton from '../../components/AppButton';
 import AddNoteModal from '../../components/AddNoteModal';
+import AppButton from '../../components/AppButton';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import FieldNotesList from '../../components/FieldNotesList';
@@ -58,7 +58,7 @@ import useContributionBookmarkMutation from '../../hooks/contribution/useContrib
 import useContributionDetailQuery from '../../hooks/contribution/useContributionDetailQuery';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
-import { Contribution, ContributionNote, NoteType } from '../../types/contribution';
+import { ContributionNote, NoteType } from '../../types/contribution';
 import { downloadFile } from '../../utils/pwa';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
@@ -317,7 +317,6 @@ const ProjectDetails: React.FC = () => {
             },
         );
     };
-
 
     const handleSubmitNote = async (contributionId: number, type: NoteType, noteText: string, contentKey?: string) => {
         if (editingNote) {
