@@ -31,24 +31,10 @@ const Home: React.FC = () => {
     const { onHomeRestart } = useHomeContext();
 
     // Interest mutation
-    const interestMutation = useContributionInterestMutation({
-        onSuccess: (data) => {
-            console.log('Interest updated successfully:', data.message);
-        },
-        onError: (error) => {
-            console.error('Failed to update interest:', error);
-        },
-    });
+    const interestMutation = useContributionInterestMutation();
 
     // Bookmark mutation
-    const bookmarkMutation = useContributionBookmarkMutation({
-        onSuccess: (data) => {
-            console.log('Bookmark updated successfully:', data.message);
-        },
-        onError: (error) => {
-            console.error('Failed to update bookmark:', error);
-        },
-    });
+    const bookmarkMutation = useContributionBookmarkMutation();
 
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
@@ -139,8 +125,6 @@ const Home: React.FC = () => {
     };
 
     const handleHomeRestart = useCallback(() => {
-        console.log('handleHomeRestart called');
-
         // For iOS PWA: scroll the main content container, not window
         // The .pwa-main-content element is the actual scrollable container in PWA mode
         const mainContent = document.querySelector('.pwa-main-content');
@@ -151,13 +135,11 @@ const Home: React.FC = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         // Invalidate and refetch the query to get fresh data
-        console.log('Resetting and refetching data...');
         queryClient.resetQueries({ queryKey: ['contributionList', type] });
     }, [queryClient, type]);
 
     // Register restart callback
     useEffect(() => {
-        console.log('Registering home restart callback');
         onHomeRestart(handleHomeRestart);
     }, [onHomeRestart, handleHomeRestart]);
 
@@ -204,10 +186,9 @@ const Home: React.FC = () => {
                             bgcolor: '#fff',
                             border: '1px solid #e0e0e0',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'none', // Remove transition for instant feedback
                             '&:hover': {
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                transform: 'translateY(-2px)',
                             },
                         }}
                     >
@@ -280,9 +261,10 @@ const Home: React.FC = () => {
                                 }}
                             />
                         )}
-                        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }} onClick={(e) => e.stopPropagation()}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                             <IconButton
                                 size="small"
+                                disableRipple // Remove ripple animation for instant feedback
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleInterest(item.id);
@@ -290,6 +272,7 @@ const Home: React.FC = () => {
                                 disabled={interestMutation.isPending}
                                 sx={{
                                     color: item.is_interested ? '#1F8505' : 'inherit',
+                                    transition: 'none', // Remove transition for instant feedback
                                     '&:hover': {
                                         color: item.is_interested ? '#1F8505' : '#1F8505',
                                     },
@@ -311,6 +294,7 @@ const Home: React.FC = () => {
                             <Box sx={{ flex: 1 }} />
                             <IconButton
                                 size="small"
+                                disableRipple // Remove ripple animation for instant feedback
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleBookmark(item.id);
@@ -318,6 +302,7 @@ const Home: React.FC = () => {
                                 disabled={bookmarkMutation.isPending}
                                 sx={{
                                     color: item.is_bookmarked ? '#1F8505' : 'inherit',
+                                    transition: 'none', // Remove transition for instant feedback
                                     '&:hover': {
                                         color: item.is_bookmarked ? '#165d04' : '#1F8505',
                                     },

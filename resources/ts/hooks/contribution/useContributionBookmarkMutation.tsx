@@ -24,8 +24,7 @@ interface BookmarkMutationOptions {
 }
 
 interface RollbackContext {
-    previousList: Array<[QueryKey, unknown]>;
-    previousInfiniteList: Array<[QueryKey, unknown]>;
+    previousContributionList: Array<[QueryKey, unknown]>;
     previousDetail: unknown;
     previousTrending: unknown;
 }
@@ -43,44 +42,47 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
         // Optimistic update before the API call
         onMutate: async (contributionId: number) => {
             // Cancel any outgoing refetches for all relevant queries
-            await queryClient.cancelQueries({ queryKey: ['contributionList'], exact: false });
-            await queryClient.cancelQueries({ queryKey: ['contributionListInfinite'], exact: false });
+            await queryClient.cancelQueries({ queryKey: ['contributionList'] });
             await queryClient.cancelQueries({ queryKey: ['contributionDetail', contributionId] });
             await queryClient.cancelQueries({ queryKey: ['contributionTrending'] });
 
-            // Snapshot previous data for rollback
-            const previousList = queryClient.getQueriesData({ queryKey: ['contributionList'] });
-            const previousInfiniteList = queryClient.getQueriesData({ queryKey: ['contributionListInfinite'] });
+            // Snapshot previous data for rollback (getQueriesData returns array of [queryKey, data] tuples)
+            const previousContributionList = queryClient.getQueriesData({ queryKey: ['contributionList'] });
             const previousDetail = queryClient.getQueryData(['contributionDetail', contributionId]);
             const previousTrending = queryClient.getQueryData(['contributionTrending']);
 
             // Optimistically toggle is_bookmarked in all matching list queries
-            queryClient.setQueriesData({ queryKey: ['contributionList'], exact: false }, (oldData: ContributionListResponse | undefined) => {
-                if (!oldData?.data) return oldData;
-                return {
-                    ...oldData,
-                    data: oldData.data.map((contribution: Contribution) =>
-                        contribution.id === contributionId ? { ...contribution, is_bookmarked: !contribution.is_bookmarked } : contribution,
-                    ),
-                };
-            });
+            // This handles both regular and infinite queries with ['contributionList', ...] prefix
+            queryClient.setQueriesData({ queryKey: ['contributionList'] }, (oldData: unknown) => {
+                if (!oldData) return oldData;
 
-            // Same optimistic update for infinite query
-            queryClient.setQueriesData(
-                { queryKey: ['contributionListInfinite'], exact: false },
-                (oldData: ContributionListInfiniteResponse | undefined) => {
-                    if (!oldData?.pages) return oldData;
+                // Check if it's an infinite query (has pages array)
+                const infiniteData = oldData as ContributionListInfiniteResponse;
+                if (infiniteData?.pages) {
                     return {
-                        ...oldData,
-                        pages: oldData.pages.map((page: ContributionResponse) => ({
+                        ...infiniteData,
+                        pages: infiniteData.pages.map((page: ContributionResponse) => ({
                             ...page,
                             data: page.data.map((contribution: Contribution) =>
                                 contribution.id === contributionId ? { ...contribution, is_bookmarked: !contribution.is_bookmarked } : contribution,
                             ),
                         })),
                     };
-                },
-            );
+                }
+
+                // Check if it's a regular query (has data array)
+                const regularData = oldData as ContributionListResponse;
+                if (regularData?.data) {
+                    return {
+                        ...regularData,
+                        data: regularData.data.map((contribution: Contribution) =>
+                            contribution.id === contributionId ? { ...contribution, is_bookmarked: !contribution.is_bookmarked } : contribution,
+                        ),
+                    };
+                }
+
+                return oldData;
+            });
 
             // Update Detail View
             queryClient.setQueryData(['contributionDetail', contributionId], (oldData: { data: Contribution } | undefined) => {
@@ -106,40 +108,26 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
             });
 
             // Return context for possible rollback on error
-            return { previousList, previousInfiniteList, previousDetail, previousTrending };
+            return { previousContributionList, previousDetail, previousTrending };
         },
 
         // After server response, ensure cache reflects actual state
         onSuccess: (data, contributionId) => {
-            console.log('🔖 Bookmark toggled:', data);
-
             // Invalidate contribution lists to ensure fresh data
-            queryClient.invalidateQueries({ queryKey: ['contributionList'], exact: false });
-            queryClient.invalidateQueries({ queryKey: ['contributionListInfinite'], exact: false });
+            queryClient.invalidateQueries({ queryKey: ['contributionList'] });
             queryClient.invalidateQueries({ queryKey: ['contributionDetail', contributionId] });
             queryClient.invalidateQueries({ queryKey: ['contributionTrending'] });
 
             // Invalidate the bookmarks list so the Bookmarks page refreshes
             queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
 
-            // We can also set queries data here if we want to be exactly precise with server response
-            // but invalidating is usually safer to get side-effects.
-            // However, to keep smooth experience, we can rely on optimistic update already done.
-            // The invalidation will trigger background refetch.
-
             options?.onSuccess?.(data);
         },
 
         // Roll back optimistic update if the request fails
         onError: (error, contributionId, context) => {
-            console.error('🔖 Bookmark mutation error:', error);
-            if (context?.previousList) {
-                context.previousList.forEach(([queryKey, data]) => {
-                    queryClient.setQueryData(queryKey, data);
-                });
-            }
-            if (context?.previousInfiniteList) {
-                context.previousInfiniteList.forEach(([queryKey, data]) => {
+            if (context?.previousContributionList) {
+                context.previousContributionList.forEach(([queryKey, data]) => {
                     queryClient.setQueryData(queryKey, data);
                 });
             }
