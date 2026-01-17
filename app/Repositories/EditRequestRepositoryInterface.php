@@ -13,7 +13,7 @@ interface EditRequestRepositoryInterface
 
     public function findByIdWithRelations(int $id, array $relations = []): ?ContributionEditRequest;
 
-    public function listByContribution(int $contributionId, ?string $status = null): Collection;
+    public function listByContribution(int $contributionId, ?string $status = null, ?string $contentKey = null): Collection;
 
     public function listByUser(int $userId, ?string $status = null): Collection;
 

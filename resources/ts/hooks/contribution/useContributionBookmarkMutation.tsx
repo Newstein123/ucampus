@@ -155,3 +155,4 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
 };
 
 export default useContributionBookmarkMutation;
+export { useContributionBookmarkMutation };

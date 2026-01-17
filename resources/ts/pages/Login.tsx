@@ -328,16 +328,17 @@ const Login: React.FC = () => {
             >
                 {/* Placeholder image */}
                 <img
-                    src="/assets/images/login_cover.png"
+                    src="/assets/images/login-cover.png"
                     alt="login"
                     style={{
                         opacity: 1,
                         position: 'absolute',
-                        top: '50%',
-                        left: '50%',
+                        top: 0,
+                        left: 0,
                         width: '100%',
                         height: '100%',
-                        transform: 'translate(-50%, -50%)',
+                        objectFit: 'cover',
+                        objectPosition: 'center',
                     }}
                 />
             </Box>

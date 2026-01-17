@@ -46,7 +46,8 @@ class EditRequestController extends Controller
     public function index(Request $request, $id)
     {
         $status = $request->query('status');
-        $editRequests = $this->editRequestService->list($id, $status);
+        $contentKey = $request->query('content_key');
+        $editRequests = $this->editRequestService->list($id, $status, $contentKey);
 
         return $this->response([
             'edit_requests' => EditRequestResource::collection($editRequests)

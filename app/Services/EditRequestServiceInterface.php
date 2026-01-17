@@ -9,7 +9,7 @@ interface EditRequestServiceInterface
 {
     public function create(int $contributionId, int $userId, array $changes, ?string $note = null): ContributionEditRequest;
 
-    public function list(int $contributionId, ?string $status = null): Collection;
+    public function list(int $contributionId, ?string $status = null, ?string $contentKey = null): Collection;
 
     public function approve(int $editRequestId, int $reviewerId): ContributionEditRequest;
 

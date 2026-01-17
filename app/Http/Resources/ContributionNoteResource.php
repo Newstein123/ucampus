@@ -18,15 +18,23 @@ class ContributionNoteResource extends JsonResource
             'id' => $this->id,
             'contribution_id' => $this->contribution_id,
             'user' => [
-                'id' => $this->user->id,
-                'username' => $this->user->username,
-                'profileName' => $this->user->profile_name,
-                'avatar' => $this->user->avatar,
+                'id' => $this->whenLoaded('user') ? $this->user->id : $this->user_id,
+                'username' => $this->whenLoaded('user') ? $this->user->username : null,
+                'profileName' => $this->whenLoaded('user') ? $this->user->name : null,
+                'avatar' => $this->whenLoaded('user') ? $this->user->avatar : null,
             ],
             'type' => $this->type,
+            'content_key' => $this->content_key,
+            'status' => $this->status ?? 'pending',
             'note' => $this->note,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'resolved_by' => $this->resolved_by,
+            'resolver' => $this->whenLoaded('resolver') && $this->resolver ? [
+                'id' => $this->resolver->id,
+                'name' => $this->resolver->name,
+            ] : null,
+            'resolved_at' => $this->resolved_at ? $this->resolved_at->format('c') : null,
+            'created_at' => $this->created_at ? $this->created_at->format('c') : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->format('c') : null,
         ];
     }
 }

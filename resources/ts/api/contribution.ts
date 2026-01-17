@@ -1,6 +1,7 @@
 import {
     ApproveEditRequestResponse,
     ContributionListRequest,
+    ContributionNotesResponse,
     ContributionResponse,
     ContributionSearchRequest,
     ContributionTrendingRequest,
@@ -8,9 +9,14 @@ import {
     CreateContributionResponse,
     CreateEditRequestRequest,
     CreateEditRequestResponse,
+    CreateNoteRequest,
+    CreateNoteResponse,
+    DeleteNoteResponse,
     EditRequestListResponse,
     RejectEditRequestRequest,
     RejectEditRequestResponse,
+    UpdateNoteRequest,
+    UpdateNoteResponse,
 } from '../types/contribution';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
@@ -179,11 +185,14 @@ export const contributionApi = {
             .post<CreateEditRequestResponse>(endpoints.edit_request_create.replace('{id}', String(contributionId)), data);
         return response.data;
     },
-    async listEditRequests(contributionId: number, status?: string): Promise<EditRequestListResponse> {
+    async listEditRequests(contributionId: number, status?: string, contentKey?: string): Promise<EditRequestListResponse> {
+        const params: { status?: string; content_key?: string } = {};
+        if (status) params.status = status;
+        if (contentKey) params.content_key = contentKey;
         const response = await apiClient
             .getClient()
             .get<EditRequestListResponse>(endpoints.edit_request_list.replace('{id}', String(contributionId)), {
-                params: status ? { status } : {},
+                params,
             });
         return response.data;
     },
@@ -203,6 +212,47 @@ export const contributionApi = {
         const response = await apiClient.getClient().get<EditRequestListResponse>(endpoints.edit_request_my, {
             params: status ? { status } : {},
         });
+        return response.data;
+    },
+
+    // Contribution Notes API
+    async getNotes(contributionId: number, perPage = 10, page = 1, contentKey?: string): Promise<ContributionNotesResponse> {
+        const params: { contribution_id: number; per_page: number; page: number; content_key?: string } = {
+            contribution_id: contributionId,
+            per_page: perPage,
+            page,
+        };
+        if (contentKey) params.content_key = contentKey;
+        const response = await apiClient.getClient().get<ContributionNotesResponse>(endpoints.contribution_notes_list, {
+            params,
+        });
+        return response.data;
+    },
+
+    async createNote(data: CreateNoteRequest): Promise<CreateNoteResponse> {
+        const response = await apiClient.getClient().post<CreateNoteResponse>(endpoints.contribution_notes_create, data);
+        return response.data;
+    },
+
+    async updateNote(noteId: number, data: UpdateNoteRequest): Promise<UpdateNoteResponse> {
+        const response = await apiClient
+            .getClient()
+            .put<UpdateNoteResponse>(endpoints.contribution_notes_update.replace('{id}', String(noteId)), data);
+        return response.data;
+    },
+
+    async deleteNote(noteId: number): Promise<DeleteNoteResponse> {
+        const response = await apiClient.getClient().delete<DeleteNoteResponse>(endpoints.contribution_notes_delete.replace('{id}', String(noteId)));
+        return response.data;
+    },
+
+    async resolveNote(noteId: number): Promise<CreateNoteResponse> {
+        const response = await apiClient.getClient().post<CreateNoteResponse>(endpoints.contribution_notes_resolve.replace('{id}', String(noteId)));
+        return response.data;
+    },
+
+    async rejectNote(noteId: number): Promise<CreateNoteResponse> {
+        const response = await apiClient.getClient().post<CreateNoteResponse>(endpoints.contribution_notes_reject.replace('{id}', String(noteId)));
         return response.data;
     },
 };

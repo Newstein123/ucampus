@@ -29,7 +29,8 @@ class ContributionNoteController extends Controller
                 $data['contribution_id'],
                 Auth::user()->id,
                 $data['per_page'] ?? 10,
-                $data['page'] ?? 1
+                $data['page'] ?? 1,
+                $data['content_key'] ?? null
             );
 
             return $this->response(
@@ -100,6 +101,54 @@ class ContributionNoteController extends Controller
             $this->noteService->delete($id, Auth::user()->id);
 
             return $this->response(null, 'Note deleted successfully');
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 403);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
+    /**
+     * Resolve a note (only owner can resolve)
+     */
+    public function resolve(int $id)
+    {
+        try {
+            $note = $this->noteService->resolve($id, Auth::user()->id);
+            $note->load(['user', 'resolver']);
+
+            return $this->response(
+                new ContributionNoteResource($note),
+                'Note resolved successfully'
+            );
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 403);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
+    /**
+     * Reject a note (only owner can reject)
+     */
+    public function reject(int $id)
+    {
+        try {
+            $note = $this->noteService->reject($id, Auth::user()->id);
+            $note->load(['user', 'resolver']);
+
+            return $this->response(
+                new ContributionNoteResource($note),
+                'Note rejected successfully'
+            );
         } catch (AuthorizationException $e) {
             return response()->json([
                 'message' => $e->getMessage(),

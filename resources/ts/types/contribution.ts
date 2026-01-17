@@ -188,3 +188,70 @@ export interface RejectEditRequestResponse {
         review_note: string | null;
     };
 }
+
+// Contribution Note Types
+export type NoteType = 'idea' | 'concern' | 'improvement';
+
+export interface ContributionNote {
+    id: number;
+    contribution_id: number;
+    user: {
+        id: number;
+        username: string;
+        profileName: string;
+        avatar: string | null;
+    };
+    type: NoteType;
+    content_key: string | null;
+    status: 'pending' | 'resolved' | 'rejected';
+    note: string;
+    resolved_by: number | null;
+    resolver: {
+        id: number;
+        name: string;
+    } | null;
+    resolved_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ContributionNotesResponse {
+    success: boolean;
+    message: string;
+    data: ContributionNote[];
+}
+
+export interface CreateNoteRequest {
+    contribution_id: number;
+    type: NoteType;
+    content_key?: string | null;
+    note: string;
+}
+
+export interface CreateNoteResponse {
+    success: boolean;
+    message: string;
+    data: ContributionNote;
+}
+
+export interface UpdateNoteRequest {
+    type?: NoteType;
+    note?: string;
+}
+
+export interface UpdateNoteResponse {
+    success: boolean;
+    message: string;
+    data: ContributionNote;
+}
+
+export interface ListNotesRequest {
+    contribution_id: number;
+    per_page?: number;
+    page?: number;
+}
+
+export interface DeleteNoteResponse {
+    success: boolean;
+    message: string;
+}

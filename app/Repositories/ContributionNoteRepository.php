@@ -11,17 +11,22 @@ class ContributionNoteRepository implements ContributionNoteRepositoryInterface
         return ContributionNote::create($data);
     }
 
-    public function findByContribution(int $contributionId, int $perPage = 10, int $page = 1)
+    public function findByContribution(int $contributionId, int $perPage = 10, int $page = 1, ?string $contentKey = null)
     {
-        return ContributionNote::with(['user'])
-            ->where('contribution_id', $contributionId)
-            ->orderBy('created_at', 'desc')
+        $query = ContributionNote::with(['user', 'resolver'])
+            ->where('contribution_id', $contributionId);
+
+        if ($contentKey) {
+            $query->where('content_key', $contentKey);
+        }
+
+        return $query->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function findById(int $id)
     {
-        return ContributionNote::with(['user', 'contribution'])->find($id);
+        return ContributionNote::with(['user', 'contribution', 'resolver'])->find($id);
     }
 
     public function update(int $id, array $data)

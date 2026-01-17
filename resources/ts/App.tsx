@@ -13,6 +13,7 @@ import { addPWAMetaTags, isPWA } from './utils/pwa';
 
 // Pages
 import Create from './pages/contribution/Create';
+import EditRequestsPage from './pages/contribution/EditRequestsPage';
 import IdeaCreate from './pages/contribution/IdeaCreate';
 import IdeaDetails from './pages/contribution/IdeaDetails';
 import IdeaEdit from './pages/contribution/IdeaEdit';
@@ -285,6 +286,14 @@ const App: React.FC = () => {
                                             element={
                                                 <ProtectedRoute>
                                                     <ProjectDetails />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/projects/:id/edit-requests"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <EditRequestsPage />
                                                 </ProtectedRoute>
                                             }
                                         />

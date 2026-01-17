@@ -14,7 +14,15 @@ class ContributionNote extends Model
         'contribution_id',
         'user_id',
         'type',
+        'content_key',
+        'status',
         'note',
+        'resolved_by',
+        'resolved_at',
+    ];
+
+    protected $casts = [
+        'resolved_at' => 'datetime',
     ];
 
     /**
@@ -31,5 +39,13 @@ class ContributionNote extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the user who resolved this note.
+     */
+    public function resolver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
     }
 }
