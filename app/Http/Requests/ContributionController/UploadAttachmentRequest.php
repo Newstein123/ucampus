@@ -22,6 +22,8 @@ class UploadAttachmentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'temp_key' => 'nullable|string|max:255',
+            'contribution_id' => 'nullable|integer|exists:contributions,id',
             'file' => [
                 'required',
                 'file',

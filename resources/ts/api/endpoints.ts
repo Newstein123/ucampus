@@ -15,6 +15,7 @@ export const endpoints = Object.freeze({
     contribution_delete: '/contributions/{id}',
     contribution_upload_attachment: '/contributions/upload-attachment',
     contribution_delete_attachment: '/contributions/attachment/{id}',
+    contribution_download_attachment: '/contributions/attachments/{id}/download',
     contribution_trending: '/contributions/trending',
     contribution_search: '/contributions/search',
     bookmark_list: '/contribution/bookmarks',
@@ -67,4 +68,7 @@ export const endpoints = Object.freeze({
     //   auth_update_onboarding: '/api/auth/update-onboarding',
     auth_change_password: '/auth/profile/edit/password',
     auth_update_profile: '/auth/profile/edit',
+
+    // Contact endpoints
+    contact_create: '/contact',
 });

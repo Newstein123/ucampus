@@ -76,6 +76,14 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\TagServiceInterface::class,
             \App\Services\TagService::class
         );
+        $this->app->bind(
+            \App\Repositories\ContactRepositoryInterface::class,
+            \App\Repositories\ContactRepository::class
+        );
+        $this->app->bind(
+            \App\Services\ContactServiceInterface::class,
+            \App\Services\ContactService::class
+        );
     }
 
     /**

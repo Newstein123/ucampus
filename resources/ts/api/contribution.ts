@@ -108,6 +108,44 @@ export const contributionApi = {
             .delete<{ success: boolean; message: string }>(endpoints.contribution_delete_attachment.replace('{id}', String(attachmentId)));
         return response.data;
     },
+    async downloadAttachment(attachmentId: number, filename: string): Promise<void> {
+        const response = await apiClient.getClient().post(
+            endpoints.contribution_download_attachment.replace('{id}', String(attachmentId)),
+            {},
+            {
+                responseType: 'blob', // Important: tell axios to handle binary data
+            },
+        );
+
+        // Check if the response is actually an error (Laravel returns JSON errors as blob)
+        const contentType = response.headers['content-type'] || '';
+        if (contentType.includes('application/json')) {
+            const text = await response.data.text();
+            const errorData = JSON.parse(text);
+            throw new Error(errorData.message || 'Failed to download file');
+        }
+
+        // Create a blob from the response
+        const blob = new Blob([response.data]);
+
+        // Create object URL
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        // Create a temporary anchor element
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up the object URL after a short delay to ensure download starts
+        setTimeout(() => {
+            window.URL.revokeObjectURL(blobUrl);
+        }, 100);
+    },
     async requestCollaboration(
         contributionId: number,
         joinReason: string,
