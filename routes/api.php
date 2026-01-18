@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\CollaborationController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ContributionController;
 use App\Http\Controllers\Api\ContributionNoteController;
 use App\Http\Controllers\Api\DiscussionController;
@@ -72,6 +73,7 @@ Route::prefix('contributions')->group(function () {
     Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum')->name('contributions.show');
     Route::post('/', [ContributionController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/upload-attachment', [ContributionController::class, 'uploadAttachment'])->middleware('auth:sanctum');
+    Route::post('/attachments/{id}/download', [ContributionController::class, 'downloadAttachment'])->middleware('auth:sanctum');
     Route::delete('/attachment/{id}', [ContributionController::class, 'deleteAttachment'])->middleware('auth:sanctum');
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
@@ -153,6 +155,9 @@ Route::prefix('notifications')->group(function () {
         ]);
     })->middleware('auth:sanctum');
 });
+
+// Contact us route (no authentication required)
+Route::post('/contact', [ContactController::class, 'store']);
 
 // Broadcasting authentication route
 Route::post('/broadcasting/auth', function (Request $request) {

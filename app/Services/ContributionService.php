@@ -43,9 +43,9 @@ class ContributionService implements ContributionServiceInterface
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
 
-            // Extract attachment IDs before creating contribution
-            $attachmentIds = $data['attachment_ids'] ?? [];
-            unset($data['attachment_ids']);
+            // Extract temp_key for linking attachments before creating contribution
+            $tempKey = $data['temp_key'] ?? null;
+            unset($data['temp_key']);
 
             $contribution = $this->contributionRepository->create($data);
 
@@ -55,14 +55,12 @@ class ContributionService implements ContributionServiceInterface
                 $contribution->tags()->attach($tagIds);
             }
 
-            // Link attachment records to contribution (attachments were already created during upload)
-            if (!empty($attachmentIds) && is_array($attachmentIds)) {
-                foreach ($attachmentIds as $attachmentId) {
-                    $attachment = \App\Models\ContributionAttachment::find($attachmentId);
-                    if ($attachment) {
-                        $attachment->update(['contribution_id' => $contribution->id]);
-                    }
-                }
+            // Link attachment records to contribution using temp_key
+            // This allows attachments to be uploaded before the contribution exists
+            if (!empty($tempKey)) {
+                \App\Models\ContributionAttachment::where('temp_key', $tempKey)
+                    ->whereNull('contribution_id')
+                    ->update(['contribution_id' => $contribution->id]);
             }
 
 
@@ -281,9 +279,10 @@ class ContributionService implements ContributionServiceInterface
      * 
      * @param \Illuminate\Http\UploadedFile $file
      * @param int|null $contributionId Optional contribution ID if updating existing contribution
+     * @param string|null $tempKey Optional temp key for linking attachments before contribution creation
      * @return array ['id' => int, 'url' => string, 'path' => string, 'name' => string, 'type' => string, 'size' => int]
      */
-    public function uploadAttachment($file, ?int $contributionId = null): array
+    public function uploadAttachment($file, ?int $contributionId = null, ?string $tempKey = null): array
     {
         try {
             // Upload file to MinIO and get relative path
@@ -295,6 +294,7 @@ class ContributionService implements ContributionServiceInterface
             // Store attachment in database
             $attachment = \App\Models\ContributionAttachment::create([
                 'contribution_id' => $contributionId, // Can be null for new contributions
+                'temp_key' => $tempKey, // Used to link attachments before contribution creation
                 'file_path' => $relativePath,
                 'file_name' => $file->getClientOriginalName(),
                 'file_type' => $file->getMimeType(),

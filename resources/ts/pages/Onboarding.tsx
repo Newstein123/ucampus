@@ -1,33 +1,42 @@
 import { Box, Button, MobileStepper, Paper, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AppButton from '../components/AppButton';
 
 const Onboarding: React.FC = () => {
+    const { t } = useTranslation();
     const [activeStep, setActiveStep] = useState(0);
     const navigate = useNavigate();
-    const steps = [
-        {
-            title: 'What is U Campus?',
-            content:
-                'U Campus is envisioned as a free, community-driven digital platform uniquely designed to empower Myanmar youth. It will serve as a dynamic space for sharing ideas, exploring deep questions, and collaborating on real-world projects that foster learning, creativity, and tangible impact.',
-            image: '/assets/onboarding/intro.png',
-            imageAlt: 'What is U Campus?',
-        },
-        {
-            title: 'Join Our Community',
-            content:
-                'Connect with like-minded individuals, share your ideas, and collaborate on projects that make a difference. Our platform is designed to foster creativity and innovation.',
-            image: '/assets/onboarding/join-our-community.png',
-            imageAlt: 'Join Our Community',
-        },
-        {
-            title: 'Get Started',
-            content: "You're all set! Start exploring the platform, connect with others, and begin your journey of learning and collaboration.",
-            image: '/assets/onboarding/get-started.png',
-            imageAlt: 'Get Started',
-        },
-    ];
+    const steps = useMemo(
+        () => [
+            {
+                title: t('What is U Campus?'),
+                content: t(
+                    'U Campus is envisioned as a free, community-driven digital platform uniquely designed to empower Myanmar youth. It will serve as a dynamic space for sharing ideas, exploring deep questions, and collaborating on real-world projects that foster learning, creativity, and tangible impact.',
+                ),
+                image: '/assets/onboarding/intro.png',
+                imageAlt: t('What is U Campus?'),
+            },
+            {
+                title: t('Join Our Community'),
+                content: t(
+                    'Connect with like-minded individuals, share your ideas, and collaborate on projects that make a difference. Our platform is designed to foster creativity and innovation.',
+                ),
+                image: '/assets/onboarding/join-our-community.png',
+                imageAlt: t('Join Our Community'),
+            },
+            {
+                title: t('Get Started'),
+                content: t(
+                    "You're all set! Start exploring the platform, connect with others, and begin your journey of learning and collaboration.",
+                ),
+                image: '/assets/onboarding/get-started.png',
+                imageAlt: t('Get Started'),
+            },
+        ],
+        [t],
+    );
 
     const handleNext = () => {
         if (activeStep === steps.length - 1) {
@@ -57,7 +66,7 @@ const Onboarding: React.FC = () => {
             }}
         >
             <Typography variant="subtitle1" sx={{ color: '#c1c1c1', fontWeight: 500, mb: 2, alignSelf: 'flex-start', pl: 2 }}>
-                Onboarding
+                {t('Onboarding')}
             </Typography>
 
             <Box
@@ -124,7 +133,7 @@ const Onboarding: React.FC = () => {
                                 },
                             }}
                         >
-                            Back
+                            {t('Back')}
                         </Button>
                     )}
                     <AppButton
@@ -137,7 +146,7 @@ const Onboarding: React.FC = () => {
                             fontSize: 14,
                         }}
                     >
-                        {activeStep === steps.length - 1 ? 'Get Started' : 'Next'}
+                        {activeStep === steps.length - 1 ? t('Get Started') : t('Next')}
                     </AppButton>
                 </Box>
             </Paper>

@@ -59,7 +59,6 @@ import useContributionDetailQuery from '../../hooks/contribution/useContribution
 import { useDiscussions } from '../../hooks/useDiscussions';
 import { selectUser } from '../../store/slices/authSlice';
 import { ContributionNote, NoteType } from '../../types/contribution';
-import { downloadFile } from '../../utils/pwa';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -1028,8 +1027,24 @@ const ProjectDetails: React.FC = () => {
                                             onClick={async (e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                if (file.url) {
-                                                    await downloadFile(file.url, file.name);
+                                                if (file.id) {
+                                                    try {
+                                                        await contributionApi.downloadAttachment(file.id, file.name);
+                                                        setToastMessage('File downloaded successfully');
+                                                        setToastType('success');
+                                                        setToastOpen(true);
+                                                    } catch (error) {
+                                                        const err = error as { response?: { data?: { message?: string } } };
+                                                        const errorMsg = err.response?.data?.message || 'Failed to download file';
+                                                        setToastMessage(errorMsg);
+                                                        setToastType('error');
+                                                        setToastOpen(true);
+                                                    }
+                                                } else {
+                                                    // Fallback for legacy attachments without ID
+                                                    setToastMessage('This attachment cannot be downloaded');
+                                                    setToastType('error');
+                                                    setToastOpen(true);
                                                 }
                                             }}
                                         >
