@@ -60,6 +60,8 @@ const ProjectCreate: React.FC = () => {
     const [ideaThumbnailUrl, setIdeaThumbnailUrl] = useState<string | null>(null);
     const [uploadedAttachments, setUploadedAttachments] = useState<UploadedAttachment[]>([]);
     const [uploadingAttachments, setUploadingAttachments] = useState<Set<number>>(new Set());
+    // Generate a unique temp_key for this contribution creation session
+    const [tempKey] = useState(() => `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
     const createContributionMutation = useCreateContributionMutation();
     const deleteAttachmentMutation = useDeleteAttachmentMutation();
 
@@ -166,7 +168,7 @@ const ProjectCreate: React.FC = () => {
                 setUploadingAttachments((prev) => new Set(prev).add(fileIndex));
 
                 contributionApi
-                    .uploadAttachment(file)
+                    .uploadAttachment(file, undefined, tempKey)
                     .then((response) => {
                         setUploadedAttachments((prev) => [...prev, response.data]);
                     })
@@ -334,14 +336,9 @@ const ProjectCreate: React.FC = () => {
             }
         }
 
-        // Handle attachments: send attachment IDs
-        if (uploadedAttachments.length > 0) {
-            uploadedAttachments.forEach((att) => {
-                if (att.id) {
-                    formData.append('attachment_ids[]', att.id.toString());
-                }
-            });
-        }
+        // Send temp_key to link attachments to contribution
+        // The backend will find all attachments with this temp_key and link them
+        formData.append('temp_key', tempKey);
 
         // Handle references: send as array of links
         if (data.references && Array.isArray(data.references) && data.references.length > 0) {
