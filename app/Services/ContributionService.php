@@ -22,7 +22,7 @@ class ContributionService implements ContributionServiceInterface
         if (!isset($data['user_id'])) {
             $data['is_public'] = true;
         }
-        
+
         return $this->contributionRepository->list($data);
     }
 
@@ -60,7 +60,22 @@ class ContributionService implements ContributionServiceInterface
             if (!empty($tempKey)) {
                 \App\Models\ContributionAttachment::where('temp_key', $tempKey)
                     ->whereNull('contribution_id')
-                    ->update(['contribution_id' => $contribution->id]);
+                    ->update([
+                        'contribution_id' => $contribution->id,
+                        'temp_key' => null, // Clear temp_key after linking
+                    ]);
+            }
+
+            // Also handle attachment_ids[] for backward compatibility (e.g., when editing)
+            $attachmentIds = $data['attachment_ids'] ?? [];
+            unset($data['attachment_ids']);
+            if (!empty($attachmentIds) && is_array($attachmentIds)) {
+                foreach ($attachmentIds as $attachmentId) {
+                    $attachment = \App\Models\ContributionAttachment::find($attachmentId);
+                    if ($attachment && !$attachment->contribution_id) {
+                        $attachment->update(['contribution_id' => $contribution->id]);
+                    }
+                }
             }
 
 
@@ -220,13 +235,13 @@ class ContributionService implements ContributionServiceInterface
         // Key: view_lock_IP_ID
         $ip = request()->ip();
         $key = "view_lock_{$ip}_{$id}";
-        
+
         if (!Cache::has($key)) {
             $this->contributionRepository->incrementViews($id);
             // Lock for 10 seconds
             Cache::put($key, true, 3);
         }
-        
+
         return $this->contributionRepository->find($id);
     }
 

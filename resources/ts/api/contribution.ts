@@ -89,11 +89,15 @@ export const contributionApi = {
     async uploadAttachment(
         file: File,
         contributionId?: number,
+        tempKey?: string,
     ): Promise<{ success: boolean; message: string; data: { id: number; url: string; path: string; name: string; type: string; size: number } }> {
         const formData = new FormData();
         formData.append('file', file);
         if (contributionId) {
             formData.append('contribution_id', contributionId.toString());
+        }
+        if (tempKey) {
+            formData.append('temp_key', tempKey);
         }
         const response = await apiClient.getClient().post<{
             success: boolean;
