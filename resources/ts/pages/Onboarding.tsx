@@ -1,13 +1,28 @@
 import { Box, Button, MobileStepper, Paper, Typography } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../api/client';
+import { endpoints } from '../api/endpoints';
 import AppButton from '../components/AppButton';
+import { selectUser, setOnboardingCompleted } from '../store/slices/authSlice';
 
 const Onboarding: React.FC = () => {
     const { t } = useTranslation();
     const [activeStep, setActiveStep] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const user = useSelector(selectUser);
+
+    // Redirect to home if user has already completed onboarding
+    useEffect(() => {
+        if (user?.onboarding_completed) {
+            navigate('/', { replace: true });
+        }
+    }, [user?.onboarding_completed, navigate]);
+
     const steps = useMemo(
         () => [
             {
@@ -38,10 +53,22 @@ const Onboarding: React.FC = () => {
         [t],
     );
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (activeStep === steps.length - 1) {
-            console.log('Onboarding Completed');
-            navigate('/');
+            // Call API to mark onboarding as completed
+            setIsSubmitting(true);
+            try {
+                await apiClient.getClient().post(endpoints.auth_complete_onboarding);
+                dispatch(setOnboardingCompleted());
+                console.log('Onboarding Completed');
+                navigate('/', { replace: true });
+            } catch (error) {
+                console.error('Failed to complete onboarding:', error);
+                // Navigate anyway to avoid blocking the user
+                navigate('/');
+            } finally {
+                setIsSubmitting(false);
+            }
         } else {
             setActiveStep((prevStep) => prevStep + 1);
         }
@@ -50,6 +77,11 @@ const Onboarding: React.FC = () => {
     const handleBack = () => {
         setActiveStep((prevStep) => prevStep - 1);
     };
+
+    // Don't render if user has already completed onboarding (prevents flash)
+    if (user?.onboarding_completed) {
+        return null;
+    }
 
     return (
         <Box
@@ -120,6 +152,7 @@ const Onboarding: React.FC = () => {
                         <Button
                             variant="outlined"
                             onClick={handleBack}
+                            disabled={isSubmitting}
                             sx={{
                                 borderColor: '#4caf50',
                                 color: '#4caf50',
@@ -138,6 +171,7 @@ const Onboarding: React.FC = () => {
                     )}
                     <AppButton
                         onClick={handleNext}
+                        disabled={isSubmitting}
                         sx={{
                             bgcolor: '#4caf50',
                             '&:hover': { bgcolor: '#388e3c' },
@@ -146,7 +180,7 @@ const Onboarding: React.FC = () => {
                             fontSize: 14,
                         }}
                     >
-                        {activeStep === steps.length - 1 ? t('Get Started') : t('Next')}
+                        {isSubmitting ? t('Please wait...') : activeStep === steps.length - 1 ? t('Get Started') : t('Next')}
                     </AppButton>
                 </Box>
             </Paper>

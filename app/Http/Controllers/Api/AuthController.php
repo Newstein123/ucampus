@@ -114,4 +114,15 @@ class AuthController extends Controller
 
         return $this->response(null, $result['message']);
     }
+
+    public function completeOnboarding(Request $request)
+    {
+        $user = $request->user();
+        $user->onboarding_completed = true;
+        $user->save();
+
+        return $this->response([
+            'onboarding_completed' => true,
+        ], 'Onboarding completed successfully');
+    }
 }

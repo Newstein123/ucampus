@@ -63,6 +63,7 @@ export const endpoints = Object.freeze({
     auth_social_login: '/auth/{provider}/login',
     auth_forgot_password: '/auth/forgot-password',
     auth_reset_password: '/auth/reset-password',
+    auth_complete_onboarding: '/auth/complete-onboarding',
     //   auth_verify_email: '/api/auth/verify-email',
     //   auth_resend_verification: '/api/auth/resend-verification',
     //   auth_update_onboarding: '/api/auth/update-onboarding',

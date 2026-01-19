@@ -400,7 +400,7 @@ class ContributionService implements ContributionServiceInterface
                     'type' => 'participant_left',
                     'source_id' => $participant->id,
                     'source_type' => \App\Models\ContributionParticipant::class,
-                    'message' => ($participantUser ? $participantUser->name : 'A participant') . ' left your project',
+                    'message' => ($participantUser ? $participantUser->name : 'A participant') . ' has left your project “' . $contribution->title . '”' . ($leftReason ? ' because "' . $leftReason . '"' : '') . '.',
                     'redirect_url' => $redirectPath,
                     'sender_user_id' => $userId,
                 ]);

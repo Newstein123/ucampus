@@ -10,7 +10,7 @@ interface RequestDetails {
     id: number;
     contribution_id: number;
     user_id: number;
-    reason: string;
+    join_reason: string;
     status: string;
     created_at: string;
     user: {
@@ -175,7 +175,7 @@ const ProjectRequest: React.FC = () => {
                         Reason
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#444', lineHeight: 1.6 }}>
-                        {request.reason}
+                        {request.join_reason}
                     </Typography>
                 </Box>
 
