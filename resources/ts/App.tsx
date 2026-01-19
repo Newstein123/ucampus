@@ -198,7 +198,14 @@ const App: React.FC = () => {
                                             }
                                         />
 
-                                        <Route path="/onboarding" element={<Onboarding />} />
+                                        <Route
+                                            path="/onboarding"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <Onboarding />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
                                         {/* Contribution routes */}
                                         <Route

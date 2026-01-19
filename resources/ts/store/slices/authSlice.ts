@@ -40,13 +40,18 @@ export const authSlice = createSlice({
         setError(state, action: PayloadAction<string | null>) {
             state.error = action.payload;
         },
+        setOnboardingCompleted(state) {
+            if (state.user) {
+                state.user.onboarding_completed = true;
+            }
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(RESET_ROOT_STATE, () => initialState);
     },
 });
 
-export const { setUser, logout, setLoading, setError } = authSlice.actions;
+export const { setUser, logout, setLoading, setError, setOnboardingCompleted } = authSlice.actions;
 
 // Use proper typing for selectors
 export const selectUser = (state: { auth: AuthState }) => state.auth.user;
