@@ -92,7 +92,13 @@ const Notifications: React.FC = () => {
                 } catch (error) {
                     // Invalid URL - try to navigate as-is
                     console.error('Error parsing URL:', error);
-                    navigate(url);
+                    // Try to extract path from malformed URL
+                    const pathMatch = url.match(/\/[^?]*/);
+                    if (pathMatch) {
+                        navigate(pathMatch[0]);
+                    } else {
+                        navigate('/');
+                    }
                 }
             } else {
                 // Fallback - navigate as-is (treat as relative path)
