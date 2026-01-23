@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import { apiClient } from '../api/client';
 import AppButton from '../components/AppButton';
 import BackButton from '../components/BackButton';
 import { ErrorResponse } from '../hooks';
@@ -52,8 +53,28 @@ const Register: React.FC = () => {
         mode: 'onTouched',
     });
 
-    const handleStep1 = () => {
-        setStep(2);
+    const checkUsernameAvailability = async (username: string) => {
+        try {
+            await apiClient.getClient().post('/auth/check-username', { username });
+            return true;
+        } catch (err: unknown) {
+            const error = err as AxiosError;
+            if (error.response && error.response.status === 422) {
+                step1Form.setError('username', {
+                    type: 'manual',
+                    message: 'The username has already been taken.',
+                });
+                return false;
+            }
+            return true; // If other error, let backend validation handle it later or ignore
+        }
+    };
+
+    const handleStep1 = async (data: Step1Form) => {
+        const isAvailable = await checkUsernameAvailability(data.username);
+        if (isAvailable) {
+            setStep(2);
+        }
     };
 
     const handleRegister = (data: Step2Form) => {
@@ -67,7 +88,13 @@ const Register: React.FC = () => {
                 navigate('/login');
             },
             onError: (error: AxiosError<ErrorResponse>) => {
-                setApiError(error.response?.data.errors || null);
+                const errors = error.response?.data.errors || null;
+                setApiError(errors);
+
+                if (errors && errors.username) {
+                    alert(Array.isArray(errors.username) ? errors.username[0] : errors.username);
+                    setStep(1);
+                }
             },
         });
     };
