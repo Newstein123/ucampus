@@ -22,6 +22,15 @@ class AuthController extends Controller
         protected AuthServiceInterface $authService
     ) {}
 
+    public function checkUsername(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|unique:users,username',
+        ]);
+
+        return response()->json(['message' => 'Username is available']);
+    }
+
     public function register(RegisterRequest $request)
     {
         $result = $this->authService->register($request->validated());

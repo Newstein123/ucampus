@@ -21,6 +21,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('auth')->group(function () {
+    Route::post('/check-username', [AuthController::class, 'checkUsername']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/login/{provider}', [AuthController::class, 'socialLogin']);
