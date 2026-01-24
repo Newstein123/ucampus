@@ -31,6 +31,15 @@ class AuthController extends Controller
         return response()->json(['message' => 'Username is available']);
     }
 
+    public function checkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:users,email',
+        ]);
+
+        return response()->json(['message' => 'Email is available']);
+    }
+
     public function register(RegisterRequest $request)
     {
         $result = $this->authService->register($request->validated());
