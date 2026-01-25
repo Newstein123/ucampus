@@ -15,6 +15,7 @@ class Discussion extends Model
         'user_id',
         'parent_id',
         'is_edited',
+        'is_locked',
         'content',
         'upvotes',
         'downvotes',
