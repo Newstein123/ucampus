@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Repositories\ContributionRepositoryInterface;
 use App\Repositories\DiscussionRepositoryInterface;
 
 class DiscussionService implements DiscussionServiceInterface
 {
     public function __construct(
-        protected DiscussionRepositoryInterface $discussionRepository
+        protected DiscussionRepositoryInterface $discussionRepository,
+        protected ContributionRepositoryInterface $contributionRepository,
+        protected NotificationServiceInterface $notificationService
     ) {}
 
     public function getAllParentDiscussions(int $id, array $data = [])
@@ -34,6 +37,27 @@ class DiscussionService implements DiscussionServiceInterface
     {
         try {
             $discussion = $this->discussionRepository->create($data);
+
+            // Send notification to contribution owner when discussion is created
+            // Only if the discussion creator is not the contribution owner
+            if (isset($data['contribution_id']) && isset($data['user_id'])) {
+                $contribution = $this->contributionRepository->find($data['contribution_id']);
+                if ($contribution && $contribution->user_id !== $data['user_id']) {
+                    // Get relative path for contribution based on type
+                    $redirectPath = $this->getContributionRedirectPath($data['contribution_id'], $contribution->type);
+
+                    $this->notificationService->create([
+                        'recipient_user_id' => $contribution->user_id,
+                        'contribution_id' => $data['contribution_id'],
+                        'type' => 'new_discussion',
+                        'source_id' => $discussion->id,
+                        'source_type' => \App\Models\Discussion::class,
+                        'message' => 'Someone started a discussion on your contribution',
+                        'redirect_url' => $redirectPath,
+                        'sender_user_id' => $data['user_id'],
+                    ]);
+                }
+            }
 
             return $discussion;
         } catch (\Exception $e) {
@@ -68,5 +92,24 @@ class DiscussionService implements DiscussionServiceInterface
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    /**
+     * Get relative redirect path for contribution based on type
+     */
+    private function getContributionRedirectPath(int $contributionId, ?string $type = null): string
+    {
+        // If type is provided, use it; otherwise fetch from contribution
+        if (!$type) {
+            $contribution = $this->contributionRepository->find($contributionId);
+            $type = $contribution?->type;
+        }
+
+        return match ($type) {
+            'project' => "/projects/{$contributionId}",
+            'idea' => "/ideas/{$contributionId}",
+            'question' => "/questions/{$contributionId}",
+            default => "/projects/{$contributionId}", // Default to projects
+        };
     }
 }

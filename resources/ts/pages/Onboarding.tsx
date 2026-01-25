@@ -1,36 +1,74 @@
-import { KeyboardArrowRight } from '@mui/icons-material';
 import { Box, Button, MobileStepper, Paper, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { selectUser } from '../store/slices/authSlice';
+import { apiClient } from '../api/client';
+import { endpoints } from '../api/endpoints';
+import AppButton from '../components/AppButton';
+import { selectUser, setOnboardingCompleted } from '../store/slices/authSlice';
 
 const Onboarding: React.FC = () => {
+    const { t } = useTranslation();
     const [activeStep, setActiveStep] = useState(0);
-    const user = useSelector(selectUser);
-    console.log(user);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
-    const steps = [
-        {
-            title: 'What is U Campus?',
-            content:
-                'U Campus is envisioned as a free, community-driven digital platform uniquely designed to empower Myanmar youth. It will serve as a dynamic space for sharing ideas, exploring deep questions, and collaborating on real-world projects that foster learning, creativity, and tangible impact.',
-        },
-        {
-            title: 'Join Our Community',
-            content:
-                'Connect with like-minded individuals, share your ideas, and collaborate on projects that make a difference. Our platform is designed to foster creativity and innovation.',
-        },
-        {
-            title: 'Get Started',
-            content: "You're all set! Start exploring the platform, connect with others, and begin your journey of learning and collaboration.",
-        },
-    ];
+    const dispatch = useDispatch();
+    const user = useSelector(selectUser);
 
-    const handleNext = () => {
+    // Redirect to home if user has already completed onboarding
+    useEffect(() => {
+        if (user?.onboarding_completed) {
+            navigate('/', { replace: true });
+        }
+    }, [user?.onboarding_completed, navigate]);
+
+    const steps = useMemo(
+        () => [
+            {
+                title: t('What is U Campus?'),
+                content: t(
+                    'U Campus is envisioned as a free, community-driven digital platform uniquely designed to empower Myanmar youth. It will serve as a dynamic space for sharing ideas, exploring deep questions, and collaborating on real-world projects that foster learning, creativity, and tangible impact.',
+                ),
+                image: '/assets/onboarding/intro.png',
+                imageAlt: t('What is U Campus?'),
+            },
+            {
+                title: t('Join Our Community'),
+                content: t(
+                    'Connect with like-minded individuals, share your ideas, and collaborate on projects that make a difference. Our platform is designed to foster creativity and innovation.',
+                ),
+                image: '/assets/onboarding/join-our-community.png',
+                imageAlt: t('Join Our Community'),
+            },
+            {
+                title: t('Get Started'),
+                content: t(
+                    "You're all set! Start exploring the platform, connect with others, and begin your journey of learning and collaboration.",
+                ),
+                image: '/assets/onboarding/get-started.png',
+                imageAlt: t('Get Started'),
+            },
+        ],
+        [t],
+    );
+
+    const handleNext = async () => {
         if (activeStep === steps.length - 1) {
-            console.log('Onboarding Completed');
-            navigate('/');
+            // Call API to mark onboarding as completed
+            setIsSubmitting(true);
+            try {
+                await apiClient.getClient().post(endpoints.auth_complete_onboarding);
+                dispatch(setOnboardingCompleted());
+                console.log('Onboarding Completed');
+                navigate('/', { replace: true });
+            } catch (error) {
+                console.error('Failed to complete onboarding:', error);
+                // Navigate anyway to avoid blocking the user
+                navigate('/');
+            } finally {
+                setIsSubmitting(false);
+            }
         } else {
             setActiveStep((prevStep) => prevStep + 1);
         }
@@ -39,6 +77,11 @@ const Onboarding: React.FC = () => {
     const handleBack = () => {
         setActiveStep((prevStep) => prevStep - 1);
     };
+
+    // Don't render if user has already completed onboarding (prevents flash)
+    if (user?.onboarding_completed) {
+        return null;
+    }
 
     return (
         <Box
@@ -55,35 +98,21 @@ const Onboarding: React.FC = () => {
             }}
         >
             <Typography variant="subtitle1" sx={{ color: '#c1c1c1', fontWeight: 500, mb: 2, alignSelf: 'flex-start', pl: 2 }}>
-                Onboarding
+                {t('Onboarding')}
             </Typography>
 
             <Box
                 sx={{
-                    bgcolor: '#d9f5d6',
                     width: '90%',
-                    height: 220,
                     borderRadius: 3,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     mb: 3,
+                    overflow: 'hidden',
                 }}
             >
-                <Box
-                    sx={{
-                        width: 48,
-                        height: 48,
-                        bgcolor: '#e6f7e6',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#b0c4b1',
-                    }}
-                >
-                    <KeyboardArrowRight fontSize="large" />
-                </Box>
+                <img src={steps[activeStep].image} alt={steps[activeStep].imageAlt} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </Box>
 
             <MobileStepper
@@ -123,6 +152,7 @@ const Onboarding: React.FC = () => {
                         <Button
                             variant="outlined"
                             onClick={handleBack}
+                            disabled={isSubmitting}
                             sx={{
                                 borderColor: '#4caf50',
                                 color: '#4caf50',
@@ -136,24 +166,22 @@ const Onboarding: React.FC = () => {
                                 },
                             }}
                         >
-                            Back
+                            {t('Back')}
                         </Button>
                     )}
-                    <Button
-                        variant="contained"
+                    <AppButton
                         onClick={handleNext}
+                        disabled={isSubmitting}
                         sx={{
                             bgcolor: '#4caf50',
-                            color: '#fff',
-                            fontWeight: 600,
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            flex: activeStep > 0 ? 1 : 1,
                             '&:hover': { bgcolor: '#388e3c' },
+                            flex: 1,
+                            py: 1,
+                            fontSize: 14,
                         }}
                     >
-                        {activeStep === steps.length - 1 ? 'Get Started' : 'Next'}
-                    </Button>
+                        {isSubmitting ? t('Please wait...') : activeStep === steps.length - 1 ? t('Get Started') : t('Next')}
+                    </AppButton>
                 </Box>
             </Paper>
         </Box>

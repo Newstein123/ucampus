@@ -57,7 +57,7 @@ class ContributionController extends Controller
     public function show(ShowRequest $request)
     {
         $data = $request->validated();
-        $contribution = $this->contributionService->find($data['contribution_id']);
+        $contribution = $this->contributionService->view($data['contribution_id']);
         $resource = new ContributionResource($contribution);
 
         return $this->response($resource, 'Contribution fetched successfully');
@@ -110,7 +110,12 @@ class ContributionController extends Controller
     {
         $file = $request->file('file');
         $contributionId = $request->input('contribution_id'); // Optional, for updates
-        $result = $this->contributionService->uploadAttachment($file, $contributionId ? (int)$contributionId : null);
+        $tempKey = $request->input('temp_key'); // Optional, for linking before contribution creation
+        $result = $this->contributionService->uploadAttachment(
+            $file, 
+            $contributionId ? (int)$contributionId : null,
+            $tempKey
+        );
         return $this->response($result, 'Attachment uploaded successfully');
     }
 
@@ -140,5 +145,51 @@ class ContributionController extends Controller
         $result = $this->contributionService->leaveProject($data);
         return $this->response(null, $result['message']);
     }
-}
 
+    /**
+     * Download an attachment
+     * 
+     * @param int $id Attachment ID
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
+    public function downloadAttachment(int $id)
+    {
+        try {
+            $attachment = \App\Models\ContributionAttachment::findOrFail($id);
+            $fileService = app(\App\Services\FileService::class);
+
+            // Get the file path
+            $filePath = $attachment->file_path;
+
+            // Check if file exists
+            if (!$fileService->fileExists($filePath)) {
+                return $this->response(null, 'File not found', 404);
+            }
+
+            // Get the storage disk
+            $disk = $fileService->getDisk();
+            $storage = \Illuminate\Support\Facades\Storage::disk($disk);
+
+            // Get file contents
+            $fileContents = $storage->get($filePath);
+
+            if ($fileContents === false) {
+                return $this->response(null, 'Failed to read file', 500);
+            }
+
+            // Get MIME type
+            $mimeType = $storage->mimeType($filePath) ?? 'application/octet-stream';
+
+            // Return file download response
+            return response($fileContents, 200)
+                ->header('Content-Type', $mimeType)
+                ->header('Content-Disposition', 'attachment; filename="' . $attachment->file_name . '"')
+                ->header('Content-Length', strlen($fileContents));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->response(null, 'Attachment not found', 404);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to download attachment: ' . $e->getMessage());
+            return $this->response(null, 'Failed to download attachment', 500);
+        }
+    }
+}

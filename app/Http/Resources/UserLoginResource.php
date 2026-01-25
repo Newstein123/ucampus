@@ -21,6 +21,7 @@ class UserLoginResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'last_login_at' => $this->last_login_at,
+            'onboarding_completed' => $this->onboarding_completed ?? false,
         ];
     }
 }

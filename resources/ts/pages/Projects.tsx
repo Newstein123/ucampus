@@ -32,14 +32,13 @@ interface CollaborationProject {
 interface ProjectCardProps {
     id: number;
     title: string;
-    subtitle?: string;
     image: string;
     showMenu?: boolean;
     onEdit?: (id: number) => void;
     onDelete?: (id: number) => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ id, title, subtitle, image, showMenu = false, onEdit, onDelete }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ id, title, image, showMenu = false, onEdit, onDelete }) => {
     const navigate = useNavigate();
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
@@ -89,7 +88,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ id, title, subtitle, image, s
                 <CardMedia component="img" image={image} alt={title} sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: '#e8f5e9', mr: 2 }} />
                 <Box sx={{ flex: 1 }}>
                     <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{title}</Typography>
-                    {subtitle && subtitle !== title && <Typography sx={{ color: '#888', fontSize: 13 }}>{subtitle}</Typography>}
                 </Box>
                 {showMenu && (
                     <Box
@@ -252,7 +250,6 @@ const Projects: React.FC = () => {
                                         key={p.id}
                                         id={p.id}
                                         title={p.title}
-                                        subtitle={p.content?.description || ''}
                                         image={p.thumbnail_url || DEFAULT_IMAGE}
                                         showMenu={true}
                                         onEdit={handleEdit}
@@ -273,7 +270,6 @@ const Projects: React.FC = () => {
                                         key={c.id}
                                         id={c.contribution.id}
                                         title={c.contribution.title}
-                                        subtitle={c.contribution.content?.description || ''}
                                         image={c.contribution.thumbnail_url || DEFAULT_IMAGE}
                                         showMenu={false}
                                     />

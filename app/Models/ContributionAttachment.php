@@ -12,6 +12,7 @@ class ContributionAttachment extends Model
 
     protected $fillable = [
         'contribution_id',
+        'temp_key',
         'file_path',
         'file_name',
         'file_type',

@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Validator;
 class CollaborationController extends Controller
 {
     public function __construct(
-        private CollaborationServiceInterface $collaborationService
+        private CollaborationServiceInterface $collaborationService,
+        private \App\Services\FileService $fileService
     ) {}
 
     /**
@@ -95,6 +96,13 @@ class CollaborationController extends Controller
                 $request->get('status'),
                 $request->get('user_id')
             );
+
+            // Transform thumbnail URLs
+            foreach ($collaborations as &$collaboration) {
+                if (isset($collaboration['contribution']['thumbnail_url'])) {
+                    $collaboration['contribution']['thumbnail_url'] = $this->fileService->getFileUrl($collaboration['contribution']['thumbnail_url']);
+                }
+            }
 
             return response()->json([
                 'message' => 'Success',

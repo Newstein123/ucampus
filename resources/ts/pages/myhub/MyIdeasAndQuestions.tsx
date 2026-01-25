@@ -4,6 +4,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
     Avatar,
     Box,
+    CardMedia,
     CircularProgress,
     List,
     ListItem,
@@ -162,7 +163,7 @@ const ContributionItem: React.FC<ContributionItemProps> = ({ contribution, type,
 const MyIdeasAndQuestions: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { data: userProfile } = useUserProfileQuery();
+    const { data: userProfile, isLoading: userProfileLoading } = useUserProfileQuery();
     const userId = userProfile?.data?.id;
 
     // Delete modal state
@@ -179,7 +180,6 @@ const MyIdeasAndQuestions: React.FC = () => {
     const {
         data: ideasData,
         isLoading: ideasLoading,
-        error: ideasError,
         refetch: refetchIdeas,
     } = useMyContributionsQuery({
         type: 'idea',
@@ -192,7 +192,6 @@ const MyIdeasAndQuestions: React.FC = () => {
     const {
         data: questionsData,
         isLoading: questionsLoading,
-        error: questionsError,
         refetch: refetchQuestions,
     } = useMyContributionsQuery({
         type: 'question',
@@ -244,43 +243,110 @@ const MyIdeasAndQuestions: React.FC = () => {
 
     return (
         <SinglePageLayout title={t('My ideas and questions')} bgColor="#fafdff">
-            <Paper elevation={0} sx={{ bgcolor: '#fafdff', borderRadius: 3, p: 0, boxShadow: 'none', minHeight: '100vh' }}>
-                {/* Section: Ideas */}
-                <Typography sx={{ fontWeight: 700, fontSize: 16, px: 2, pt: 2, pb: 1 }}>{t('Ideas')}</Typography>
-                {ideasLoading ? (
-                    <Typography sx={{ textAlign: 'center', py: 2 }}>
-                        <CircularProgress size={24} />
-                    </Typography>
-                ) : ideasError ? (
-                    <Typography sx={{ color: 'error.main', px: 2, py: 1 }}>{t('Failed to load ideas')}</Typography>
-                ) : ideas.length === 0 ? (
-                    <Typography sx={{ color: '#888', px: 2, py: 2, textAlign: 'center' }}>{t('No ideas yet')}</Typography>
-                ) : (
-                    <List sx={{ px: 1 }}>
-                        {ideas.map((idea) => (
-                            <ContributionItem key={idea.id} contribution={idea} type="idea" onEdit={handleEdit} onDelete={handleDeleteClick} />
-                        ))}
-                    </List>
-                )}
+            {(() => {
+                const isLoading = ideasLoading || questionsLoading || userProfileLoading;
+                const isEmpty = !isLoading && ideas.length === 0 && questions.length === 0;
 
-                {/* Section: Questions */}
-                <Typography sx={{ fontWeight: 700, fontSize: 16, px: 2, pt: 1, pb: 1 }}>{t('Questions')}</Typography>
-                {questionsLoading ? (
-                    <Typography sx={{ textAlign: 'center', py: 2 }}>
-                        <CircularProgress size={24} />
-                    </Typography>
-                ) : questionsError ? (
-                    <Typography sx={{ color: 'error.main', px: 2, py: 1 }}>{t('Failed to load questions')}</Typography>
-                ) : questions.length === 0 ? (
-                    <Typography sx={{ color: '#888', px: 2, py: 2, textAlign: 'center' }}>{t('No questions yet')}</Typography>
-                ) : (
-                    <List sx={{ px: 1 }}>
-                        {questions.map((q) => (
-                            <ContributionItem key={q.id} contribution={q} type="question" onEdit={handleEdit} onDelete={handleDeleteClick} />
-                        ))}
-                    </List>
-                )}
-            </Paper>
+                if (isLoading) {
+                    return (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+                            <CircularProgress sx={{ color: '#1F8505' }} />
+                        </Box>
+                    );
+                }
+
+                if (isEmpty) {
+                    return (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                minHeight: '80vh',
+                                px: 2,
+                                pt: 3,
+                                pb: 2,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    mb: 3,
+                                }}
+                            >
+                                <CardMedia
+                                    component="img"
+                                    image="/assets/images/empty-projects.png"
+                                    alt="empty"
+                                    sx={{ width: 100, height: 100, opacity: 0.9 }}
+                                />
+                            </Box>
+
+                            <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 1 }}>Nothing here. For now.</Typography>
+                            <Typography sx={{ color: '#777', textAlign: 'center', maxWidth: 280, mb: 2 }}>
+                                This is where you'll find your ideas and questions.
+                            </Typography>
+                        </Box>
+                    );
+                }
+
+                return (
+                    <Paper elevation={0} sx={{ bgcolor: '#fafdff', borderRadius: 3, p: 0, boxShadow: 'none', minHeight: '100vh' }}>
+                        {/* Section: Ideas */}
+                        {ideas.length > 0 && (
+                            <>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16, px: 2, pt: 2, pb: 1 }}>{t('Ideas')}</Typography>
+                                <List sx={{ px: 1 }}>
+                                    {ideas.map((idea) => (
+                                        <ContributionItem
+                                            key={idea.id}
+                                            contribution={idea}
+                                            type="idea"
+                                            onEdit={handleEdit}
+                                            onDelete={handleDeleteClick}
+                                        />
+                                    ))}
+                                </List>
+                            </>
+                        )}
+                        {/* Show "No ideas yet" only if there are questions but no ideas */}
+                        {!ideas.length && questions.length > 0 && (
+                            <>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16, px: 2, pt: 2, pb: 1 }}>{t('Ideas')}</Typography>
+                                <Typography sx={{ color: '#888', px: 2, py: 2, textAlign: 'center' }}>{t('No ideas yet')}</Typography>
+                            </>
+                        )}
+
+                        {/* Section: Questions */}
+                        {questions.length > 0 && (
+                            <>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16, px: 2, pt: 1, pb: 1 }}>{t('Questions')}</Typography>
+                                <List sx={{ px: 1 }}>
+                                    {questions.map((q) => (
+                                        <ContributionItem
+                                            key={q.id}
+                                            contribution={q}
+                                            type="question"
+                                            onEdit={handleEdit}
+                                            onDelete={handleDeleteClick}
+                                        />
+                                    ))}
+                                </List>
+                            </>
+                        )}
+                        {/* Show "No questions yet" only if there are ideas but no questions */}
+                        {!questions.length && ideas.length > 0 && (
+                            <>
+                                <Typography sx={{ fontWeight: 700, fontSize: 16, px: 2, pt: 1, pb: 1 }}>{t('Questions')}</Typography>
+                                <Typography sx={{ color: '#888', px: 2, py: 2, textAlign: 'center' }}>{t('No questions yet')}</Typography>
+                            </>
+                        )}
+                    </Paper>
+                );
+            })()}
 
             {/* Delete Confirmation Modal */}
             <ConfirmModal

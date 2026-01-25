@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\ContributionRepositoryInterface;
 use App\Repositories\TagRepositoryInterface;
+use Illuminate\Support\Facades\Cache;
 
 class ContributionService implements ContributionServiceInterface
 {
@@ -16,6 +17,12 @@ class ContributionService implements ContributionServiceInterface
 
     public function list(array $data = [])
     {
+        // When listing for the public feed (no user_id filter), only show public contributions
+        // This ensures drafts (non-public) only appear in the user's own hub
+        if (!isset($data['user_id'])) {
+            $data['is_public'] = true;
+        }
+
         return $this->contributionRepository->list($data);
     }
 
@@ -36,9 +43,9 @@ class ContributionService implements ContributionServiceInterface
                 $data['thumbnail_url'] = $this->fileService->uploadFile($data['thumbnail_url'], 'contributions/thumbnails');
             }
 
-            // Extract attachment IDs before creating contribution
-            $attachmentIds = $data['attachment_ids'] ?? [];
-            unset($data['attachment_ids']);
+            // Extract temp_key for linking attachments before creating contribution
+            $tempKey = $data['temp_key'] ?? null;
+            unset($data['temp_key']);
 
             $contribution = $this->contributionRepository->create($data);
 
@@ -48,11 +55,24 @@ class ContributionService implements ContributionServiceInterface
                 $contribution->tags()->attach($tagIds);
             }
 
-            // Link attachment records to contribution (attachments were already created during upload)
+            // Link attachment records to contribution using temp_key
+            // This allows attachments to be uploaded before the contribution exists
+            if (!empty($tempKey)) {
+                \App\Models\ContributionAttachment::where('temp_key', $tempKey)
+                    ->whereNull('contribution_id')
+                    ->update([
+                        'contribution_id' => $contribution->id,
+                        'temp_key' => null, // Clear temp_key after linking
+                    ]);
+            }
+
+            // Also handle attachment_ids[] for backward compatibility (e.g., when editing)
+            $attachmentIds = $data['attachment_ids'] ?? [];
+            unset($data['attachment_ids']);
             if (!empty($attachmentIds) && is_array($attachmentIds)) {
                 foreach ($attachmentIds as $attachmentId) {
                     $attachment = \App\Models\ContributionAttachment::find($attachmentId);
-                    if ($attachment) {
+                    if ($attachment && !$attachment->contribution_id) {
                         $attachment->update(['contribution_id' => $contribution->id]);
                     }
                 }
@@ -177,17 +197,22 @@ class ContributionService implements ContributionServiceInterface
                 $contribution->interests()->attach($userId);
                 $message = 'Contribution interest added successfully';
 
-                // Send notification only when adding interest
-                $this->notificationService->create([
-                    'recipient_user_id' => $contribution->user_id,
-                    'contribution_id' => $data['contribution_id'],
-                    'type' => 'interest',
-                    'source_id' => $data['contribution_id'],
-                    'source_type' => \App\Models\Contribution::class,
-                    'message' => 'You have a new interest in your contribution',
-                    'redirect_url' => route('contributions.show', $data['contribution_id']),
-                    'sender_user_id' => $data['user_id'],
-                ]);
+                // Send notification only when adding interest and user is not the owner
+                if ($contribution->user_id !== $userId) {
+                    // Get relative path for contribution based on type
+                    $redirectPath = $this->getContributionRedirectPath($data['contribution_id'], $contribution->type);
+
+                    $this->notificationService->create([
+                        'recipient_user_id' => $contribution->user_id,
+                        'contribution_id' => $data['contribution_id'],
+                        'type' => 'interest',
+                        'source_id' => $data['contribution_id'],
+                        'source_type' => \App\Models\Contribution::class,
+                        'message' => 'You have a new interest in your contribution',
+                        'redirect_url' => $redirectPath,
+                        'sender_user_id' => $data['user_id'],
+                    ]);
+                }
             }
 
             return [
@@ -201,6 +226,22 @@ class ContributionService implements ContributionServiceInterface
 
     public function find(int $id)
     {
+        return $this->contributionRepository->find($id);
+    }
+
+    public function view(int $id)
+    {
+        // Use cache to prevent double counting (e.g. strict mode or rapid refreshes)
+        // Key: view_lock_IP_ID
+        $ip = request()->ip();
+        $key = "view_lock_{$ip}_{$id}";
+
+        if (!Cache::has($key)) {
+            $this->contributionRepository->incrementViews($id);
+            // Lock for 10 seconds
+            Cache::put($key, true, 3);
+        }
+
         return $this->contributionRepository->find($id);
     }
 
@@ -253,9 +294,10 @@ class ContributionService implements ContributionServiceInterface
      * 
      * @param \Illuminate\Http\UploadedFile $file
      * @param int|null $contributionId Optional contribution ID if updating existing contribution
+     * @param string|null $tempKey Optional temp key for linking attachments before contribution creation
      * @return array ['id' => int, 'url' => string, 'path' => string, 'name' => string, 'type' => string, 'size' => int]
      */
-    public function uploadAttachment($file, ?int $contributionId = null): array
+    public function uploadAttachment($file, ?int $contributionId = null, ?string $tempKey = null): array
     {
         try {
             // Upload file to MinIO and get relative path
@@ -267,6 +309,7 @@ class ContributionService implements ContributionServiceInterface
             // Store attachment in database
             $attachment = \App\Models\ContributionAttachment::create([
                 'contribution_id' => $contributionId, // Can be null for new contributions
+                'temp_key' => $tempKey, // Used to link attachments before contribution creation
                 'file_path' => $relativePath,
                 'file_name' => $file->getClientOriginalName(),
                 'file_type' => $file->getMimeType(),
@@ -296,15 +339,15 @@ class ContributionService implements ContributionServiceInterface
     {
         try {
             $attachment = \App\Models\ContributionAttachment::findOrFail($attachmentId);
-            
+
             // Delete file from storage
             if ($attachment->file_path) {
                 $this->fileService->deleteFile($attachment->file_path);
             }
-            
+
             // Delete database record
             $attachment->delete();
-            
+
             return true;
         } catch (\Exception $e) {
             throw new \Exception('Failed to delete attachment: ' . $e->getMessage());
@@ -363,14 +406,17 @@ class ContributionService implements ContributionServiceInterface
             // Send notification to project owner if user left themselves
             if ($leftAction === 'self' && !$isOwner) {
                 $participantUser = \App\Models\User::find($userId);
+                // Get relative path for contribution based on type
+                $redirectPath = $this->getContributionRedirectPath($contributionId, $contribution->type);
+
                 $this->notificationService->create([
                     'recipient_user_id' => $contribution->user_id,
                     'contribution_id' => $contributionId,
                     'type' => 'participant_left',
                     'source_id' => $participant->id,
                     'source_type' => \App\Models\ContributionParticipant::class,
-                    'message' => ($participantUser ? $participantUser->name : 'A participant') . ' left your project',
-                    'redirect_url' => route('contributions.show', $contributionId),
+                    'message' => ($participantUser ? $participantUser->name : 'A participant') . ' has left your project “' . $contribution->title . '”' . ($leftReason ? ' because "' . $leftReason . '"' : '') . '.',
+                    'redirect_url' => $redirectPath,
                     'sender_user_id' => $userId,
                 ]);
             }
@@ -381,5 +427,24 @@ class ContributionService implements ContributionServiceInterface
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    /**
+     * Get relative redirect path for contribution based on type
+     */
+    private function getContributionRedirectPath(int $contributionId, ?string $type = null): string
+    {
+        // If type is provided, use it; otherwise fetch from contribution
+        if (!$type) {
+            $contribution = $this->contributionRepository->find($contributionId);
+            $type = $contribution?->type;
+        }
+
+        return match ($type) {
+            'project' => "/projects/{$contributionId}",
+            'idea' => "/ideas/{$contributionId}",
+            'question' => "/questions/{$contributionId}",
+            default => "/projects/{$contributionId}", // Default to projects
+        };
     }
 }

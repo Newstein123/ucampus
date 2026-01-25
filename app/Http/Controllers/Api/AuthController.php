@@ -22,6 +22,24 @@ class AuthController extends Controller
         protected AuthServiceInterface $authService
     ) {}
 
+    public function checkUsername(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|unique:users,username',
+        ]);
+
+        return response()->json(['message' => 'Username is available']);
+    }
+
+    public function checkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:users,email',
+        ]);
+
+        return response()->json(['message' => 'Email is available']);
+    }
+
     public function register(RegisterRequest $request)
     {
         $result = $this->authService->register($request->validated());
@@ -113,5 +131,16 @@ class AuthController extends Controller
         );
 
         return $this->response(null, $result['message']);
+    }
+
+    public function completeOnboarding(Request $request)
+    {
+        $user = $request->user();
+        $user->onboarding_completed = true;
+        $user->save();
+
+        return $this->response([
+            'onboarding_completed' => true,
+        ], 'Onboarding completed successfully');
     }
 }

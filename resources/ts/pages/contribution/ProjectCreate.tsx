@@ -8,6 +8,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import { useDeleteAttachmentMutation } from '../../hooks';
 import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
 import { ProjectForm, projectSchema } from '../../schemas/idea';
@@ -59,6 +60,8 @@ const ProjectCreate: React.FC = () => {
     const [ideaThumbnailUrl, setIdeaThumbnailUrl] = useState<string | null>(null);
     const [uploadedAttachments, setUploadedAttachments] = useState<UploadedAttachment[]>([]);
     const [uploadingAttachments, setUploadingAttachments] = useState<Set<number>>(new Set());
+    // Generate a unique temp_key for this contribution creation session
+    const [tempKey] = useState(() => `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
     const createContributionMutation = useCreateContributionMutation();
     const deleteAttachmentMutation = useDeleteAttachmentMutation();
 
@@ -165,7 +168,7 @@ const ProjectCreate: React.FC = () => {
                 setUploadingAttachments((prev) => new Set(prev).add(fileIndex));
 
                 contributionApi
-                    .uploadAttachment(file)
+                    .uploadAttachment(file, undefined, tempKey)
                     .then((response) => {
                         setUploadedAttachments((prev) => [...prev, response.data]);
                     })
@@ -333,14 +336,9 @@ const ProjectCreate: React.FC = () => {
             }
         }
 
-        // Handle attachments: send attachment IDs
-        if (uploadedAttachments.length > 0) {
-            uploadedAttachments.forEach((att) => {
-                if (att.id) {
-                    formData.append('attachment_ids[]', att.id.toString());
-                }
-            });
-        }
+        // Send temp_key to link attachments to contribution
+        // The backend will find all attachments with this temp_key and link them
+        formData.append('temp_key', tempKey);
 
         // Handle references: send as array of links
         if (data.references && Array.isArray(data.references) && data.references.length > 0) {
@@ -498,15 +496,9 @@ const ProjectCreate: React.FC = () => {
                     />
                 )}
             />
-            <Button
-                variant="contained"
-                fullWidth
-                sx={{ mt: 3, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2, py: 1.5, fontSize: 18 }}
-                onClick={handleStep1Next}
-                disabled={!step1Valid}
-            >
+            <AppButton fullWidth sx={{ mt: 3 }} onClick={handleStep1Next} disabled={!step1Valid}>
                 Next
-            </Button>
+            </AppButton>
         </Box>
     );
 
@@ -570,14 +562,9 @@ const ProjectCreate: React.FC = () => {
                 <Button variant="outlined" sx={{ flex: 1, borderRadius: 2 }} onClick={handleBack}>
                     Back
                 </Button>
-                <Button
-                    variant="contained"
-                    sx={{ flex: 1, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2 }}
-                    onClick={handleStep2Next}
-                    disabled={!step2Valid}
-                >
+                <AppButton sx={{ flex: 1 }} onClick={handleStep2Next} disabled={!step2Valid}>
                     Next
-                </Button>
+                </AppButton>
             </Box>
         </Box>
     );
@@ -695,14 +682,13 @@ const ProjectCreate: React.FC = () => {
                 <Button variant="outlined" sx={{ flex: 1, borderRadius: 2 }} onClick={handleBack}>
                     Back
                 </Button>
-                <Button
-                    variant="contained"
-                    sx={{ flex: 1, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2 }}
+                <AppButton
+                    sx={{ flex: 1 }}
                     disabled={!step3Valid || createContributionMutation.isPending || uploadingAttachments.size > 0}
                     onClick={handleSubmit(onSubmit)}
                 >
                     {uploadingAttachments.size > 0 ? 'Uploading attachments...' : 'Submit'}
-                </Button>
+                </AppButton>
             </Box>
         </Box>
     );

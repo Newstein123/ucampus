@@ -42,11 +42,15 @@ class NotificationCreated implements ShouldBroadcast
      */
     public function broadcastWith(): array
     {
+        $fullUrl = $this->notification->redirect_url 
+            ? config('app.frontend_url') . $this->notification->redirect_url 
+            : null;
+
         return [
             'id' => $this->notification->id,
             'type' => $this->notification->type,
             'message' => $this->notification->message,
-            'redirect_url' => $this->notification->redirect_url,
+            'redirect_url' => $fullUrl,
             'is_read' => $this->notification->is_read,
             'created_at' => $this->notification->created_at,
             'sender' => $this->notification->sender ? [

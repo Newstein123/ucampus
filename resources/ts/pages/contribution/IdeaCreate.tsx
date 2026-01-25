@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, Chip, IconButton, Paper, Switch, TextField, Typography } from '@mui/material';
+import { Box, Chip, IconButton, Paper, Switch, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import AppButton from '../../components/AppButton';
 import useCreateContributionMutation from '../../hooks/contribution/useCreateContributionMutation';
 import { IdeaForm, ideaSchema } from '../../schemas/idea';
 
@@ -309,25 +310,9 @@ const IdeaCreate: React.FC = () => {
                         </Box>
                     )}
                 />
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{
-                        bgcolor: '#1F8505',
-                        color: '#fff',
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        fontSize: 18,
-                        py: 1.5,
-                        mt: 2,
-                        '&:hover': { bgcolor: '#156c0c' },
-                    }}
-                    disabled={createContributionMutation.isPending}
-                >
+                <AppButton type="submit" fullWidth disabled={createContributionMutation.isPending} sx={{ mt: 2 }}>
                     Submit
-                </Button>
+                </AppButton>
             </form>
         </Paper>
     );

@@ -32,7 +32,7 @@ class NotificationListResource extends JsonResource
             ] : null,
             'message' => $this->message,
             'is_read' => $this->is_read,
-            'redirect_url' => $this->redirect_url,
+            'redirect_url' => $this->redirect_url ? config('app.frontend_url') . $this->redirect_url : null,
             'created_at' => $this->created_at->diffForHumans(),
         ];
     }

@@ -43,6 +43,9 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({ open, projectTitle, onClo
             loadRoles();
         }
     }, [open]);
+    useEffect(() => {
+        console.log('roles:', roles);
+    }, [roles]);
 
     const loadRoles = async () => {
         setLoadingRoles(true);

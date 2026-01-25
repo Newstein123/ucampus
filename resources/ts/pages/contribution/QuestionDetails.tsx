@@ -1,11 +1,12 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Avatar, Box, Chip, IconButton, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material';
+import { Avatar, Box, Chip, CircularProgress, IconButton, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -17,7 +18,8 @@ import { useDiscussions } from '../../hooks/useDiscussions';
 
 import { contributionApi } from '../../api/contribution';
 import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
-import { Contribution } from '../../types/contribution';
+import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
+import useContributionDetailQuery from '../../hooks/contribution/useContributionDetailQuery';
 
 const QuestionDetails: React.FC = () => {
     const { t } = useTranslation();
@@ -25,7 +27,8 @@ const QuestionDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { data: userProfile } = useUserProfileQuery();
-    const [question, setQuestion] = useState<Contribution | null>(null);
+    const { data: questionResponse, isLoading } = useContributionDetailQuery(parseInt(id || '0'));
+    const question = questionResponse?.data;
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
@@ -57,14 +60,31 @@ const QuestionDetails: React.FC = () => {
         }
     }, [location.state]);
 
-    useEffect(() => {
-        const load = async () => {
-            if (!id) return;
-            const res = await contributionApi.show(parseInt(id));
-            setQuestion(res.data);
-        };
-        load();
-    }, [id]);
+    // Bookmark mutation - uses query invalidation for cache updates
+    const bookmarkMutation = useContributionBookmarkMutation({
+        onError: (error) => {
+            console.error('Failed to update bookmark:', error);
+            setToastMessage('Failed to update bookmark');
+            setToastType('error');
+            setToastOpen(true);
+        },
+    });
+
+    // Show loading spinner while fetching data
+    if (isLoading) {
+        return (
+            <SinglePageLayout title={t('Question Details')}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </SinglePageLayout>
+        );
+    }
+
+    const handleBookmark = () => {
+        if (!id) return;
+        bookmarkMutation.mutate(parseInt(id));
+    };
 
     const isOwner = userProfile?.data?.id === question?.user?.id;
 
@@ -114,13 +134,37 @@ const QuestionDetails: React.FC = () => {
             rightElement={
                 isOwner ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                        <IconButton
+                            size="small"
+                            onClick={handleBookmark}
+                            disabled={bookmarkMutation.isPending}
+                            sx={{
+                                color: question?.is_bookmarked ? '#1F8505' : '#ccc',
+                                '&:hover': {
+                                    color: question?.is_bookmarked ? '#165d04' : '#1F8505',
+                                },
+                            }}
+                        >
+                            {question?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                        </IconButton>
                         <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
                             <MoreVertIcon sx={{ fontSize: 20 }} />
                         </IconButton>
                     </Box>
                 ) : (
-                    <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                    <IconButton
+                        size="small"
+                        onClick={handleBookmark}
+                        disabled={bookmarkMutation.isPending}
+                        sx={{
+                            color: question?.is_bookmarked ? '#1F8505' : '#ccc',
+                            '&:hover': {
+                                color: question?.is_bookmarked ? '#165d04' : '#1F8505',
+                            },
+                        }}
+                    >
+                        {question?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                    </IconButton>
                 )
             }
         >

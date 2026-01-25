@@ -25,6 +25,7 @@ export interface LoginUser {
     phone?: string;
     dob: string;
     location: string;
+    onboarding_completed?: boolean;
 }
 
 export interface LoginResponse {

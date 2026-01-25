@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Box, Button, IconButton, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
+import { Box, IconButton, InputAdornment, Link, Paper, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import AppButton from '../../components/AppButton';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import { ErrorResponse } from '../../hooks';
 import usePasswordUpdateMutation from '../../hooks/auth/usePasswordUpdateMutation';
@@ -153,24 +154,9 @@ const ChangePassword: React.FC = () => {
                     {apiValidationErrors.confirm_password && (
                         <Typography sx={{ color: 'red', fontSize: 12, mb: 1 }}>{apiValidationErrors.confirm_password}</Typography>
                     )}
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{
-                            bgcolor: '#1F8505',
-                            borderRadius: 2,
-                            fontWeight: 600,
-                            fontSize: 16,
-                            mt: 1,
-                            mb: 2,
-                            '&:hover': { bgcolor: '#176b03' },
-                            py: 1.2,
-                        }}
-                        fullWidth
-                        disabled={changePasswordMutation.isPending}
-                    >
+                    <AppButton type="submit" fullWidth disabled={changePasswordMutation.isPending} sx={{ mt: 1, mb: 2, py: 1.2, fontSize: 16 }}>
                         Continue
-                    </Button>
+                    </AppButton>
                 </Box>
             </Paper>
         </SinglePageLayout>

@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiClient } from '../../api/client';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import SinglePageLayout from '../../components/SinglePageLayout';
 
 interface RequestDetails {
     id: number;
     contribution_id: number;
     user_id: number;
-    reason: string;
+    join_reason: string;
     status: string;
     created_at: string;
     user: {
@@ -37,6 +38,8 @@ const formatTimeAgo = (dateString: string): string => {
     if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
     return date.toLocaleDateString();
 };
+
+const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
 const ProjectRequest: React.FC = () => {
     const { requestId } = useParams<{ requestId: string }>();
@@ -149,13 +152,15 @@ const ProjectRequest: React.FC = () => {
                         Requested to
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: '#f9f9f9', borderRadius: 2 }}>
-                        {request.contribution.thumbnail_url && (
-                            <Box
-                                component="img"
-                                src={request.contribution.thumbnail_url}
-                                sx={{ width: 60, height: 60, borderRadius: 2, objectFit: 'cover', mr: 2 }}
-                            />
-                        )}
+                        <Box
+                            component="img"
+                            src={request.contribution.thumbnail_url || DEFAULT_IMAGE}
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = DEFAULT_IMAGE;
+                            }}
+                            sx={{ width: 60, height: 60, borderRadius: 2, objectFit: 'cover', mr: 2, bgcolor: '#ddd' }}
+                        />
                         <Box>
                             <Typography variant="body1" sx={{ fontWeight: 600 }}>
                                 {request.contribution.title}
@@ -170,30 +175,16 @@ const ProjectRequest: React.FC = () => {
                         Reason
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#444', lineHeight: 1.6 }}>
-                        {request.reason}
+                        {request.join_reason}
                     </Typography>
                 </Box>
 
                 {/* Action Buttons */}
                 {request.status === 'pending' && (
                     <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Button
-                            variant="contained"
-                            fullWidth
-                            disabled={processing}
-                            onClick={handleAccept}
-                            sx={{
-                                bgcolor: '#1F8505',
-                                color: '#fff',
-                                py: 1.5,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                fontWeight: 600,
-                                '&:hover': { bgcolor: '#165d04' },
-                            }}
-                        >
+                        <AppButton fullWidth disabled={processing} onClick={handleAccept} sx={{ py: 1.5, borderRadius: 2 }}>
                             {processing ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Accept'}
-                        </Button>
+                        </AppButton>
                         <Button
                             variant="outlined"
                             fullWidth
