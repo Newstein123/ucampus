@@ -70,9 +70,28 @@ const Register: React.FC = () => {
         }
     };
 
+    const checkEmailAvailability = async (email: string) => {
+        try {
+            await apiClient.getClient().post('/auth/check-email', { email });
+            return true;
+        } catch (err: unknown) {
+            const error = err as AxiosError;
+            if (error.response && error.response.status === 422) {
+                step1Form.setError('email', {
+                    type: 'manual',
+                    message: 'The email has already been taken.',
+                });
+                return false;
+            }
+            return true;
+        }
+    };
+
     const handleStep1 = async (data: Step1Form) => {
-        const isAvailable = await checkUsernameAvailability(data.username);
-        if (isAvailable) {
+        const isUsernameAvailable = await checkUsernameAvailability(data.username);
+        const isEmailAvailable = await checkEmailAvailability(data.email);
+
+        if (isUsernameAvailable && isEmailAvailable) {
             setStep(2);
         }
     };
@@ -91,9 +110,15 @@ const Register: React.FC = () => {
                 const errors = error.response?.data.errors || null;
                 setApiError(errors);
 
-                if (errors && errors.username) {
-                    alert(Array.isArray(errors.username) ? errors.username[0] : errors.username);
-                    setStep(1);
+                if (errors) {
+                    if (errors.username) {
+                        alert(Array.isArray(errors.username) ? errors.username[0] : errors.username);
+                        setStep(1);
+                    }
+                    if (errors.email) {
+                        alert(Array.isArray(errors.email) ? errors.email[0] : errors.email);
+                        setStep(1);
+                    }
                 }
             },
         });
