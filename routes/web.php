@@ -12,6 +12,7 @@ Route::get('/terms-and-conditions', function () {
     return view('terms-and-conditions');
 });
 
+// Exclude admin routes from catch-all (Filament handles /admin routes)
 Route::get('/{any?}', function () {
     return view('app');
-})->where('any', '.*');
+})->where('any', '^(?!admin).*$');

@@ -13,6 +13,22 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create admin user
+        User::firstOrCreate(
+            ['email' => 'admin@ucampus.com'],
+            [
+                'name' => 'Admin User',
+                'username' => 'admin',
+                'password' => Hash::make('admin123'),
+                'phone' => '09999999999',
+                'dob' => '1990-01-01',
+                'location' => 'Yangon',
+                'is_admin' => true,
+                'is_active' => true,
+            ]
+        );
+
+        // Create regular test users
         User::create([
             'name' => 'Test1',
             'email' => 'test1@gmail.com',
