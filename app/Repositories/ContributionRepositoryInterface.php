@@ -25,4 +25,6 @@ interface ContributionRepositoryInterface
     public function search(array $filters = []);
 
     public function trending(array $filters = []);
+
+    public function incrementViews(int $id): void;
 }

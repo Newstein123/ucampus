@@ -31,6 +31,13 @@ class CreateRequest extends FormRequest
             'tags.*' => 'nullable|string|max:255',
             'thumbnail_url' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
             
+            // Temp key for linking attachments uploaded before contribution creation
+            'temp_key' => 'nullable|string|max:255',
+            
+            // Attachment IDs for backward compatibility (when editing existing contributions)
+            'attachment_ids' => 'nullable|array',
+            'attachment_ids.*' => 'nullable|integer|exists:contribution_attachments,id',
+            
             // Support both old and new attachment methods
             'attachments' => 'nullable|array|max:5',
             'attachments.*' => 'nullable|file|mimes:png,jpg,jpeg,webp,pdf,xls,xlsx,doc,docx,txt|max:5120',

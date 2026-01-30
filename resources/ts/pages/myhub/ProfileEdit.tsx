@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Button, Paper, TextField, Typography } from '@mui/material';
+import { Box, Paper, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import AppButton from '../../components/AppButton';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import { ErrorResponse } from '../../hooks';
 import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
@@ -230,24 +231,9 @@ const ProfileEdit: React.FC = () => {
                         )}
                     />
 
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{
-                            bgcolor: '#1F8505',
-                            borderRadius: 2,
-                            fontWeight: 600,
-                            fontSize: 16,
-                            mt: 1,
-                            mb: 2,
-                            '&:hover': { bgcolor: '#176b03' },
-                            py: 1.2,
-                        }}
-                        fullWidth
-                        disabled={updateProfileMutation.isPending}
-                    >
+                    <AppButton type="submit" fullWidth disabled={updateProfileMutation.isPending} sx={{ mt: 1, mb: 2, py: 1.2, fontSize: 16 }}>
                         Save Changes
-                    </Button>
+                    </AppButton>
                 </Box>
             </Paper>
         </SinglePageLayout>

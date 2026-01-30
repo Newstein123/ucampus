@@ -27,6 +27,9 @@ class User extends Authenticatable
         'avatar',
         'password',
         'last_login_at',
+        'onboarding_completed',
+        'is_admin',
+        'is_active',
     ];
 
     /**

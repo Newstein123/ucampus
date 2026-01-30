@@ -24,30 +24,17 @@ const Home: React.FC = () => {
     const type = tab === 0 ? undefined : tabLabels[tab].toLowerCase();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const [expandedDescriptions, setExpandedDescriptions] = useState<Set<number>>(new Set());
 
     const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useContributionListInfiniteQuery({ type, perPage: 10 });
 
     const { onHomeRestart } = useHomeContext();
 
     // Interest mutation
-    const interestMutation = useContributionInterestMutation({
-        onSuccess: (data) => {
-            console.log('Interest updated successfully:', data.message);
-        },
-        onError: (error) => {
-            console.error('Failed to update interest:', error);
-        },
-    });
+    const interestMutation = useContributionInterestMutation();
 
     // Bookmark mutation
-    const bookmarkMutation = useContributionBookmarkMutation({
-        onSuccess: (data) => {
-            console.log('Bookmark updated successfully:', data.message);
-        },
-        onError: (error) => {
-            console.error('Failed to update bookmark:', error);
-        },
-    });
+    const bookmarkMutation = useContributionBookmarkMutation();
 
     // Flatten all pages into a single array
     const contributions = data?.pages.flatMap((page) => page.data) || [];
@@ -68,14 +55,44 @@ const Home: React.FC = () => {
     const getContributionDescription = (item: Contribution) => {
         switch (item?.type) {
             case 'idea':
-                return item?.content?.description;
+                return item?.content?.problem;
             case 'question':
-                return item?.content?.answer;
+                return item?.content?.thought;
             case 'project':
                 return item?.content?.description;
             default:
                 return item?.content?.description ?? '';
         }
+    };
+
+    const countWords = (text: string | undefined): number => {
+        if (!text) return 0;
+        return text
+            .trim()
+            .split(/\s+/)
+            .filter((word) => word.length > 0).length;
+    };
+
+    const getFirstNWords = (text: string | undefined, n: number): string => {
+        if (!text) return '';
+        const words = text
+            .trim()
+            .split(/\s+/)
+            .filter((word) => word.length > 0);
+        return words.slice(0, n).join(' ');
+    };
+
+    const toggleDescription = (itemId: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExpandedDescriptions((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(itemId)) {
+                newSet.delete(itemId);
+            } else {
+                newSet.add(itemId);
+            }
+            return newSet;
+        });
     };
 
     const handleTabChange = (_: React.SyntheticEvent, idx: number) => {
@@ -108,19 +125,21 @@ const Home: React.FC = () => {
     };
 
     const handleHomeRestart = useCallback(() => {
-        console.log('handleHomeRestart called');
-
-        // Scroll to top of the page
+        // For iOS PWA: scroll the main content container, not window
+        // The .pwa-main-content element is the actual scrollable container in PWA mode
+        const mainContent = document.querySelector('.pwa-main-content');
+        if (mainContent) {
+            mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        // Also scroll window for non-PWA browsers
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Invalidate and refetch the query to get fresh data and reset pagination
-        console.log('Invalidating and refetching data...');
-        queryClient.invalidateQueries({ queryKey: ['contributionList', type] });
+        // Invalidate and refetch the query to get fresh data
+        queryClient.resetQueries({ queryKey: ['contributionList', type] });
     }, [queryClient, type]);
 
     // Register restart callback
     useEffect(() => {
-        console.log('Registering home restart callback');
         onHomeRestart(handleHomeRestart);
     }, [onHomeRestart, handleHomeRestart]);
 
@@ -167,10 +186,9 @@ const Home: React.FC = () => {
                             bgcolor: '#fff',
                             border: '1px solid #e0e0e0',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'none', // Remove transition for instant feedback
                             '&:hover': {
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                transform: 'translateY(-2px)',
                             },
                         }}
                     >
@@ -184,7 +202,42 @@ const Home: React.FC = () => {
                             </Box>
                             {/* Created at time */}
                             <Typography sx={{ color: '#aaa', fontSize: 12, mb: 0.5, ml: 5 }}>{item.created_at}</Typography>
-                            <Typography sx={{ color: '#888', fontSize: 14, mb: 1 }}>{getContributionDescription(item)}</Typography>
+                            {(() => {
+                                const description = getContributionDescription(item) || '';
+                                const wordCount = countWords(description);
+                                const isExpanded = expandedDescriptions.has(item.id);
+                                const shouldShowExpand = wordCount > 50;
+
+                                if (!shouldShowExpand) {
+                                    return <Typography sx={{ color: '#888', fontSize: 14, mb: 1, whiteSpace: 'pre-wrap' }}>{description}</Typography>;
+                                }
+
+                                const displayText = isExpanded ? description : getFirstNWords(description, 50);
+
+                                return (
+                                    <Box sx={{ mb: 1 }}>
+                                        <Typography sx={{ color: '#888', fontSize: 14, mb: 0.5, whiteSpace: 'pre-wrap' }}>
+                                            {displayText}
+                                            {!isExpanded && '...'}
+                                        </Typography>
+                                        <Typography
+                                            onClick={(e) => toggleDescription(item.id, e)}
+                                            sx={{
+                                                color: '#1F8505',
+                                                fontWeight: 600,
+                                                fontSize: 14,
+                                                cursor: 'pointer',
+                                                display: 'inline-block',
+                                                '&:hover': {
+                                                    textDecoration: 'underline',
+                                                },
+                                            }}
+                                        >
+                                            {isExpanded ? 'Collapse' : 'Expand'}
+                                        </Typography>
+                                    </Box>
+                                );
+                            })()}
                         </CardContent>
                         {(item.type === 'idea' || item.type === 'project') && item.thumbnail_url && (
                             <CardMedia
@@ -208,49 +261,10 @@ const Home: React.FC = () => {
                                 }}
                             />
                         )}
-                        {/* Details section under image */}
-                        {item.type === 'idea' && (
-                            <Box sx={{ px: 1, pb: 1 }}>
-                                <Typography
-                                    sx={{ color: '#444', fontSize: 14, mb: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                                >
-                                    {item.content.problem}
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        color: '#1F8505',
-                                        fontWeight: 600,
-                                        fontSize: 14,
-                                        display: 'inline-block',
-                                    }}
-                                >
-                                    ... See details
-                                </Typography>
-                            </Box>
-                        )}
-                        {/* Details link for Question type */}
-                        {item.type === 'question' && (
-                            <Box sx={{ px: 2, pb: 1 }}>
-                                <Typography
-                                    sx={{ color: '#444', fontSize: 14, mb: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                                >
-                                    {item.content.thought}
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        color: '#1F8505',
-                                        fontWeight: 600,
-                                        fontSize: 14,
-                                        display: 'inline-block',
-                                    }}
-                                >
-                                    ... See details
-                                </Typography>
-                            </Box>
-                        )}
-                        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }} onClick={(e) => e.stopPropagation()}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1 }} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                             <IconButton
                                 size="small"
+                                disableRipple // Remove ripple animation for instant feedback
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleInterest(item.id);
@@ -258,6 +272,7 @@ const Home: React.FC = () => {
                                 disabled={interestMutation.isPending}
                                 sx={{
                                     color: item.is_interested ? '#1F8505' : 'inherit',
+                                    transition: 'none', // Remove transition for instant feedback
                                     '&:hover': {
                                         color: item.is_interested ? '#1F8505' : '#1F8505',
                                     },
@@ -279,6 +294,7 @@ const Home: React.FC = () => {
                             <Box sx={{ flex: 1 }} />
                             <IconButton
                                 size="small"
+                                disableRipple // Remove ripple animation for instant feedback
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleBookmark(item.id);
@@ -286,6 +302,7 @@ const Home: React.FC = () => {
                                 disabled={bookmarkMutation.isPending}
                                 sx={{
                                     color: item.is_bookmarked ? '#1F8505' : 'inherit',
+                                    transition: 'none', // Remove transition for instant feedback
                                     '&:hover': {
                                         color: item.is_bookmarked ? '#165d04' : '#1F8505',
                                     },

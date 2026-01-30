@@ -8,6 +8,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import Toast from '../../components/Toast';
 import { useDeleteAttachmentMutation, useUpdateContributionMutation } from '../../hooks';
 import { ProjectForm, projectSchema } from '../../schemas/idea';
@@ -541,15 +542,9 @@ const ProjectEdit: React.FC = () => {
                     />
                 )}
             />
-            <Button
-                variant="contained"
-                fullWidth
-                sx={{ mt: 3, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2, py: 1.5, fontSize: 18 }}
-                onClick={handleStep1Next}
-                disabled={!step1Valid}
-            >
+            <AppButton fullWidth sx={{ mt: 3 }} onClick={handleStep1Next} disabled={!step1Valid}>
                 Next
-            </Button>
+            </AppButton>
         </Box>
     );
 
@@ -613,14 +608,9 @@ const ProjectEdit: React.FC = () => {
                 <Button variant="outlined" sx={{ flex: 1, borderRadius: 2 }} onClick={handleBack}>
                     Back
                 </Button>
-                <Button
-                    variant="contained"
-                    sx={{ flex: 1, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2 }}
-                    onClick={handleStep2Next}
-                    disabled={!step2Valid}
-                >
+                <AppButton sx={{ flex: 1 }} onClick={handleStep2Next} disabled={!step2Valid}>
                     Next
-                </Button>
+                </AppButton>
             </Box>
         </Box>
     );
@@ -738,14 +728,13 @@ const ProjectEdit: React.FC = () => {
                 <Button variant="outlined" sx={{ flex: 1, borderRadius: 2 }} onClick={handleBack}>
                     Back
                 </Button>
-                <Button
-                    variant="contained"
-                    sx={{ flex: 1, bgcolor: '#1F8505', color: '#fff', fontWeight: 600, borderRadius: 2 }}
+                <AppButton
+                    sx={{ flex: 1 }}
                     disabled={!step3Valid || updateMutation.isPending || uploadingAttachments.size > 0}
                     onClick={handleSubmit(onSubmit)}
                 >
                     {updateMutation.isPending ? 'Updating' : uploadingAttachments.size > 0 ? 'Uploading attachments...' : 'Update'}
-                </Button>
+                </AppButton>
             </Box>
         </Box>
     );

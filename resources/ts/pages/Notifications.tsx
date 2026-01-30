@@ -23,6 +23,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { contributionApi } from '../api/contribution';
+import AppButton from '../components/AppButton';
 import SinglePageLayout from '../components/SinglePageLayout';
 import useNotificationListQuery from '../hooks/notification/useNotificationListQuery';
 import useNotificationReadMutation from '../hooks/notification/useNotificationReadMutation';
@@ -69,13 +70,39 @@ const Notifications: React.FC = () => {
         }
 
         if (notification.redirect_url) {
-            const url = notification.redirect_url;
+            const url = notification.redirect_url.trim();
+
             if (url.startsWith('/')) {
+                // Relative path - navigate within app
                 navigate(url);
             } else if (url.startsWith('http://') || url.startsWith('https://')) {
-                window.open(url, '_blank');
+                // Full URL - check if it's from same origin
+                try {
+                    const urlObj = new URL(url);
+                    const currentOrigin = window.location.origin;
+
+                    if (urlObj.origin === currentOrigin) {
+                        // Same origin - extract path and navigate within app
+                        const path = urlObj.pathname + urlObj.search + urlObj.hash;
+                        navigate(path);
+                    } else {
+                        // External URL - open in new tab
+                        window.open(url, '_blank');
+                    }
+                } catch (error) {
+                    // Invalid URL - try to navigate as-is
+                    console.error('Error parsing URL:', error);
+                    // Try to extract path from malformed URL
+                    const pathMatch = url.match(/\/[^?]*/);
+                    if (pathMatch) {
+                        navigate(pathMatch[0]);
+                    } else {
+                        navigate('/');
+                    }
+                }
             } else {
-                navigate(url);
+                // Fallback - navigate as-is (treat as relative path)
+                navigate(url.startsWith('/') ? url : '/' + url);
             }
         }
     };
@@ -375,26 +402,19 @@ const Notifications: React.FC = () => {
                                                     >
                                                         View
                                                     </Button>
-                                                    <Button
-                                                        variant="contained"
+                                                    <AppButton
                                                         size="small"
                                                         disabled={processingIds.has(notification.id)}
                                                         onClick={(e) => handleAccept(e, notification)}
                                                         sx={{
-                                                            bgcolor: '#1F8505',
-                                                            color: 'white',
                                                             borderRadius: '20px',
-                                                            textTransform: 'none',
                                                             fontSize: '12px',
                                                             px: 2,
                                                             py: 0.5,
-                                                            '&:hover': {
-                                                                bgcolor: '#165d04',
-                                                            },
                                                         }}
                                                     >
                                                         Accept
-                                                    </Button>
+                                                    </AppButton>
                                                     <Button
                                                         variant="outlined"
                                                         size="small"

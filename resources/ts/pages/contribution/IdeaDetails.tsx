@@ -1,4 +1,5 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -7,18 +8,20 @@ import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Avatar, Box, Button, CardMedia, Chip, IconButton, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
+import { Avatar, Box, CardMedia, Chip, CircularProgress, IconButton, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import Toast from '../../components/Toast';
 import useUserProfileQuery from '../../hooks/auth/useUserProfileQuery';
+import useContributionBookmarkMutation from '../../hooks/contribution/useContributionBookmarkMutation';
+import useContributionDetailQuery from '../../hooks/contribution/useContributionDetailQuery';
 import { useDiscussions } from '../../hooks/useDiscussions';
-import { Contribution } from '../../types/contribution';
 
 const DEFAULT_IMAGE = '/assets/images/idea-sample.png';
 
@@ -28,7 +31,8 @@ const IdeaDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { data: userProfile } = useUserProfileQuery();
-    const [idea, setIdea] = useState<Contribution | null>(null);
+    const { data: ideaResponse, isLoading } = useContributionDetailQuery(parseInt(id || '0'));
+    const idea = ideaResponse?.data;
     const { discussions } = useDiscussions({
         contributionId: parseInt(id || '1'),
         perPage: 10,
@@ -60,14 +64,31 @@ const IdeaDetails: React.FC = () => {
         }
     }, [location.state]);
 
-    useEffect(() => {
-        const load = async () => {
-            if (!id) return;
-            const res = await contributionApi.show(parseInt(id));
-            setIdea(res.data);
-        };
-        load();
-    }, [id]);
+    // Bookmark mutation - uses query invalidation for cache updates
+    const bookmarkMutation = useContributionBookmarkMutation({
+        onError: (error) => {
+            console.error('Failed to update bookmark:', error);
+            setToastMessage('Failed to update bookmark');
+            setToastType('error');
+            setToastOpen(true);
+        },
+    });
+
+    // Show loading spinner while fetching data
+    if (isLoading) {
+        return (
+            <SinglePageLayout title={t('Idea Details')}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                    <CircularProgress sx={{ color: '#1F8505' }} />
+                </Box>
+            </SinglePageLayout>
+        );
+    }
+
+    const handleBookmark = () => {
+        if (!id) return;
+        bookmarkMutation.mutate(parseInt(id));
+    };
 
     const isOwner = userProfile?.data?.id === idea?.user?.id;
 
@@ -121,13 +142,37 @@ const IdeaDetails: React.FC = () => {
             rightElement={
                 isOwner ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                        <IconButton
+                            size="small"
+                            onClick={handleBookmark}
+                            disabled={bookmarkMutation.isPending}
+                            sx={{
+                                color: idea?.is_bookmarked ? '#1F8505' : '#ccc',
+                                '&:hover': {
+                                    color: idea?.is_bookmarked ? '#165d04' : '#1F8505',
+                                },
+                            }}
+                        >
+                            {idea?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                        </IconButton>
                         <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
                             <MoreVertIcon sx={{ fontSize: 20 }} />
                         </IconButton>
                     </Box>
                 ) : (
-                    <BookmarkIcon sx={{ color: '#ccc', fontSize: 20, cursor: 'pointer' }} />
+                    <IconButton
+                        size="small"
+                        onClick={handleBookmark}
+                        disabled={bookmarkMutation.isPending}
+                        sx={{
+                            color: idea?.is_bookmarked ? '#1F8505' : '#ccc',
+                            '&:hover': {
+                                color: idea?.is_bookmarked ? '#165d04' : '#1F8505',
+                            },
+                        }}
+                    >
+                        {idea?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                    </IconButton>
                 )
             }
         >
@@ -154,22 +199,9 @@ const IdeaDetails: React.FC = () => {
                 {/* Upgrade to Project Button - Only show if user is the owner */}
                 {isOwner && (
                     <Box sx={{ mb: 2 }}>
-                        <Button
-                            variant="contained"
-                            startIcon={<UpgradeIcon />}
-                            onClick={handleUpgradeToProject}
-                            sx={{
-                                bgcolor: '#1F8505',
-                                color: '#fff',
-                                fontWeight: 600,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                '&:hover': { bgcolor: '#156c0c' },
-                            }}
-                            fullWidth
-                        >
+                        <AppButton startIcon={<UpgradeIcon />} onClick={handleUpgradeToProject} fullWidth sx={{ py: 1, fontSize: 14 }}>
                             Upgrade to Project
-                        </Button>
+                        </AppButton>
                     </Box>
                 )}
             </Box>

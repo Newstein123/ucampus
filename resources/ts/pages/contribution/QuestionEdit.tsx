@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, Chip, CircularProgress, IconButton, Paper, Switch, TextField, Typography } from '@mui/material';
+import { Box, Chip, CircularProgress, IconButton, Paper, Switch, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { contributionApi } from '../../api/contribution';
+import AppButton from '../../components/AppButton';
 import Toast from '../../components/Toast';
 import { useUpdateContributionMutation } from '../../hooks';
 
@@ -242,25 +243,9 @@ const QuestionEdit: React.FC = () => {
                         </Box>
                     )}
                 />
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{
-                        bgcolor: '#1F8505',
-                        color: '#fff',
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        fontSize: 18,
-                        py: 1.5,
-                        mt: 2,
-                        '&:hover': { bgcolor: '#156c0c' },
-                    }}
-                    disabled={updateMutation.isPending}
-                >
+                <AppButton type="submit" fullWidth disabled={updateMutation.isPending} sx={{ mt: 2 }}>
                     {updateMutation.isPending ? 'Updating...' : 'Update'}
-                </Button>
+                </AppButton>
             </form>
 
             {/* Toast */}

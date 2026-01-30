@@ -3,11 +3,14 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\CollaborationController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ContributionController;
+use App\Http\Controllers\Api\ContributionNoteController;
 use App\Http\Controllers\Api\DiscussionController;
+use App\Http\Controllers\Api\EditRequestController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
-use App\Models\Notification;
+use App\Http\Controllers\Api\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +21,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('auth')->group(function () {
+    Route::post('/check-username', [AuthController::class, 'checkUsername']);
+    Route::post('/check-email', [AuthController::class, 'checkEmail']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/login/{provider}', [AuthController::class, 'socialLogin']);
@@ -25,6 +30,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::post('/profile/edit', [AuthController::class, 'updateProfile'])->middleware('auth:sanctum');
     Route::put('/profile/edit/password', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
+    Route::post('/complete-onboarding', [AuthController::class, 'completeOnboarding'])->middleware('auth:sanctum');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 });
@@ -70,10 +76,15 @@ Route::prefix('contributions')->group(function () {
     Route::get('/{id}', [ContributionController::class, 'show'])->middleware('auth:sanctum')->name('contributions.show');
     Route::post('/', [ContributionController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/upload-attachment', [ContributionController::class, 'uploadAttachment'])->middleware('auth:sanctum');
+    Route::post('/attachments/{id}/download', [ContributionController::class, 'downloadAttachment'])->middleware('auth:sanctum');
     Route::delete('/attachment/{id}', [ContributionController::class, 'deleteAttachment'])->middleware('auth:sanctum');
     Route::put('/{id}', [ContributionController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ContributionController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('/{id}/interest', [ContributionController::class, 'interest'])->middleware('auth:sanctum');
+
+    // Edit Requests Routes
+    Route::post('/{id}/edit-requests', [EditRequestController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/{id}/edit-requests', [EditRequestController::class, 'index'])->middleware('auth:sanctum');
 });
 
 // Project leave route
@@ -94,6 +105,29 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Contribution Roles Routes
 Route::middleware('auth:sanctum')->get('/contribution-roles', [\App\Http\Controllers\Api\ContributionRoleController::class, 'index']);
+
+// Tag Routes
+Route::get('/tags/trending', [TagController::class, 'trending']);
+Route::get('/tags/search', [TagController::class, 'search']);
+
+// Edit Requests Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/edit-requests/{id}/approve', [EditRequestController::class, 'approve']);
+    Route::post('/edit-requests/{id}/reject', [EditRequestController::class, 'reject']);
+    Route::get('/my/edit-requests', [EditRequestController::class, 'myRequests']);
+});
+
+// Contribution Notes Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('contribution-notes')->group(function () {
+        Route::get('/', [ContributionNoteController::class, 'index']);
+        Route::post('/', [ContributionNoteController::class, 'store']);
+        Route::put('/{id}', [ContributionNoteController::class, 'update']);
+        Route::delete('/{id}', [ContributionNoteController::class, 'destroy']);
+        Route::post('/{id}/resolve', [ContributionNoteController::class, 'resolve']);
+        Route::post('/{id}/reject', [ContributionNoteController::class, 'reject']);
+    });
+});
 
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->middleware('auth:sanctum');
@@ -124,6 +158,9 @@ Route::prefix('notifications')->group(function () {
         ]);
     })->middleware('auth:sanctum');
 });
+
+// Contact us route (no authentication required)
+Route::post('/contact', [ContactController::class, 'store']);
 
 // Broadcasting authentication route
 Route::post('/broadcasting/auth', function (Request $request) {

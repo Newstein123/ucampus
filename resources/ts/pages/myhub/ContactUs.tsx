@@ -1,10 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Button, Grid, Paper, TextField, Typography } from '@mui/material';
-import React from 'react';
+import { Box, Grid, Paper, TextField, Typography } from '@mui/material';
+import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { contactApi } from '../../api/contact';
+import AppButton from '../../components/AppButton';
 import SinglePageLayout from '../../components/SinglePageLayout';
+import Toast from '../../components/Toast';
 
 const contactSchema = z.object({
     fullName: z.string().min(2, 'Full name is required'),
@@ -15,18 +18,57 @@ type ContactForm = z.infer<typeof contactSchema>;
 
 const ContactUs: React.FC = () => {
     const { t } = useTranslation();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [toastOpen, setToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
     const {
         control,
         handleSubmit,
+        reset,
         formState: { errors },
     } = useForm<ContactForm>({
         resolver: zodResolver(contactSchema),
         mode: 'onTouched',
+        defaultValues: {
+            fullName: '',
+            email: '',
+            message: '',
+        },
     });
 
-    const onSubmit = (data: ContactForm) => {
-        // TODO: send to API
-        console.log('Contact form data:', data);
+    const onSubmit = async (data: ContactForm) => {
+        setIsSubmitting(true);
+        try {
+            await contactApi.create({
+                fullname: data.fullName,
+                email: data.email,
+                message: data.message,
+            });
+            setToastMessage('Your message has been sent successfully!');
+            setToastType('success');
+            setToastOpen(true);
+            // Reset form to empty state after successful submission
+            reset({
+                fullName: '',
+                email: '',
+                message: '',
+            });
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+            const errorMsg =
+                err.response?.data?.message ||
+                err.response?.data?.errors?.fullname?.[0] ||
+                err.response?.data?.errors?.email?.[0] ||
+                err.response?.data?.errors?.message?.[0] ||
+                'Failed to send message. Please try again.';
+            setToastMessage(errorMsg);
+            setToastType('error');
+            setToastOpen(true);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -84,14 +126,9 @@ const ContactUs: React.FC = () => {
                             />
                         )}
                     />
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{ bgcolor: '#1F8505', borderRadius: 2, fontWeight: 600, fontSize: 16, mt: 1, mb: 2, '&:hover': { bgcolor: '#176b03' } }}
-                        fullWidth
-                    >
-                        {t('Submit')}
-                    </Button>
+                    <AppButton type="submit" fullWidth sx={{ mt: 1, mb: 2, py: 1.2, fontSize: 16 }} disabled={isSubmitting}>
+                        {isSubmitting ? t('Sending...') : t('Submit')}
+                    </AppButton>
                 </Box>
                 <Typography sx={{ color: '#888', fontSize: 14, mb: 1, mt: 2 }}>{t('Alternatively, reach us at')}</Typography>
                 <Grid container spacing={1}>
@@ -177,6 +214,7 @@ const ContactUs: React.FC = () => {
                     </Grid>
                 </Grid>
             </Paper>
+            <Toast open={toastOpen} message={toastMessage} type={toastType} onClose={() => setToastOpen(false)} />
         </SinglePageLayout>
     );
 };

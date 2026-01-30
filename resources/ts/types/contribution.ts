@@ -21,6 +21,7 @@ export interface Participant {
     role_id: number | null;
     role: ContributionRole | null;
     joined_at: string | null;
+    status?: string; // 'pending', 'accepted', 'active', 'rejected', 'left', 'removed'
 }
 
 export interface Contribution {
@@ -102,4 +103,155 @@ export interface CreateContributionResponse {
     success: boolean;
     message: string;
     data: Contribution;
+}
+
+// Edit Request Types
+export interface EditRequestChanges {
+    content_key: string;
+    new_value: string;
+    old_value?: string | null;
+}
+
+export interface EditRequest {
+    id: number;
+    contribution_id: number;
+    user: {
+        id: number;
+        name: string;
+    };
+    changes: EditRequestChanges;
+    editor_note: string | null;
+    status: 'pending' | 'approved' | 'rejected';
+    reviewed_by: number | null;
+    reviewer: {
+        id: number;
+        name: string;
+    } | null;
+    review_note: string | null;
+    applied_at: string | null;
+    created_at: string;
+    updated_at: string;
+    contribution?: {
+        id: number;
+        title: string;
+        type: string;
+    };
+}
+
+export interface CreateEditRequestRequest {
+    changes: EditRequestChanges;
+    note?: string | null;
+}
+
+export interface CreateEditRequestResponse {
+    success: boolean;
+    message: string;
+    data: EditRequest;
+}
+
+export interface EditRequestListResponse {
+    success: boolean;
+    message: string;
+    data: {
+        edit_requests: EditRequest[];
+    };
+}
+
+export interface ApproveEditRequestResponse {
+    success: boolean;
+    message: string;
+    data: {
+        id: number;
+        status: string;
+        applied_at: string;
+        reviewed_by: {
+            id: number;
+            name: string;
+        };
+    };
+}
+
+export interface RejectEditRequestRequest {
+    note?: string | null;
+}
+
+export interface RejectEditRequestResponse {
+    success: boolean;
+    message: string;
+    data: {
+        id: number;
+        status: string;
+        reviewed_by: {
+            id: number;
+            name: string;
+        };
+        review_note: string | null;
+    };
+}
+
+// Contribution Note Types
+export type NoteType = 'idea' | 'concern' | 'improvement';
+
+export interface ContributionNote {
+    id: number;
+    contribution_id: number;
+    user: {
+        id: number;
+        username: string;
+        profileName: string;
+        avatar: string | null;
+    };
+    type: NoteType;
+    content_key: string | null;
+    status: 'pending' | 'resolved' | 'rejected';
+    note: string;
+    resolved_by: number | null;
+    resolver: {
+        id: number;
+        name: string;
+    } | null;
+    resolved_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ContributionNotesResponse {
+    success: boolean;
+    message: string;
+    data: ContributionNote[];
+}
+
+export interface CreateNoteRequest {
+    contribution_id: number;
+    type: NoteType;
+    content_key?: string | null;
+    note: string;
+}
+
+export interface CreateNoteResponse {
+    success: boolean;
+    message: string;
+    data: ContributionNote;
+}
+
+export interface UpdateNoteRequest {
+    type?: NoteType;
+    note?: string;
+}
+
+export interface UpdateNoteResponse {
+    success: boolean;
+    message: string;
+    data: ContributionNote;
+}
+
+export interface ListNotesRequest {
+    contribution_id: number;
+    per_page?: number;
+    page?: number;
+}
+
+export interface DeleteNoteResponse {
+    success: boolean;
+    message: string;
 }

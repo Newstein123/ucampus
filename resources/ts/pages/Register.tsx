@@ -1,12 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Link as MuiLink, TextField, Typography } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Link as MuiLink, TextField, Typography } from '@mui/material';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import { apiClient } from '../api/client';
+import AppButton from '../components/AppButton';
+import BackButton from '../components/BackButton';
 import { ErrorResponse } from '../hooks';
 import useUserRegisterMutation from '../hooks/auth/useUserRegisterMutation';
 import { step1Schema, step2Schema } from '../schemas/register';
@@ -14,7 +17,24 @@ import { step1Schema, step2Schema } from '../schemas/register';
 type Step1Form = z.infer<typeof step1Schema>;
 type Step2Form = z.infer<typeof step2Schema>;
 
-const locations = ['Yangon', 'Mandalay', 'Naypyidaw', 'Other'];
+const locations = [
+    'Ayeyarwady',
+    'Bago',
+    'Chin',
+    'Kachin',
+    'Kayah',
+    'Kayin',
+    'Magway',
+    'Mandalay',
+    'Mon',
+    'Naypyidaw',
+    'Rakhine',
+    'Sagaing',
+    'Shan',
+    'Tanintharyi',
+    'Yangon',
+    'Other',
+];
 
 const Register: React.FC = () => {
     const [step, setStep] = useState(1);
@@ -33,8 +53,47 @@ const Register: React.FC = () => {
         mode: 'onTouched',
     });
 
-    const handleStep1 = () => {
-        setStep(2);
+    const checkUsernameAvailability = async (username: string) => {
+        try {
+            await apiClient.getClient().post('/auth/check-username', { username });
+            return true;
+        } catch (err: unknown) {
+            const error = err as AxiosError;
+            if (error.response && error.response.status === 422) {
+                step1Form.setError('username', {
+                    type: 'manual',
+                    message: 'The username has already been taken.',
+                });
+                return false;
+            }
+            return true; // If other error, let backend validation handle it later or ignore
+        }
+    };
+
+    const checkEmailAvailability = async (email: string) => {
+        try {
+            await apiClient.getClient().post('/auth/check-email', { email });
+            return true;
+        } catch (err: unknown) {
+            const error = err as AxiosError;
+            if (error.response && error.response.status === 422) {
+                step1Form.setError('email', {
+                    type: 'manual',
+                    message: 'The email has already been taken.',
+                });
+                return false;
+            }
+            return true;
+        }
+    };
+
+    const handleStep1 = async (data: Step1Form) => {
+        const isUsernameAvailable = await checkUsernameAvailability(data.username);
+        const isEmailAvailable = await checkEmailAvailability(data.email);
+
+        if (isUsernameAvailable && isEmailAvailable) {
+            setStep(2);
+        }
     };
 
     const handleRegister = (data: Step2Form) => {
@@ -48,7 +107,19 @@ const Register: React.FC = () => {
                 navigate('/login');
             },
             onError: (error: AxiosError<ErrorResponse>) => {
-                setApiError(error.response?.data.errors || null);
+                const errors = error.response?.data.errors || null;
+                setApiError(errors);
+
+                if (errors) {
+                    if (errors.username) {
+                        alert(Array.isArray(errors.username) ? errors.username[0] : errors.username);
+                        setStep(1);
+                    }
+                    if (errors.email) {
+                        alert(Array.isArray(errors.email) ? errors.email[0] : errors.email);
+                        setStep(1);
+                    }
+                }
             },
         });
     };
@@ -68,9 +139,12 @@ const Register: React.FC = () => {
                 py: 4,
             }}
         >
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, ml: 1 }}>
-                Sign up
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, ml: 1 }}>
+                {step === 2 && <BackButton onClick={() => setStep(1)} sx={{ ml: -2 }} />}
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    Sign up
+                </Typography>
+            </Box>
             <Typography sx={{ color: '#888', mb: 3, ml: 1 }}>{step === 1 ? 'Create an account to get started' : 'Finish your profile'}</Typography>
 
             {step === 1 && (
@@ -161,25 +235,9 @@ const Register: React.FC = () => {
                                 {apiError.password_confirmation}
                             </Typography>
                         )}
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{
-                                bgcolor: '#198d0f',
-                                color: '#fff',
-                                fontWeight: 600,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                mt: 3,
-                                mb: 2,
-                                fontSize: 18,
-                                py: 1.5,
-                                '&:hover': { bgcolor: '#156c0c' },
-                            }}
-                        >
+                        <AppButton type="submit" fullWidth sx={{ mt: 3, mb: 2 }}>
                             Next
-                        </Button>
+                        </AppButton>
                     </form>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Typography variant="body2" color="text.secondary">
@@ -291,8 +349,10 @@ const Register: React.FC = () => {
                         label={
                             <span>
                                 I&apos;ve read and agree with the{' '}
-                                <span style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Terms and Conditions</span> and the{' '}
-                                <span style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>Privacy Policy</span>.
+                                <a href="/terms-and-conditions" style={{ color: '#198d0f', fontWeight: 600, cursor: 'pointer' }}>
+                                    Terms and Conditions
+                                </a>{' '}
+                                and the{' '}
                             </span>
                         }
                     />
@@ -301,25 +361,9 @@ const Register: React.FC = () => {
                             {step2Form.formState.errors.terms.message}
                         </Typography>
                     )}
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{
-                            bgcolor: '#198d0f',
-                            color: '#fff',
-                            fontWeight: 600,
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            mt: 3,
-                            mb: 2,
-                            fontSize: 18,
-                            py: 1.5,
-                            '&:hover': { bgcolor: '#156c0c' },
-                        }}
-                    >
+                    <AppButton type="submit" fullWidth sx={{ mt: 3, mb: 2 }}>
                         Register
-                    </Button>
+                    </AppButton>
                 </form>
             )}
         </Box>
