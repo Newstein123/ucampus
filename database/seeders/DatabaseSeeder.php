@@ -34,16 +34,15 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UserSeeder::class,
-            ContributionSeeder::class,
-            ContributionRoleSeeder::class,
-            DiscussionSeeder::class,
-            ProjectSeeder::class,
+            // ContributionSeeder::class,
+            // ContributionRoleSeeder::class,
+            // DiscussionSeeder::class,
         ]);
 
         // connect tags to contributions
-        $contributions = Contribution::all();
-        foreach ($contributions as $contribution) {
-            $contribution->tags()->attach(Tag::inRandomOrder()->first()->id);
-        }
+        // $contributions = Contribution::all();
+        // foreach ($contributions as $contribution) {
+        //     $contribution->tags()->attach(Tag::inRandomOrder()->first()->id);
+        // }
     }
 }
