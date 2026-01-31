@@ -18,8 +18,10 @@ return new class extends Migration
     public function up(): void
     {
         // Get the first user or create a default one for sample contributions
-        $user = User::first();
+        $user = User::find(3);
+        \Log::info('User: ' . $user);
         if (!$user) {
+            \Log::info('No user found');
             // If no users exist, we'll skip seeding or use a default ID
             // In production, users should already be seeded
             return;
