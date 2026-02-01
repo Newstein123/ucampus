@@ -1,0 +1,1654 @@
+[
+    {
+      "title": "Citizen Stargazing Network",
+      "type": "project",
+      "category": "astronomy",
+      "description": "A collaborative platform where amateur astronomers submit telescope observations to build a shared sky database.",
+      "problem": "Many valuable astronomical observations from amateurs are never shared or structured.",
+      "solution": "Provide tools to upload, tag, and validate observations and combine them into a global sky map.",
+      "impact": [
+        "Encourages citizen science",
+        "Supports professional research",
+        "Improves astronomy education"
+      ],
+      "resources": [
+        "Web platform",
+        "Image storage",
+        "Observation metadata system"
+      ],
+      "references": [
+        "https://www.zooniverse.org",
+        "https://www.aavso.org"
+      ]
+    },
+    {
+      "title": "AI-Powered Star Classification",
+      "type": "project",
+      "category": "astronomy",
+      "description": "Use machine learning to classify stars based on spectral and brightness data.",
+      "problem": "Manual star classification is slow and error-prone.",
+      "solution": "Train ML models on public astronomical datasets to automate classification.",
+      "impact": [
+        "Speeds up research",
+        "Introduces AI to astronomy students"
+      ],
+      "resources": [
+        "Python",
+        "Public star datasets",
+        "Neural networks"
+      ],
+      "references": [
+        "https://www.sdss.org",
+        "https://archive.stsci.edu"
+      ]
+    },
+    {
+      "title": "Exoplanet Transit Detector",
+      "type": "project",
+      "category": "astronomy",
+      "description": "A tool that analyzes light curves to detect potential exoplanet transits.",
+      "problem": "Identifying exoplanets requires analyzing massive datasets.",
+      "solution": "Automate transit detection using signal-processing and ML techniques.",
+      "impact": [
+        "Supports space research",
+        "Educational for physics students"
+      ],
+      "resources": [
+        "NASA light curve data",
+        "Signal analysis algorithms"
+      ],
+      "references": [
+        "https://exoplanetarchive.ipac.caltech.edu"
+      ]
+    },
+    {
+      "title": "Dark Matter Simulation Playground",
+      "type": "project",
+      "category": "astronomy",
+      "description": "An interactive simulation to visualize dark matter effects on galaxy rotation.",
+      "problem": "Dark matter concepts are abstract and hard to visualize.",
+      "solution": "Create simplified physics simulations accessible via browser.",
+      "impact": [
+        "Improves conceptual understanding",
+        "Useful for teaching astrophysics"
+      ],
+      "resources": [
+        "Physics engine",
+        "Web visualization tools"
+      ],
+      "references": [
+        "https://home.cern/science/physics/dark-matter"
+      ]
+    },
+    {
+      "title": "AI Study Buddy for Students",
+      "type": "project",
+      "category": "ai",
+      "description": "An AI assistant that helps students study by explaining concepts and generating quizzes.",
+      "problem": "Students lack personalized study support.",
+      "solution": "Use NLP models to adapt explanations to user learning levels.",
+      "impact": [
+        "Improves learning outcomes",
+        "Accessible education"
+      ],
+      "resources": [
+        "LLMs",
+        "Quiz engine"
+      ],
+      "references": [
+        "https://www.khanacademy.org"
+      ]
+    },
+    {
+      "title": "Bias Detection in AI Models",
+      "type": "project",
+      "category": "ai",
+      "description": "A tool to analyze datasets and models for bias and fairness issues.",
+      "problem": "AI systems often inherit bias from data.",
+      "solution": "Provide visualization and metrics to detect and reduce bias.",
+      "impact": [
+        "Promotes ethical AI",
+        "Raises awareness"
+      ],
+      "resources": [
+        "Data analysis tools",
+        "Fairness metrics"
+      ],
+      "references": [
+        "https://www.ibm.com/ai/fairness-360"
+      ]
+    },
+    {
+      "title": "AI Resume Feedback System",
+      "type": "project",
+      "category": "ai",
+      "description": "An AI tool that reviews resumes and gives constructive feedback.",
+      "problem": "Many job seekers lack access to career guidance.",
+      "solution": "Use NLP to evaluate structure, clarity, and relevance.",
+      "impact": [
+        "Supports early-career professionals"
+      ],
+      "resources": [
+        "Text analysis",
+        "ML scoring models"
+      ],
+      "references": [
+        "https://www.onetonline.org"
+      ]
+    },
+    {
+      "title": "Quantum Computing Visualizer",
+      "type": "project",
+      "category": "quantum",
+      "description": "A visual tool to demonstrate qubits, superposition, and entanglement.",
+      "problem": "Quantum concepts are mathematically intimidating.",
+      "solution": "Use interactive visuals to explain core ideas intuitively.",
+      "impact": [
+        "Makes quantum learning accessible",
+        "Good for beginners"
+      ],
+      "resources": [
+        "WebGL",
+        "Quantum simulators"
+      ],
+      "references": [
+        "https://quantum-computing.ibm.com"
+      ]
+    },
+    {
+      "title": "Quantum Algorithm Learning Hub",
+      "type": "project",
+      "category": "quantum",
+      "description": "A collaborative space to study and explain quantum algorithms.",
+      "problem": "Few beginner-friendly resources exist.",
+      "solution": "Community-written explanations with simulations.",
+      "impact": [
+        "Builds quantum literacy"
+      ],
+      "resources": [
+        "Markdown editor",
+        "Quantum SDKs"
+      ],
+      "references": [
+        "https://qiskit.org"
+      ]
+    },
+    {
+      "title": "AI for Space Image Enhancement",
+      "type": "project",
+      "category": "astronomy",
+      "description": "Use AI to enhance low-resolution telescope images.",
+      "problem": "Many space images suffer from noise and blur.",
+      "solution": "Apply super-resolution neural networks.",
+      "impact": [
+        "Improves data quality",
+        "Supports research"
+      ],
+      "resources": [
+        "CNN models",
+        "Image datasets"
+      ],
+      "references": [
+        "https://www.nasa.gov"
+      ]
+    },
+    {
+      "title": "Quantum Random Number Generator Simulator",
+      "type": "project",
+      "category": "quantum",
+      "description": "Simulate quantum randomness and compare with classical RNGs.",
+      "problem": "True randomness is hard to explain.",
+      "solution": "Demonstrate quantum-based randomness visually.",
+      "impact": [
+        "Educational for cryptography"
+      ],
+      "resources": [
+        "Quantum simulation tools"
+      ],
+      "references": [
+        "https://www.idquantique.com"
+      ]
+    },
+    {
+      "title": "AI Climate Prediction Model",
+      "type": "project",
+      "category": "ai",
+      "description": "Predict climate trends using machine learning.",
+      "problem": "Climate data is complex and massive.",
+      "solution": "Train models on historical climate data.",
+      "impact": [
+        "Supports sustainability awareness"
+      ],
+      "resources": [
+        "Climate datasets",
+        "ML pipelines"
+      ],
+      "references": [
+        "https://climate.nasa.gov"
+      ]
+    },
+    {
+      "title": "Astronomy Learning Roadmap",
+      "type": "project",
+      "category": "astronomy",
+      "description": "A guided learning path for aspiring astronomers.",
+      "problem": "Beginners don’t know where to start.",
+      "solution": "Curated roadmap with resources and milestones.",
+      "impact": [
+        "Improves self-learning"
+      ],
+      "resources": [
+        "Curriculum builder"
+      ],
+      "references": [
+        "https://www.coursera.org"
+      ]
+    },
+    {
+      "title": "AI Code Reviewer",
+      "type": "project",
+      "category": "ai",
+      "description": "Automatically review code for bugs and style issues.",
+      "problem": "Manual code reviews are time-consuming.",
+      "solution": "Use ML models trained on open-source repositories.",
+      "impact": [
+        "Improves code quality"
+      ],
+      "resources": [
+        "Static analysis",
+        "ML models"
+      ],
+      "references": [
+        "https://github.com"
+      ]
+    },
+    {
+      "title": "Quantum Cryptography Explorer",
+      "type": "project",
+      "category": "quantum",
+      "description": "Explain quantum key distribution through simulations.",
+      "problem": "Quantum security is poorly understood.",
+      "solution": "Interactive demonstrations of QKD protocols.",
+      "impact": [
+        "Raises cybersecurity awareness"
+      ],
+      "resources": [
+        "Simulation tools"
+      ],
+      "references": [
+        "https://www.nist.gov"
+      ]
+    },
+    {
+      "title": "AI-Based Telescope Scheduler",
+      "type": "project",
+      "category": "astronomy",
+      "description": "Optimize telescope observation schedules using AI.",
+      "problem": "Telescope time is limited.",
+      "solution": "Predict best observation windows automatically.",
+      "impact": [
+        "Improves resource efficiency"
+      ],
+      "resources": [
+        "Optimization algorithms"
+      ],
+      "references": [
+        "https://www.eso.org"
+      ]
+    },
+    {
+      "title": "Quantum Physics Q&A Community",
+      "type": "project",
+      "category": "quantum",
+      "description": "A moderated community for asking and answering quantum physics questions.",
+      "problem": "Learners struggle to get reliable answers.",
+      "solution": "Peer-reviewed answers with citations.",
+      "impact": [
+        "Encourages knowledge sharing"
+      ],
+      "resources": [
+        "Forum system",
+        "Reputation system"
+      ],
+      "references": [
+        "https://physics.stackexchange.com"
+      ]
+    },
+    {
+      "title": "AI Research Paper Summarizer",
+      "type": "project",
+      "category": "ai",
+      "description": "Summarize academic papers into readable insights.",
+      "problem": "Research papers are hard to digest.",
+      "solution": "Use NLP to extract key ideas.",
+      "impact": [
+        "Saves research time"
+      ],
+      "resources": [
+        "Text summarization models"
+      ],
+      "references": [
+        "https://arxiv.org"
+      ]
+    },
+    {
+      "title": "Virtual Observatory for Students",
+      "type": "project",
+      "category": "astronomy",
+      "description": "A virtual observatory using real astronomical data.",
+      "problem": "Students lack access to observatories.",
+      "solution": "Provide simulated observation tools.",
+      "impact": [
+        "Hands-on learning experience"
+      ],
+      "resources": [
+        "Astronomy datasets",
+        "Visualization tools"
+      ],
+      "references": [
+        "https://www.virtualobservatory.org"
+      ]
+    },
+    {
+      "title": "An AI-Based Framework for Competitive Match Performance Analysis",
+      "type": "project",
+      "category": "esports",
+      "description": "Community battle gaming moba streaming community streaming coach community gaming ai fps",
+      "problem": "Ai community strategy player coach battle strategy coach platform strategy",
+      "solution": "Ranked strategy streaming streaming community ranked platform fps tournament ranked moba player",
+      "impact": [
+        "platform ranked moba gaming",
+        "analytics tournament coach community"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "A Centralized Platform for Esports Team Operations Management",
+      "type": "project",
+      "category": "esports",
+      "description": "Tournament ai ai esports battle ranked battle battle fps coach gaming tournament",
+      "problem": "Streaming strategy tournament moba strategy esports gaming analytics streaming fps",
+      "solution": "Ai battle strategy battle ranked strategy gaming analytics ranked community tournament strategy",
+      "impact": [
+        "ranked coach ranked player",
+        "ai esports tournament esports"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Design of a Real-Time Tournament Bracket Management System",
+      "type": "project",
+      "category": "esports",
+      "description": "Moba moba player fps ai ai coach gaming platform player battle player",
+      "problem": "Tournament gaming coach platform battle battle streaming platform coach moba",
+      "solution": "Battle coach gaming analytics ranked fps platform esports streaming strategy tournament tournament",
+      "impact": [
+        "tournament streaming streaming community",
+        "gaming gaming coach strategy"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "A Longitudinal Player Skill Progress Monitoring System",
+      "type": "project",
+      "category": "esports",
+      "description": "Coach platform community tournament ai ai fps analytics streaming strategy player tournament",
+      "problem": "Coach coach analytics strategy esports strategy ranked analytics coach community",
+      "solution": "Community player analytics moba coach analytics moba coach streaming fps platform strategy",
+      "impact": [
+        "moba ranked tournament moba",
+        "community battle gaming esports"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "An Esports Talent Scouting and Recruitment Framework",
+      "type": "project",
+      "category": "esports",
+      "description": "Tournament coach moba ai gaming coach player player tournament community streaming ranked",
+      "problem": "Platform coach strategy player ranked analytics community moba platform ranked",
+      "solution": "Gaming community moba tournament moba platform gaming ranked community coach battle ranked",
+      "impact": [
+        "gaming strategy ai community",
+        "battle strategy ranked fps"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Analytical Review System for In-Game Strategy and Replays",
+      "type": "project",
+      "category": "esports",
+      "description": "Analytics player ai strategy analytics esports player fps streaming streaming tournament esports",
+      "problem": "Analytics community ai community esports coach moba strategy platform ranked",
+      "solution": "Platform community strategy platform esports strategy streaming fps coach ranked battle fps",
+      "impact": [
+        "battle ranked tournament esports",
+        "fps platform gaming player"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Behavioral Analysis System for Anti-Cheat Detection",
+      "type": "project",
+      "category": "esports",
+      "description": "Battle ranked esports streaming platform fps streaming tournament esports esports gaming analytics",
+      "problem": "Community esports platform gaming platform player tournament fps esports ai",
+      "solution": "Ranked ai battle platform tournament player moba moba gaming community battle streaming",
+      "impact": [
+        "fps ranked platform ranked",
+        "player moba gaming moba"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "A Digital Platform for Esports Fan Engagement and Retention",
+      "type": "project",
+      "category": "esports",
+      "description": "Player strategy strategy ai player streaming community esports ranked moba gaming strategy",
+      "problem": "Platform gaming esports battle player community ai battle community platform",
+      "solution": "Tournament ai ai player ai tournament player strategy moba coach battle tournament",
+      "impact": [
+        "fps gaming esports fps",
+        "fps strategy esports player"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Real-Time Visualization Dashboard for Competitive Match Data",
+      "type": "project",
+      "category": "esports",
+      "description": "Moba streaming esports player gaming platform community community fps esports gaming analytics",
+      "problem": "Fps analytics esports ranked gaming strategy esports streaming fps esports",
+      "solution": "Esports ranked fps streaming analytics battle esports ai streaming ranked moba esports",
+      "impact": [
+        "player moba gaming esports",
+        "ai strategy fps ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "A Cross-Title Competitive Ranking Evaluation System",
+      "type": "project",
+      "category": "esports",
+      "description": "Esports gaming gaming platform tournament esports ai platform community analytics esports strategy",
+      "problem": "Strategy ranked ai esports ranked gaming moba esports strategy platform",
+      "solution": "Fps ranked ai ranked analytics coach esports coach ranked streaming strategy platform",
+      "impact": [
+        "analytics fps platform fps",
+        "battle streaming tournament analytics"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "An Intelligent Recommendation Engine for Esports Coaching",
+      "type": "project",
+      "category": "esports",
+      "description": "Ranked platform battle player fps ai ai community analytics player streaming streaming",
+      "problem": "Player fps moba streaming battle strategy player esports esports tournament",
+      "solution": "Esports community tournament ai battle esports strategy player strategy esports streaming ranked",
+      "impact": [
+        "community fps gaming moba",
+        "moba player tournament fps"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Automated Scheduling System for Competitive Scrimmages",
+      "type": "project",
+      "category": "esports",
+      "description": "Coach fps ranked strategy battle strategy battle esports streaming tournament battle gaming",
+      "problem": "Platform tournament tournament streaming fps player coach esports community streaming",
+      "solution": "Gaming analytics ranked gaming player community esports strategy coach battle streaming strategy",
+      "impact": [
+        "player ranked tournament community",
+        "ranked community ai player"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Monitoring Player Fatigue and Burnout in Professional Esports",
+      "type": "project",
+      "category": "esports",
+      "description": "Gaming gaming analytics battle tournament fps tournament esports strategy ai community analytics",
+      "problem": "Coach ranked streaming tournament strategy coach fps streaming esports analytics",
+      "solution": "Coach gaming player platform gaming ranked esports streaming ranked esports platform strategy",
+      "impact": [
+        "platform analytics ai streaming",
+        "ranked moba coach analytics"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Data-Driven Analytics Platform for Esports Sponsorship Evaluation",
+      "type": "project",
+      "category": "esports",
+      "description": "Tournament fps ranked ai strategy player gaming battle tournament streaming tournament moba",
+      "problem": "Analytics player platform platform strategy analytics player platform ai ranked",
+      "solution": "Strategy moba community player community gaming platform analytics coach platform platform analytics",
+      "impact": [
+        "gaming moba platform fps",
+        "strategy coach coach coach"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Predictive Modeling System for Esports Tournament Outcomes",
+      "type": "project",
+      "category": "esports",
+      "description": "Coach esports esports analytics streaming community player player gaming tournament strategy gaming",
+      "problem": "Gaming gaming gaming ranked ranked streaming gaming strategy fps strategy",
+      "solution": "Tournament analytics coach esports community coach battle gaming player battle coach streaming",
+      "impact": [
+        "player platform coach community",
+        "strategy analytics esports battle"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Meta-Game Trend Analysis Framework for Competitive Titles",
+      "type": "project",
+      "category": "esports",
+      "description": "Esports moba ranked ranked esports ranked fps platform ranked gaming battle community",
+      "problem": "Fps community community fps moba battle tournament fps community coach",
+      "solution": "Battle analytics coach ai gaming coach tournament analytics gaming ranked player platform",
+      "impact": [
+        "ranked fps ranked gaming",
+        "fps fps gaming tournament"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "A Data-Driven Esports Talent Identification System",
+      "type": "project",
+      "category": "esports",
+      "description": "Tournament strategy ai moba streaming ai streaming platform moba gaming battle community",
+      "problem": "Player platform ranked gaming fps tournament platform moba coach streaming",
+      "solution": "Player esports esports battle player strategy player ranked platform fps strategy streaming",
+      "impact": [
+        "player strategy community strategy",
+        "ranked analytics tournament ai"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Sentiment Analysis of Team Voice Communications",
+      "type": "project",
+      "category": "esports",
+      "description": "Analytics ai strategy player player ranked streaming moba ranked moba player community",
+      "problem": "Moba battle strategy strategy moba tournament coach strategy streaming strategy",
+      "solution": "Ranked battle streaming gaming player streaming gaming strategy community battle strategy platform",
+      "impact": [
+        "coach analytics ranked tournament",
+        "tournament community analytics ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Automated Generation of Highlights from Live Esports Streams",
+      "type": "project",
+      "category": "esports",
+      "description": "Ai tournament ai tournament esports strategy ai fps moba esports platform tournament",
+      "problem": "Ai esports player tournament platform moba ranked player battle coach",
+      "solution": "Community moba platform platform coach analytics player ai gaming moba player moba",
+      "impact": [
+        "ai battle fps esports",
+        "strategy community moba esports"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Simulation-Based Training System for Competitive Esports",
+      "type": "project",
+      "category": "esports",
+      "description": "Gaming fps ranked coach fps analytics gaming coach gaming esports battle community",
+      "problem": "Player strategy ai analytics ranked strategy streaming player fps streaming",
+      "solution": "Community platform moba coach platform fps coach battle fps analytics tournament battle",
+      "impact": [
+        "ranked gaming tournament ranked",
+        "fps ai player battle"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Quantitative Analysis of Team Synergy in Esports",
+      "type": "project",
+      "category": "esports",
+      "description": "Ai battle coach community platform platform battle tournament tournament coach ai ai",
+      "problem": "Streaming strategy platform fps platform community moba streaming player ai",
+      "solution": "Coach tournament player fps moba player streaming coach platform streaming moba gaming",
+      "impact": [
+        "community esports fps battle",
+        "esports tournament ai ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "A Digital Career Portfolio System for Esports Athletes",
+      "type": "project",
+      "category": "esports",
+      "description": "Ai coach community analytics tournament platform tournament coach ranked strategy ai ai",
+      "problem": "Gaming analytics gaming ai platform analytics gaming player fps streaming",
+      "solution": "Player battle player player player ranked coach streaming tournament analytics strategy fps",
+      "impact": [
+        "streaming ranked streaming platform",
+        "platform analytics moba coach"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Evaluation Framework for Fairness in Matchmaking Algorithms",
+      "type": "project",
+      "category": "esports",
+      "description": "Player tournament esports strategy fps streaming gaming analytics streaming fps strategy streaming",
+      "problem": "Esports strategy coach community ranked community strategy community ranked community",
+      "solution": "Platform ranked fps tournament strategy tournament analytics fps strategy platform gaming ranked",
+      "impact": [
+        "strategy gaming ai strategy",
+        "gaming ai fps moba"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Enhancing Spectator Experience Through Data Visualization",
+      "type": "project",
+      "category": "esports",
+      "description": "Esports streaming community fps battle fps ranked battle ai coach ai analytics",
+      "problem": "Ai streaming community moba platform esports platform community platform strategy",
+      "solution": "Analytics player streaming ranked community strategy moba community esports battle fps battle",
+      "impact": [
+        "ranked analytics battle strategy",
+        "community esports analytics strategy"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Decision Support System for Draft and Pick Phases",
+      "type": "project",
+      "category": "esports",
+      "description": "Gaming strategy player battle coach esports esports strategy gaming community moba gaming",
+      "problem": "Strategy strategy moba ranked gaming ai gaming platform ai streaming",
+      "solution": "Analytics strategy gaming gaming moba ai battle streaming coach platform community gaming",
+      "impact": [
+        "tournament platform platform esports",
+        "esports moba community gaming"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Tracking and Analysis of Esports In-Game Economies",
+      "type": "project",
+      "category": "esports",
+      "description": "Esports tournament player ranked platform community esports tournament coach ai esports esports",
+      "problem": "Tournament ai moba esports moba analytics community fps gaming fps",
+      "solution": "Esports battle coach gaming platform fps streaming platform coach strategy ranked battle",
+      "impact": [
+        "moba strategy esports streaming",
+        "player analytics ai strategy"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Unified Platform for Multi-Game Tournament Hosting",
+      "type": "project",
+      "category": "esports",
+      "description": "Ranked fps ranked tournament battle streaming coach battle gaming ai esports fps",
+      "problem": "Ranked player battle analytics coach streaming streaming platform moba ranked",
+      "solution": "Streaming battle battle ai moba gaming player ai platform fps battle community",
+      "impact": [
+        "gaming strategy community ai",
+        "streaming moba tournament streaming"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Operational Management System for Esports Events",
+      "type": "project",
+      "category": "esports",
+      "description": "Coach esports ai community community moba fps ranked moba battle battle strategy",
+      "problem": "Tournament player moba strategy fps platform ranked strategy analytics player",
+      "solution": "Gaming esports fps gaming platform platform community platform coach community streaming moba",
+      "impact": [
+        "ranked gaming platform coach",
+        "community player analytics analytics"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Reaction Time Measurement and Analysis in Esports Players",
+      "type": "project",
+      "category": "esports",
+      "description": "Battle strategy player analytics coach player ranked battle ranked strategy platform strategy",
+      "problem": "Coach streaming fps platform fps ai battle streaming esports ranked",
+      "solution": "Ranked platform ranked analytics streaming streaming platform coach streaming fps ranked tournament",
+      "impact": [
+        "esports streaming player tournament",
+        "streaming moba analytics ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Decision Assistance System for Esports Match Officials",
+      "type": "project",
+      "category": "esports",
+      "description": "Ranked player gaming ai player ranked player battle gaming strategy esports fps",
+      "problem": "Tournament esports player strategy ranked fps ranked coach coach ai",
+      "solution": "Ranked platform coach moba strategy gaming platform ai fps ranked strategy moba",
+      "impact": [
+        "community strategy ai coach",
+        "ai ai strategy ai"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "AI-Assisted Community Moderation in Competitive Gaming",
+      "type": "project",
+      "category": "esports",
+      "description": "Fps analytics ranked ranked battle ranked ranked moba moba platform ai gaming",
+      "problem": "Battle battle strategy battle coach analytics tournament gaming player ranked",
+      "solution": "Ranked battle platform analytics gaming tournament moba moba analytics analytics fps platform",
+      "impact": [
+        "player streaming fps streaming",
+        "battle ranked moba battle"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Detection of Smurfing and Account Abuse Using Analytics",
+      "type": "project",
+      "category": "esports",
+      "description": "Tournament gaming tournament ai platform streaming platform ai moba moba gaming tournament",
+      "problem": "Player moba esports ai fps tournament battle gaming streaming community",
+      "solution": "Esports coach community coach platform ai moba ranked ranked platform ranked moba",
+      "impact": [
+        "gaming analytics fps ranked",
+        "strategy tournament battle tournament"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Support Tools for Live Esports Commentary",
+      "type": "project",
+      "category": "esports",
+      "description": "Tournament analytics esports battle strategy strategy tournament community streaming analytics streaming esports",
+      "problem": "Ranked streaming fps ranked streaming tournament tournament ranked fps fps",
+      "solution": "Player esports tournament fps player strategy moba ranked player battle ranked platform",
+      "impact": [
+        "streaming platform player player",
+        "esports battle battle platform"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Health and Wellness Monitoring Platform for Esports Players",
+      "type": "project",
+      "category": "esports",
+      "description": "Coach fps strategy strategy strategy strategy analytics tournament ai platform strategy strategy",
+      "problem": "Fps moba coach moba coach strategy player streaming fps community",
+      "solution": "Tournament ai community battle gaming ai coach esports platform coach player esports",
+      "impact": [
+        "tournament player tournament battle",
+        "coach esports strategy platform"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Audience Engagement Analysis Using Heatmap Techniques",
+      "type": "project",
+      "category": "esports",
+      "description": "Tournament gaming fps player gaming community community esports gaming player moba player",
+      "problem": "Ranked esports player ai esports streaming esports coach esports coach",
+      "solution": "Tournament analytics moba ranked fps coach tournament player player ranked community player",
+      "impact": [
+        "community platform ranked player",
+        "streaming coach community community"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Opponent Pattern Recognition Using Machine Learning",
+      "type": "project",
+      "category": "esports",
+      "description": "Ai player ai streaming platform ai platform player moba moba fps battle",
+      "problem": "Coach streaming community tournament esports player battle battle ranked ai",
+      "solution": "Platform player tournament analytics ranked strategy streaming platform streaming tournament ai coach",
+      "impact": [
+        "ranked player ai coach",
+        "esports fps streaming tournament"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Learning Management System for Esports Skill Development",
+      "type": "project",
+      "category": "esports",
+      "description": "Analytics coach analytics gaming community coach ranked streaming fps platform streaming coach",
+      "problem": "Coach ranked esports gaming ai ranked esports streaming tournament platform",
+      "solution": "Community fps moba battle ranked tournament ai coach gaming battle ranked gaming",
+      "impact": [
+        "community coach gaming analytics",
+        "esports strategy coach streaming"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Analysis of Communication Efficiency in Esports Teams",
+      "type": "project",
+      "category": "esports",
+      "description": "Platform strategy gaming battle moba gaming fps strategy community streaming gaming analytics",
+      "problem": "Ai community gaming fps ai analytics player ranked player streaming",
+      "solution": "Analytics player tournament platform coach tournament tournament streaming moba esports analytics battle",
+      "impact": [
+        "coach coach tournament platform",
+        "player tournament coach platform"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Automated Competitive Match Reporting System",
+      "type": "project",
+      "category": "esports",
+      "description": "Community platform analytics gaming ai platform coach ai tournament ranked community gaming",
+      "problem": "Strategy ranked battle battle battle ai analytics fps moba player",
+      "solution": "Strategy gaming tournament player moba ai moba streaming esports platform analytics fps",
+      "impact": [
+        "community fps strategy moba",
+        "player ranked ai ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Public API Platform for Esports Statistics",
+      "type": "project",
+      "category": "esports",
+      "description": "Streaming strategy player battle esports gaming platform moba ai gaming strategy streaming",
+      "problem": "Moba community battle fps ai battle fps player streaming streaming",
+      "solution": "Ai ai fps battle strategy analytics battle fps strategy strategy streaming platform",
+      "impact": [
+        "esports player ranked tournament",
+        "player battle tournament ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Impact Analysis of Game Patches on Competitive Balance",
+      "type": "project",
+      "category": "esports",
+      "description": "Analytics platform ai strategy esports moba battle ranked community analytics esports streaming",
+      "problem": "Player community platform streaming tournament platform ai platform player analytics",
+      "solution": "Player strategy ai coach platform ai tournament analytics tournament community esports analytics",
+      "impact": [
+        "coach community battle tournament",
+        "moba strategy community community"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Player Performance Consistency Evaluation Model",
+      "type": "project",
+      "category": "esports",
+      "description": "Community moba gaming battle battle ai coach ai battle analytics moba platform",
+      "problem": "Esports community coach battle gaming streaming moba ai player ai",
+      "solution": "Tournament streaming fps community fps analytics player battle moba analytics tournament ai",
+      "impact": [
+        "moba streaming analytics tournament",
+        "tournament tournament coach community"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Personalized Content Recommendation System for Esports",
+      "type": "project",
+      "category": "esports",
+      "description": "Streaming battle ranked strategy moba ranked gaming analytics tournament esports analytics ranked",
+      "problem": "Moba ranked analytics analytics battle ai gaming ai coach tournament",
+      "solution": "Gaming fps gaming moba community streaming tournament community strategy analytics moba player",
+      "impact": [
+        "community analytics coach coach",
+        "streaming esports moba ai"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Cross-Regional Competitive Skill Comparison Framework",
+      "type": "project",
+      "category": "esports",
+      "description": "Esports ai gaming gaming community moba tournament esports strategy esports gaming tournament",
+      "problem": "Battle analytics gaming platform community fps player community moba ai",
+      "solution": "Strategy fps gaming community fps streaming ai community ai analytics gaming esports",
+      "impact": [
+        "community streaming coach player",
+        "player esports esports moba"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Analytical Detection of Tournament Fraud and Match Fixing",
+      "type": "project",
+      "category": "esports",
+      "description": "Moba platform ranked streaming ranked streaming analytics moba platform analytics coach streaming",
+      "problem": "Fps ai battle tournament player tournament ai battle gaming fps",
+      "solution": "Moba ranked analytics ranked platform player community player strategy player coach gaming",
+      "impact": [
+        "gaming fps player player",
+        "analytics streaming fps ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Automated Practice Drill Generation Using AI",
+      "type": "project",
+      "category": "esports",
+      "description": "Ai community tournament ai strategy battle fps platform battle ai ai battle",
+      "problem": "Battle gaming streaming gaming moba esports platform strategy battle coach",
+      "solution": "Platform gaming esports strategy player ranked gaming platform battle esports coach streaming",
+      "impact": [
+        "strategy player strategy coach",
+        "player tournament community ai"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Monetization Analytics Framework for Esports Organizations",
+      "type": "project",
+      "category": "esports",
+      "description": "Strategy gaming ranked community streaming esports ai esports ai ai moba battle",
+      "problem": "Moba player platform tournament ai ai battle esports battle analytics",
+      "solution": "Strategy fps ai streaming fps community esports tournament fps player platform battle",
+      "impact": [
+        "streaming esports fps battle",
+        "coach player strategy player"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Analytical Evaluation of Esports Player Contracts",
+      "type": "project",
+      "category": "esports",
+      "description": "Fps esports ranked fps platform player strategy community fps ranked tournament esports",
+      "problem": "Fps tournament platform player esports platform fps gaming fps analytics",
+      "solution": "Tournament battle platform ranked analytics esports fps analytics ranked coach ai ai",
+      "impact": [
+        "gaming moba platform coach",
+        "streaming platform esports moba"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "Grassroots Esports Development and Infrastructure Platform",
+      "type": "project",
+      "category": "esports",
+      "description": "Community player moba community gaming strategy coach gaming platform player analytics tournament",
+      "problem": "Player gaming tournament community player fps fps gaming moba ranked",
+      "solution": "Ranked streaming battle player gaming battle esports coach strategy fps battle ai",
+      "impact": [
+        "gaming battle battle player",
+        "moba coach battle player"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "AI-Assisted Competitive Match Review System",
+      "type": "project",
+      "category": "esports",
+      "description": "Fps player esports strategy platform ai analytics esports strategy streaming community ai",
+      "problem": "Gaming coach coach ai moba platform gaming community fps fps",
+      "solution": "Platform player ranked tournament analytics platform gaming moba moba community gaming ranked",
+      "impact": [
+        "player fps strategy ranked",
+        "tournament esports fps ranked"
+      ],
+      "resources": [
+        "Web platform",
+        "Game APIs",
+        "Analytics system"
+      ],
+      "references": [
+        "https://liquipedia.net",
+        "https://escharts.com"
+      ]
+    },
+    {
+      "title": "AI-Based Airdrop Sybil Resistance Framework",
+      "type": "project",
+      "category": "web3",
+      "description": "Airdrop analytics wallet behavior ai web3 community",
+      "problem": "Airdrops are exploited by bots and sybil wallets",
+      "solution": "AI models detect genuine wallet behavior across chains",
+      "impact": [
+        "fair token distribution",
+        "higher user retention"
+      ],
+      "resources": [
+        "Blockchain indexers",
+        "AI behavior models",
+        "Web dashboard"
+      ],
+      "references": [
+        "https://defillama.com",
+        "https://dune.com"
+      ]
+    },
+    {
+      "title": "Dynamic NFT Reputation System for DAOs",
+      "type": "project",
+      "category": "web3",
+      "description": "Dao governance reputation nft community analytics",
+      "problem": "DAO contributions are hard to measure transparently",
+      "solution": "Dynamic NFTs update based on governance and work activity",
+      "impact": [
+        "merit-based governance",
+        "transparent contributor recognition"
+      ],
+      "resources": [
+        "DAO voting data",
+        "NFT smart contracts",
+        "Analytics engine"
+      ],
+      "references": [
+        "https://snapshot.org",
+        "https://dune.com"
+      ]
+    },
+    {
+      "title": "Cross-Chain NFT Airdrop Aggregation Platform",
+      "type": "project",
+      "category": "web3",
+      "description": "Nft airdrop discovery multi chain web3",
+      "problem": "Users miss airdrops across fragmented ecosystems",
+      "solution": "Aggregate and notify eligible NFT airdrops across chains",
+      "impact": [
+        "improved user participation",
+        "higher protocol engagement"
+      ],
+      "resources": [
+        "Cross-chain APIs",
+        "Notification system",
+        "Web interface"
+      ],
+      "references": [
+        "https://coinmarketcap.com",
+        "https://defillama.com"
+      ]
+    },
+    {
+      "title": "AI-Powered NFT Floor Price Stability Analyzer",
+      "type": "project",
+      "category": "web3",
+      "description": "Nft market analytics ai pricing web3",
+      "problem": "NFT floors are volatile and manipulation-prone",
+      "solution": "AI detects wash trading and abnormal price movements",
+      "impact": [
+        "healthier NFT markets",
+        "better investor confidence"
+      ],
+      "resources": [
+        "NFT marketplace data",
+        "Machine learning models",
+        "Analytics dashboard"
+      ],
+      "references": [
+        "https://opensea.io",
+        "https://dune.com"
+      ]
+    },
+    {
+      "title": "On-Chain Identity Graph for Airdrop Qualification",
+      "type": "project",
+      "category": "web3",
+      "description": "Web3 identity wallet reputation analytics",
+      "problem": "Projects cannot verify real users without KYC",
+      "solution": "Build privacy-preserving identity graphs using on-chain data",
+      "impact": [
+        "reduced sybil attacks",
+        "privacy-first identity"
+      ],
+      "resources": [
+        "On-chain data",
+        "Graph databases",
+        "Zero-knowledge proofs"
+      ],
+      "references": [
+        "https://ethereum.org",
+        "https://dune.com"
+      ]
+    },
+  
+    {
+      "title": "DAO Treasury Risk Monitoring Platform",
+      "type": "project",
+      "category": "web3",
+      "description": "Dao treasury analytics defi risk management",
+      "problem": "DAO treasuries lack real-time risk visibility",
+      "solution": "Monitor exposure, liquidity, and protocol risks",
+      "impact": [
+        "better treasury decisions",
+        "reduced financial risk"
+      ],
+      "resources": [
+        "DeFi protocol data",
+        "Risk models",
+        "Dashboard interface"
+      ],
+      "references": [
+        "https://defillama.com",
+        "https://snapshot.org"
+      ]
+    },
+    {
+      "title": "NFT-Based Proof of Contribution for Open Source",
+      "type": "project",
+      "category": "web3",
+      "description": "Open source contribution nft web3",
+      "problem": "Contributors lack verifiable on-chain recognition",
+      "solution": "Mint non-transferable NFTs for verified contributions",
+      "impact": [
+        "developer reputation",
+        "sustainable open source incentives"
+      ],
+      "resources": [
+        "GitHub APIs",
+        "NFT contracts",
+        "Verification service"
+      ],
+      "references": [
+        "https://github.com",
+        "https://ethereum.org"
+      ]
+    },
+    {
+      "title": "Behavior-Based DeFi Loyalty Rewards Engine",
+      "type": "project",
+      "category": "web3",
+      "description": "Defi user loyalty analytics rewards",
+      "problem": "DeFi users are highly mercenary",
+      "solution": "Reward consistent usage with NFT-based loyalty tiers",
+      "impact": [
+        "higher protocol retention",
+        "stronger user communities"
+      ],
+      "resources": [
+        "Transaction data",
+        "Reward logic engine",
+        "NFT minting system"
+      ],
+      "references": [
+        "https://defillama.com"
+      ]
+    },
+    {
+      "title": "AI-Governed DAO Proposal Quality Scoring",
+      "type": "project",
+      "category": "web3",
+      "description": "Dao governance ai proposal analytics",
+      "problem": "Low-quality proposals overwhelm DAOs",
+      "solution": "AI scores proposals based on clarity and impact",
+      "impact": [
+        "higher governance efficiency",
+        "better decision making"
+      ],
+      "resources": [
+        "Proposal datasets",
+        "NLP models",
+        "Governance dashboard"
+      ],
+      "references": [
+        "https://snapshot.org"
+      ]
+    },
+    {
+      "title": "Privacy-Preserving Airdrop Eligibility Verifier",
+      "type": "project",
+      "category": "web3",
+      "description": "Airdrop privacy zk verification web3",
+      "problem": "Users expose wallets to qualify for airdrops",
+      "solution": "Use zero-knowledge proofs for eligibility verification",
+      "impact": [
+        "user privacy protection",
+        "trustless airdrop systems"
+      ],
+      "resources": [
+        "ZK frameworks",
+        "Smart contracts",
+        "Verification layer"
+      ],
+      "references": [
+        "https://ethereum.org"
+      ]
+    },
+  
+    {
+      "title": "NFT-Based Event Attendance Verification Platform",
+      "type": "project",
+      "category": "web3",
+      "description": "Web3 event nft attendance proof",
+      "problem": "Events lack verifiable attendance records",
+      "solution": "Mint NFTs for on-chain event participation",
+      "impact": [
+        "verifiable community engagement",
+        "on-chain identity building"
+      ],
+      "resources": [
+        "Event systems",
+        "NFT contracts",
+        "Wallet integrations"
+      ],
+      "references": [
+        "https://ethereum.org"
+      ]
+    },
+  
+    {
+      "title": "Cross-DAO Contributor Discovery Engine",
+      "type": "project",
+      "category": "web3",
+      "description": "Dao talent analytics contributor discovery",
+      "problem": "DAOs struggle to find proven contributors",
+      "solution": "Analyze contribution history across DAOs",
+      "impact": [
+        "faster hiring",
+        "stronger DAO collaboration"
+      ],
+      "resources": [
+        "DAO data sources",
+        "Reputation models",
+        "Search platform"
+      ],
+      "references": [
+        "https://snapshot.org",
+        "https://dune.com"
+      ]
+    }
+  ]
+  
