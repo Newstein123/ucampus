@@ -1,0 +1,761 @@
+[
+    {
+        "type": "question",
+        "title": "Can amateur astronomers contribute to real scientific research?",
+        "content": {
+            "thought": "Is it possible for non-professionals to make meaningful discoveries in astronomy today?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "How accurate can AI be in scientific predictions?",
+        "content": {
+            "thought": "What are the limitations of AI when applied to complex scientific data?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "Is quantum computing practical in the next decade?",
+        "content": {
+            "thought": "Will quantum computers solve real-world problems soon or remain mostly experimental?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "Can AI replace human teachers?",
+        "content": {
+            "thought": "Should AI be used as a main teacher or only as a support tool?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "Why is dark matter still undetected?",
+        "content": {
+            "thought": "What makes dark matter so difficult to observe directly?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "How do telescopes detect exoplanets?",
+        "content": {
+            "thought": "What methods are used to find planets outside our solar system?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "Is AI creativity real creativity?",
+        "content": {
+            "thought": "Can AI truly create new ideas or only remix existing ones?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "Why is quantum physics so counterintuitive?",
+        "content": {
+            "thought": "What makes quantum behavior so different from classical physics?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "Can simulations replace real experiments?",
+        "content": {
+            "thought": "How reliable are simulations compared to physical experiments?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "Should AI be regulated in scientific research?",
+        "content": {
+            "thought": "What risks exist if AI research is left unregulated?"
+        }
+    },
+    {
+        "type": "question",
+        "title": "How can artificial intelligence enhance performance optimization in esports?",
+        "content": {
+          "thought": "Player ranked streaming community community esports platform ai ranked ranked esports battle?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Which quantitative metrics best represent individual skill in competitive gaming?",
+        "content": {
+          "thought": "Coach community battle analytics tournament strategy tournament ranked streaming player gaming analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can data-driven matchmaking systems improve fairness in competitive games?",
+        "content": {
+          "thought": "Streaming platform ai ai tournament strategy ai ranked coach streaming battle ai?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What strategies are effective in preventing burnout among esports professionals?",
+        "content": {
+          "thought": "Ranked analytics community analytics community fps ranked strategy analytics streaming fps analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How does AI-based coaching compare to traditional human coaching?",
+        "content": {
+          "thought": "Fps coach streaming streaming community ai coach strategy community coach ranked player?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What factors contribute to successful team composition in esports?",
+        "content": {
+          "thought": "Tournament esports esports player coach moba platform gaming analytics player platform moba?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can automated systems identify and reduce toxic behavior in games?",
+        "content": {
+          "thought": "Fps player battle community player platform moba streaming coach ai fps community?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Should standardized ranking models be adopted across esports titles?",
+        "content": {
+          "thought": "Gaming community streaming streaming player platform platform analytics esports tournament gaming esports?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What role does mental health play in sustained competitive performance?",
+        "content": {
+          "thought": "Esports strategy analytics analytics player moba strategy battle fps tournament platform analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How accurately can analytics models predict esports match outcomes?",
+        "content": {
+          "thought": "Ai analytics moba streaming fps esports moba ai ranked analytics fps platform?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What is the competitive impact of frequent game balance patches?",
+        "content": {
+          "thought": "Coach analytics streaming strategy fps gaming gaming player player platform strategy moba?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How does team communication influence match results in esports?",
+        "content": {
+          "thought": "Ai battle streaming analytics platform esports esports ai ai analytics player coach?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can predictive analytics assist in identifying emerging esports talent?",
+        "content": {
+          "thought": "Tournament streaming esports gaming platform tournament ranked ranked moba moba battle coach?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What methodologies are effective for measuring fan engagement?",
+        "content": {
+          "thought": "Ai fps community player gaming esports ai gaming moba gaming coach esports?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Is reaction time a reliable predictor of esports success?",
+        "content": {
+          "thought": "Player player ranked gaming ai ai community battle streaming community esports analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can training efficiency be optimized using data analytics?",
+        "content": {
+          "thought": "Streaming moba esports tournament tournament battle streaming player analytics platform strategy gaming?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Should workload regulation be implemented for professional players?",
+        "content": {
+          "thought": "Ranked esports streaming platform battle gaming community strategy player ranked ranked moba?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How do coaching methodologies affect long-term team performance?",
+        "content": {
+          "thought": "Ai ranked fps coach analytics strategy player esports ranked player gaming ai?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can AI-generated strategies outperform human-designed strategies?",
+        "content": {
+          "thought": "Platform platform community moba esports ranked moba esports strategy player strategy gaming?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What performance indicators should esports teams monitor regularly?",
+        "content": {
+          "thought": "Coach gaming analytics streaming esports player esports ai platform community coach ai?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How equitable are current matchmaking algorithms?",
+        "content": {
+          "thought": "Community tournament fps platform ranked platform player fps strategy gaming battle tournament?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can esports be effectively integrated into formal education systems?",
+        "content": {
+          "thought": "Analytics community tournament coach fps strategy analytics battle tournament coach strategy platform?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can consistency in player performance be objectively measured?",
+        "content": {
+          "thought": "Gaming moba fps player esports fps ai strategy tournament esports community moba?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What approaches support sustainable career development in esports?",
+        "content": {
+          "thought": "Esports strategy fps battle moba platform gaming moba gaming ai tournament analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Is collaborative teamwork more critical than individual mechanical skill?",
+        "content": {
+          "thought": "Player fps gaming ai player esports tournament esports ranked gaming community platform?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can machine learning improve cheat detection accuracy?",
+        "content": {
+          "thought": "Moba moba ai ranked strategy battle streaming streaming streaming battle player platform?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How do cultural differences influence multinational esports teams?",
+        "content": {
+          "thought": "Community player moba ranked community moba community fps fps esports ranked ai?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Should esports governance models mirror those of traditional sports?",
+        "content": {
+          "thought": "Esports analytics strategy ai battle moba coach platform streaming coach player community?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How do fan communities contribute to esports ecosystem growth?",
+        "content": {
+          "thought": "Coach analytics platform fps esports ai battle battle esports ranked fps platform?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can analytics enhance the quality of live esports broadcasting?",
+        "content": {
+          "thought": "Ranked moba esports fps analytics ranked fps ai moba fps moba ai?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What factors contribute to sudden performance decline in players?",
+        "content": {
+          "thought": "Platform battle ranked analytics esports ranked community streaming battle coach coach esports?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can organizations improve global esports talent scouting?",
+        "content": {
+          "thought": "Ranked tournament fps esports ai gaming coach coach platform player strategy moba?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Is esports a viable long-term professional career?",
+        "content": {
+          "thought": "Moba fps ranked moba gaming analytics gaming community battle player community gaming?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can psychological confidence in players be quantitatively assessed?",
+        "content": {
+          "thought": "Battle gaming streaming tournament coach moba tournament moba esports platform platform community?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What influence does live streaming have on competitive success?",
+        "content": {
+          "thought": "Player moba fps player community community community analytics analytics analytics tournament ai?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can AI personalize training for role-specific performance improvement?",
+        "content": {
+          "thought": "Ranked player analytics gaming ai ranked battle streaming strategy esports gaming community?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can data-driven design improve spectator experiences?",
+        "content": {
+          "thought": "Battle moba platform analytics streaming moba battle battle strategy platform strategy player?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Are existing anti-cheat systems sufficient for competitive integrity?",
+        "content": {
+          "thought": "Ai coach battle community ai platform tournament gaming esports ai gaming strategy?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How do evolving game metas reshape team role structures?",
+        "content": {
+          "thought": "Analytics fps community tournament esports gaming ranked analytics fps platform ranked esports?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can analytics-based systems prevent match manipulation?",
+        "content": {
+          "thought": "Moba streaming fps tournament ai streaming coach moba ranked community coach platform?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What pathways enable amateur players to transition into professionals?",
+        "content": {
+          "thought": "Player streaming streaming ranked analytics platform analytics battle ranked coach ranked coach?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Is skill transfer possible across different esports titles?",
+        "content": {
+          "thought": "Battle esports ranked platform coach streaming esports streaming tournament gaming community coach?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How should player health risks be managed in professional esports?",
+        "content": {
+          "thought": "Strategy tournament coach strategy battle moba ai coach ranked ranked coach coach?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can AI systems replace human analysts in esports organizations?",
+        "content": {
+          "thought": "Gaming fps moba player strategy esports strategy gaming ranked ai coach esports?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What design elements make esports tournaments engaging for audiences?",
+        "content": {
+          "thought": "Analytics ranked esports ranked coach moba coach streaming battle fps tournament fps?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can emerging regions develop competitive esports ecosystems?",
+        "content": {
+          "thought": "Player streaming community tournament esports community gaming streaming platform ranked streaming tournament?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Should esports organizations increase investment in analytics?",
+        "content": {
+          "thought": "Streaming gaming ranked coach esports gaming strategy battle streaming platform streaming moba?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How reliable are current esports performance datasets?",
+        "content": {
+          "thought": "Streaming esports strategy strategy coach battle streaming ai streaming ai ranked player?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What ethical challenges arise from extensive esports data collection?",
+        "content": {
+          "thought": "Ai community ai battle tournament community moba platform analytics strategy community analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Gaming Question 50",
+        "content": {
+          "thought": "Battle community battle streaming tournament strategy platform moba battle community ranked analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Figma မှာ component တွေကို ဘယ်လိုစနစ်တကျ organize လုပ်ကြလဲဗျ? သုံးဖြစ်တဲ့ Design System တွေအကြောင်း  မျှဝေပေးပါဦး။ ",
+        "content": {
+          "thought": "ကျွန်တော့်တို Team မှာတော့ atomic design system သုံးတယ်ဗျ။ atoms/molecules/organisms ဆိုပြီး ခွဲပြီးသုံးတာ အဆင်ပြေပါတယ်။ သူများတွေ ဘာတွေသုံးကြလဲရယ်၊ ဘယ်လိုတွေ အဆင်ပြေကြလဲတွေ သိချင်လို့ မေးတာပါဗျ။"
+        }
+      },
+      {
+        "type": "question",
+        "title": "ကျေးလက်ဒေသက လက်မှုပစ္စည်းတွေကို တိုက်ရိုက်ရောင်းချနိုင်တဲ့ platform တစ်ခု ဒီဇိုင်းလုပ်ချင်တယ်ဗျ။ UI/UX က အရမ်းရိုးရှင်းပြီး low-literacy users တွေအတွက် friendly ဖြစ်ဖို့လိုတယ်။ ဘယ်လို features တွေထည့်သင့်လဲ?",
+        "content": {
+          "thought": "ငွေပေးချေမှုအတွက် agent network system တော့ စဉ်းစားထားတယ်။ ကျေးလက်အမျိုးသမီးတွေအတွက် digital literacy training ပါတွဲဖက်လုပ်ဖို့လည်းလိုမယ် ထင်တယ်။ ဒီ project က impact-driven ဖြစ်သင့်တယ်။"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Mobile app တစ်ခုမှာ dark mode ကို ဘယ်လိုစနစ်တကျ design လုပ်မလဲ? Color palette ရွေးတဲ့အခါ ဘာတွေသတိထားရမလဲ?",
+        "content": {
+          "thought": "ကျွန်တော်သိတာက Dark mode မှာ pure black (#000000) သုံးတာထက် dark gray (#121212) ကမျက်စိပိုသက်သာတယ်တို့ ဘာတို့ အကြမ်းဖြင်းပဲ သိတာဗျ။ Contrast Ratio ကို WCAG guidelines နဲ့ လိုက်စစ်တာတွေ ထိတော့လုပ်ဖြစ်ပါတယ်။ ကျန်တာဘာတွေ ထည့်စဉ်းစားရဦးမလဲ? accessibility အကြောင်းတွေတို့ သိချင်ပါတယ်။"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Which prototyping tool gives the best balance between learning curve and functionality for complex interactions?",
+        "content": {
+          "thought": "I've used Principle for micro-interactions and Figma for basic flows. Framer seems powerful but steeper learning. For Myanmar designers considering internet speeds and team collaboration, what's the sweet spot? Also, has anyone tried Protopie for advanced animations?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "မြန်မာဘာသာစကားအတွက် UI design လုပ်တဲ့အခါ ဘာတွေသတိထားသင့်လဲ?",
+        "content": {
+          "thought": "Font sizing, line height, typography စတာတွေမှာ အတွေ့အကြုံရှိသူများမျှဝေပေးပါ။"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How many design iterations do you typically go through before presenting to clients?",
+        "content": {
+          "thought": "For example, do you guys do Crazy 8s exploration, wireframes, mockups,..? For client presentations, sometimes clients expect to see more variations. How do you manage expectations while maintaining efficiency?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How do you handle design feedback from non-design stakeholders effectively without compromising the user experience?",
+        "content": {
+          "thought": "I usually use the Why method - always ask stakeholders to explain the reasoning behind their feedback. But they normally don't have an answer for that. HAHAHA"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What would a culturally-appropriate mental health chatbot for Myanmar youth look like? How do we design conversations that respect local values while providing evidence-based support?",
+        "content": {
+          "thought": "Western mental health apps often don't translate well here. We need to consider: 1) Stigma reduction through anonymous design, 2) Integration with local helplines, 3) Content co-created with Myanmar psychologists, 4) Buddhist mindfulness elements for cultural relevance. I have psychology background but need UX writers and mobile developers."
+        }
+      },
+      {
+        "type": "question",
+        "title": "Could we build a platform that converts school textbooks into accessible formats for visually impaired students? Thinking: text-to-speech with Burmese voice, tactile diagram creation, teacher collaboration tools.",
+        "content": {
+          "thought": "Only 5% of educational materials in Myanmar are accessible. We could use OCR to scan textbooks, then generate: 1) Audio versions, 2) Braille-ready files, 3) Simplified tactile graphics. Need to partner with schools for the blind. Challenge: Burmese TTS quality improvement and creating a sustainable model. Any accessibility experts interested?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What would a circular fashion platform for Myanmar look like? Features: clothes swapping, upcycling workshops, sustainable brand directory, fabric waste tracking. Design challenge: making sustainability cool for Gen Z.",
+        "content": {
+          "thought": "Fast fashion waste is growing in Myanmar. Platform could have: 1) 'Swapmeets' organized via app, 2) DIY upcycling tutorials, 3) Map of tailors who work with recycled materials, 4) Carbon footprint calculator for clothing purchases. Visual identity needs to be trendy, not preachy. Could partner with local fashion influencers."
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can AI reduce sybil attacks in Web3 airdrops?",
+        "content": {
+          "thought": "Airdrop wallet behavior ai identity reputation web3 bots?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What role can NFTs play in decentralized identity systems?",
+        "content": {
+          "thought": "Nft identity reputation privacy wallet web3?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can DAOs measure contributor impact without centralized control?",
+        "content": {
+          "thought": "Dao governance reputation analytics contribution transparency?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can AI-driven analytics improve DAO governance outcomes?",
+        "content": {
+          "thought": "Ai dao proposal voting efficiency governance web3?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 platforms reward long-term users fairly?",
+        "content": {
+          "thought": "Loyalty nft airdrop retention wallet activity?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What is the future of soulbound NFTs in Web3 ecosystems?",
+        "content": {
+          "thought": "Soulbound nft identity reputation dao?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can zero-knowledge proofs improve airdrop privacy?",
+        "content": {
+          "thought": "Zk proof airdrop privacy wallet eligibility?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can on-chain data predict NFT market manipulation?",
+        "content": {
+          "thought": "Nft wash trading analytics ai market signals?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 communities prevent airdrop farming?",
+        "content": {
+          "thought": "Airdrop farming bots wallet behavior reputation?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What metrics best define real Web3 user engagement?",
+        "content": {
+          "thought": "Onchain activity retention analytics community?"
+        }
+      },
+    
+      {
+        "type": "question",
+        "title": "How can NFTs evolve beyond static digital collectibles?",
+        "content": {
+          "thought": "Dynamic nft utility governance loyalty?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can AI personalize DeFi user experiences safely?",
+        "content": {
+          "thought": "Defi personalization ai risk user behavior?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can DAOs onboard non-technical contributors effectively?",
+        "content": {
+          "thought": "Dao onboarding community tooling reputation?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What role does reputation play in decentralized governance?",
+        "content": {
+          "thought": "Dao reputation voting trust web3?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 analytics identify long-term protocol supporters?",
+        "content": {
+          "thought": "Wallet age loyalty usage analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can NFT ownership reflect real contribution rather than wealth?",
+        "content": {
+          "thought": "Contribution nft dao merit system?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can cross-chain analytics improve Web3 usability?",
+        "content": {
+          "thought": "Multichain wallet activity user experience?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What incentives best encourage DAO proposal participation?",
+        "content": {
+          "thought": "Dao proposal reward nft governance?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 platforms detect fake community growth?",
+        "content": {
+          "thought": "Fake wallets growth analytics ai?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can NFTs act as long-term community membership passes?",
+        "content": {
+          "thought": "Nft membership loyalty community web3?"
+        }
+      },
+    
+      {
+        "type": "question",
+        "title": "How can AI improve NFT pricing transparency?",
+        "content": {
+          "thought": "Nft pricing ai floor market analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What data signals best represent DAO health?",
+        "content": {
+          "thought": "Dao participation treasury activity analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 reward builders without token inflation?",
+        "content": {
+          "thought": "Builder incentive nft reputation dao?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can decentralized identity replace traditional Web2 logins?",
+        "content": {
+          "thought": "Web3 identity wallet login privacy?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 prevent governance capture by whales?",
+        "content": {
+          "thought": "Dao whale voting mitigation reputation?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What role can AI play in DAO treasury management?",
+        "content": {
+          "thought": "Dao treasury ai risk optimization?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can NFT metadata evolve with user behavior?",
+        "content": {
+          "thought": "Dynamic nft metadata onchain activity?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can Web3 analytics improve airdrop ROI for protocols?",
+        "content": {
+          "thought": "Airdrop roi analytics user retention?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can DAOs collaborate without merging governance?",
+        "content": {
+          "thought": "Cross dao collaboration tooling?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What defines trust in a permissionless Web3 system?",
+        "content": {
+          "thought": "Trust reputation transparency decentralization?"
+        }
+      },
+    
+      {
+        "type": "question",
+        "title": "How can NFTs reflect learning and skill acquisition?",
+        "content": {
+          "thought": "Educational nft progress web3?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can Web3 analytics identify early community leaders?",
+        "content": {
+          "thought": "Community leader detection analytics?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can airdrops be aligned with long-term governance?",
+        "content": {
+          "thought": "Airdrop governance alignment dao?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What makes an NFT ecosystem sustainable long-term?",
+        "content": {
+          "thought": "Nft sustainability utility community?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 platforms measure real decentralization?",
+        "content": {
+          "thought": "Decentralization metrics governance distribution?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "Can AI-generated insights be trusted in decentralized systems?",
+        "content": {
+          "thought": "Ai transparency trust web3 governance?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "How can Web3 communities reward non-financial contributions?",
+        "content": {
+          "thought": "Community contribution nft reputation?"
+        }
+      },
+      {
+        "type": "question",
+        "title": "What role will NFTs play in future digital societies?",
+        "content": {
+          "thought": "Nft identity governance culture web3?"
+        }
+      }
+]

@@ -8,6 +8,9 @@
 /public/js/filament
 /storage/*.key
 /storage/pail
+# Allow JSON seed files to be tracked
+!/storage/app/public/json
+!/storage/app/public/json/**
 /vendor
 .env
 .env.backup
