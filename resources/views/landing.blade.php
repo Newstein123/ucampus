@@ -59,9 +59,9 @@
                 <h2 @class([ 'text-white', 'text-xl', 'font-bold', 'leading-tight', 'tracking-[-0.015em]'])>U Camp</h2>
             </div>
             <div @class([ 'flex', 'items-center'])>
-                <button @class([ 'bg-primary/20', 'text-primary', 'border', 'border-primary/30', 'px-4', 'py-1.5', 'rounded-full', 'text-sm', 'font-bold', 'tracking-tight'])>
-                    Get Started
-                </button>
+                <a href="/login" @class([ 'bg-primary/20', 'text-primary', 'border', 'border-primary/30', 'px-4', 'py-1.5', 'rounded-full', 'text-sm', 'font-bold', 'tracking-tight'])>
+                    Getting Started
+                </a>
             </div>
         </div>
     </nav>
