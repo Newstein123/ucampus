@@ -25,7 +25,7 @@ interface BookmarkMutationOptions {
 
 interface RollbackContext {
     previousContributionList: Array<[QueryKey, unknown]>;
-    previousDetail: unknown;
+    previousDetail: Array<[QueryKey, unknown]>;
     previousTrending: unknown;
 }
 
@@ -43,12 +43,12 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
         onMutate: async (contributionId: number) => {
             // Cancel any outgoing refetches for all relevant queries
             await queryClient.cancelQueries({ queryKey: ['contributionList'] });
-            await queryClient.cancelQueries({ queryKey: ['contributionDetail', contributionId] });
+            await queryClient.cancelQueries({ queryKey: ['contributionDetail'] });
             await queryClient.cancelQueries({ queryKey: ['contributionTrending'] });
 
             // Snapshot previous data for rollback (getQueriesData returns array of [queryKey, data] tuples)
             const previousContributionList = queryClient.getQueriesData({ queryKey: ['contributionList'] });
-            const previousDetail = queryClient.getQueryData(['contributionDetail', contributionId]);
+            const previousDetail = queryClient.getQueriesData({ queryKey: ['contributionDetail'] });
             const previousTrending = queryClient.getQueryData(['contributionTrending']);
 
             // Optimistically toggle is_bookmarked in all matching list queries
@@ -84,9 +84,11 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
                 return oldData;
             });
 
-            // Update Detail View
-            queryClient.setQueryData(['contributionDetail', contributionId], (oldData: { data: Contribution } | undefined) => {
+            // Update Detail View - match any contributionDetail query where the data has matching id
+            queryClient.setQueriesData({ queryKey: ['contributionDetail'] }, (oldData: { data: Contribution } | undefined) => {
                 if (!oldData?.data) return oldData;
+                // Only update if this is the contribution we're bookmarking
+                if (oldData.data.id !== contributionId) return oldData;
                 return {
                     ...oldData,
                     data: {
@@ -112,10 +114,10 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
         },
 
         // After server response, ensure cache reflects actual state
-        onSuccess: (data, contributionId) => {
+        onSuccess: (data) => {
             // Invalidate contribution lists to ensure fresh data
             queryClient.invalidateQueries({ queryKey: ['contributionList'] });
-            queryClient.invalidateQueries({ queryKey: ['contributionDetail', contributionId] });
+            queryClient.invalidateQueries({ queryKey: ['contributionDetail'] });
             queryClient.invalidateQueries({ queryKey: ['contributionTrending'] });
 
             // Invalidate the bookmarks list so the Bookmarks page refreshes
@@ -132,7 +134,9 @@ const useContributionBookmarkMutation = (options?: BookmarkMutationOptions) => {
                 });
             }
             if (context?.previousDetail) {
-                queryClient.setQueryData(['contributionDetail', contributionId], context.previousDetail);
+                context.previousDetail.forEach(([queryKey, data]: [QueryKey, unknown]) => {
+                    queryClient.setQueryData(queryKey, data);
+                });
             }
             if (context?.previousTrending) {
                 queryClient.setQueriesData({ queryKey: ['contributionTrending'] }, context.previousTrending);

@@ -113,14 +113,14 @@ const Home: React.FC = () => {
         bookmarkMutation.mutate(contributionId);
     };
 
-    const navigateToDetails = (id: number, contributionType: string) => {
+    const navigateToDetails = (slug: string, contributionType: string) => {
         if (contributionType === 'idea') {
-            navigate(`/ideas/${id}`);
+            navigate(`/ideas/${slug}`);
         } else if (contributionType === 'question') {
-            navigate(`/questions/${id}`);
+            navigate(`/questions/${slug}`);
         } else {
             // Fallback to project details if type is project or unknown
-            navigate(`/projects/${id}`);
+            navigate(`/projects/${slug}`);
         }
     };
 
@@ -178,7 +178,7 @@ const Home: React.FC = () => {
                 {contributions.map((item) => (
                     <Card
                         key={item.id}
-                        onClick={() => navigateToDetails(item.id, item.type)}
+                        onClick={() => navigateToDetails(item.slug, item.type)}
                         sx={{
                             mb: 3,
                             boxShadow: 0,
@@ -285,7 +285,7 @@ const Home: React.FC = () => {
                                 size="small"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    navigateToDetails(item.id, item.type);
+                                    navigateToDetails(item.slug, item.type);
                                 }}
                             >
                                 <ChatBubbleOutlineIcon fontSize="small" />

@@ -289,7 +289,7 @@ const App: React.FC = () => {
                                             }
                                         />
                                         <Route
-                                            path="/projects/:id"
+                                            path="/projects/:slug"
                                             element={
                                                 <ProtectedRoute>
                                                     <ProjectDetails />
@@ -297,7 +297,7 @@ const App: React.FC = () => {
                                             }
                                         />
                                         <Route
-                                            path="/projects/:id/edit-requests"
+                                            path="/projects/:slug/edit-requests"
                                             element={
                                                 <ProtectedRoute>
                                                     <EditRequestsPage />
@@ -305,7 +305,7 @@ const App: React.FC = () => {
                                             }
                                         />
                                         <Route
-                                            path="/ideas/:id"
+                                            path="/ideas/:slug"
                                             element={
                                                 <ProtectedRoute>
                                                     <IdeaDetails />
@@ -313,7 +313,7 @@ const App: React.FC = () => {
                                             }
                                         />
                                         <Route
-                                            path="/questions/:id"
+                                            path="/questions/:slug"
                                             element={
                                                 <ProtectedRoute>
                                                     <QuestionDetails />
@@ -329,7 +329,7 @@ const App: React.FC = () => {
                                             }
                                         />
                                         <Route
-                                            path="/projects/:id/thread"
+                                            path="/projects/:slug/thread"
                                             element={
                                                 <ProtectedRoute>
                                                     <Thread />

@@ -62,12 +62,12 @@ const Explore: React.FC = () => {
         return item?.content?.answer || '';
     };
 
-    const navigateToIdea = (id: number) => {
-        navigate(`/ideas/${id}`);
+    const navigateToIdea = (slug: string) => {
+        navigate(`/ideas/${slug}`);
     };
 
-    const navigateToQuestion = (id: number) => {
-        navigate(`/questions/${id}`);
+    const navigateToQuestion = (slug: string) => {
+        navigate(`/questions/${slug}`);
     };
 
     return (
@@ -173,7 +173,7 @@ const Explore: React.FC = () => {
                             trendingIdeas.map((idea) => (
                                 <Card
                                     key={idea.id}
-                                    onClick={() => navigateToIdea(idea.id)}
+                                    onClick={() => navigateToIdea(idea.slug)}
                                     sx={{
                                         minWidth: 240,
                                         maxWidth: 260,
@@ -246,7 +246,7 @@ const Explore: React.FC = () => {
                             trendingQuestions.map((q) => (
                                 <Paper
                                     key={q.id}
-                                    onClick={() => navigateToQuestion(q.id)}
+                                    onClick={() => navigateToQuestion(q.slug)}
                                     sx={{
                                         p: 2,
                                         borderRadius: 3,

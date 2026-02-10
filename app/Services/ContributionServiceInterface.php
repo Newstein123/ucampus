@@ -29,5 +29,7 @@ interface ContributionServiceInterface
 
     public function view(int $id);
 
+    public function viewBySlugOrId(string $identifier);
+
     public function leaveProject(array $data = []);
 }

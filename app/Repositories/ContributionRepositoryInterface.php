@@ -10,6 +10,8 @@ interface ContributionRepositoryInterface
 
     public function find(int $id);
 
+    public function findBySlug(string $slug);
+
     public function findById(int $id): ?array;
 
     public function update(int $id, array $data = []);

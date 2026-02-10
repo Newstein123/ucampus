@@ -20,7 +20,14 @@ const BackButton: React.FC<BackButtonProps> = ({ to, color = '#1F8505', size = '
         } else if (to) {
             navigate(to);
         } else {
-            navigate(-1);
+            // If there's no meaningful history (e.g. user came from a share link redirect),
+            // navigate to home instead of going back (which would cause a redirect loop).
+            const historyIndex = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+            if (historyIndex <= 1) {
+                navigate('/');
+            } else {
+                navigate(-1);
+            }
         }
     };
 
