@@ -9,7 +9,6 @@ import LinkIcon from '@mui/icons-material/Link';
 import MailIcon from '@mui/icons-material/Mail';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import NoteIcon from '@mui/icons-material/Note';
-import ShareIcon from '@mui/icons-material/Share';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
     Avatar,
@@ -43,6 +42,7 @@ import FieldNotesList from '../../components/FieldNotesList';
 import JoinTeamModal from '../../components/JoinTeamModal';
 import LeaveProjectModal from '../../components/LeaveProjectModal';
 import SEO from '../../components/SEO';
+import ShareArrowIcon from '../../components/ShareArrowIcon';
 import ShareBottomSheet from '../../components/ShareBottomSheet';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import SubmitEditRequestModal from '../../components/SubmitEditRequestModal';
@@ -270,7 +270,6 @@ const ProjectDetails: React.FC = () => {
 
     // Handle share
     const handleShareClick = () => {
-        handleMenuClose();
         setIsShareOpen(true);
     };
 
@@ -478,26 +477,19 @@ const ProjectDetails: React.FC = () => {
             <SinglePageLayout
                 title={t('Project Details')}
                 rightElement={
-                    isOwner || isCollaborator ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <IconButton
-                                size="small"
-                                onClick={handleBookmark}
-                                disabled={bookmarkMutation.isPending}
-                                sx={{
-                                    color: project?.is_bookmarked ? '#1F8505' : '#ccc',
-                                    '&:hover': {
-                                        color: project?.is_bookmarked ? '#165d04' : '#1F8505',
-                                    },
-                                }}
-                            >
-                                {project?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
-                            </IconButton>
-                            <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
-                                <MoreVertIcon sx={{ fontSize: 20 }} />
-                            </IconButton>
-                        </Box>
-                    ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <IconButton
+                            size="small"
+                            onClick={handleShareClick}
+                            sx={{
+                                color: '#666',
+                                '&:hover': {
+                                    color: '#1F8505',
+                                },
+                            }}
+                        >
+                            <ShareArrowIcon sx={{ fontSize: 20 }} />
+                        </IconButton>
                         <IconButton
                             size="small"
                             onClick={handleBookmark}
@@ -511,7 +503,12 @@ const ProjectDetails: React.FC = () => {
                         >
                             {project?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
                         </IconButton>
-                    )
+                        {(isOwner || isCollaborator) && (
+                            <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
+                                <MoreVertIcon sx={{ fontSize: 20 }} />
+                            </IconButton>
+                        )}
+                    </Box>
                 }
             >
                 {/* Tags */}
@@ -1223,12 +1220,7 @@ const ProjectDetails: React.FC = () => {
                                 </ListItemIcon>
                                 <Typography sx={{ fontWeight: 500 }}>Edit</Typography>
                             </MenuItem>
-                            <MenuItem onClick={handleShareClick} sx={{ py: 1.5 }}>
-                                <ListItemIcon>
-                                    <ShareIcon sx={{ color: '#1F8505' }} />
-                                </ListItemIcon>
-                                <Typography sx={{ fontWeight: 500 }}>Share</Typography>
-                            </MenuItem>
+
                             <MenuItem onClick={handleDeleteClick} sx={{ py: 1.5 }}>
                                 <ListItemIcon>
                                     <DeleteIcon sx={{ color: '#f44336' }} />
@@ -1241,12 +1233,6 @@ const ProjectDetails: React.FC = () => {
                     {/* Collaborator Menu Items */}
                     {isCollaborator && !isOwner && (
                         <>
-                            <MenuItem onClick={handleShareClick} sx={{ py: 1.5 }}>
-                                <ListItemIcon>
-                                    <ShareIcon sx={{ color: '#1F8505' }} />
-                                </ListItemIcon>
-                                <Typography sx={{ fontWeight: 500 }}>Share</Typography>
-                            </MenuItem>
                             <MenuItem onClick={handleLeaveClick} disabled={leaveProjectMutation.isPending} sx={{ py: 1.5 }}>
                                 <ListItemIcon>
                                     <DeleteIcon sx={{ color: '#f44336' }} />

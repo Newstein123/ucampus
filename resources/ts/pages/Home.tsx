@@ -9,6 +9,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
+import ShareArrowIcon from '../components/ShareArrowIcon';
+import ShareBottomSheet from '../components/ShareBottomSheet';
 import { useHomeContext } from '../contexts/HomeContext';
 import useContributionBookmarkMutation from '../hooks/contribution/useContributionBookmarkMutation';
 import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
@@ -25,6 +27,7 @@ const Home: React.FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const [expandedDescriptions, setExpandedDescriptions] = useState<Set<number>>(new Set());
+    const [shareItem, setShareItem] = useState<Contribution | null>(null);
 
     const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useContributionListInfiniteQuery({ type, perPage: 10 });
 
@@ -291,6 +294,16 @@ const Home: React.FC = () => {
                                 <ChatBubbleOutlineIcon fontSize="small" />
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.comments_count || 0}</Typography>
+                            <IconButton
+                                size="small"
+                                sx={{ mb: '2px' }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShareItem(item);
+                                }}
+                            >
+                                <ShareArrowIcon fontSize="small" />
+                            </IconButton>
                             <Box sx={{ flex: 1 }} />
                             <IconButton
                                 size="small"
@@ -322,6 +335,17 @@ const Home: React.FC = () => {
                     isFetchingNextPage={isFetchingNextPage}
                 />
             </Box>
+
+            {/* Share Bottom Sheet */}
+            {shareItem && (
+                <ShareBottomSheet
+                    open={!!shareItem}
+                    onClose={() => setShareItem(null)}
+                    title="Share"
+                    shareUrl={`${window.location.origin}/share/${shareItem.type}/${shareItem.slug}`}
+                    shareText={getContributionTitle(shareItem) || ''}
+                />
+            )}
         </Layout>
     );
 };

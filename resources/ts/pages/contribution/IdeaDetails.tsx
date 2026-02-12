@@ -6,7 +6,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ShareIcon from '@mui/icons-material/Share';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Avatar, Box, CardMedia, Chip, CircularProgress, IconButton, ListItemIcon, Menu, MenuItem, Paper, Typography } from '@mui/material';
@@ -18,6 +17,7 @@ import AppButton from '../../components/AppButton';
 import ConfirmModal from '../../components/ConfirmModal';
 import DiscussionSection from '../../components/DiscussionSection';
 import SEO from '../../components/SEO';
+import ShareArrowIcon from '../../components/ShareArrowIcon';
 import ShareBottomSheet from '../../components/ShareBottomSheet';
 import SinglePageLayout from '../../components/SinglePageLayout';
 import Toast from '../../components/Toast';
@@ -124,7 +124,6 @@ const IdeaDetails: React.FC = () => {
     };
 
     const handleShareClick = () => {
-        handleMenuClose();
         setIsShareOpen(true);
     };
 
@@ -162,26 +161,19 @@ const IdeaDetails: React.FC = () => {
             <SinglePageLayout
                 title={t('Idea Details')}
                 rightElement={
-                    isOwner ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <IconButton
-                                size="small"
-                                onClick={handleBookmark}
-                                disabled={bookmarkMutation.isPending}
-                                sx={{
-                                    color: idea?.is_bookmarked ? '#1F8505' : '#ccc',
-                                    '&:hover': {
-                                        color: idea?.is_bookmarked ? '#165d04' : '#1F8505',
-                                    },
-                                }}
-                            >
-                                {idea?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
-                            </IconButton>
-                            <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
-                                <MoreVertIcon sx={{ fontSize: 20 }} />
-                            </IconButton>
-                        </Box>
-                    ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <IconButton
+                            size="small"
+                            onClick={handleShareClick}
+                            sx={{
+                                color: '#666',
+                                '&:hover': {
+                                    color: '#1F8505',
+                                },
+                            }}
+                        >
+                            <ShareArrowIcon sx={{ fontSize: 20 }} />
+                        </IconButton>
                         <IconButton
                             size="small"
                             onClick={handleBookmark}
@@ -195,7 +187,12 @@ const IdeaDetails: React.FC = () => {
                         >
                             {idea?.is_bookmarked ? <BookmarkIcon sx={{ fontSize: 20 }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
                         </IconButton>
-                    )
+                        {isOwner && (
+                            <IconButton size="small" onClick={handleMenuOpen} sx={{ color: '#666' }}>
+                                <MoreVertIcon sx={{ fontSize: 20 }} />
+                            </IconButton>
+                        )}
+                    </Box>
                 }
             >
                 {/* Tags */}
@@ -344,12 +341,7 @@ const IdeaDetails: React.FC = () => {
                         </ListItemIcon>
                         <Typography sx={{ fontWeight: 500 }}>Edit</Typography>
                     </MenuItem>
-                    <MenuItem onClick={handleShareClick} sx={{ py: 1.5 }}>
-                        <ListItemIcon>
-                            <ShareIcon sx={{ color: '#1F8505' }} />
-                        </ListItemIcon>
-                        <Typography sx={{ fontWeight: 500 }}>Share</Typography>
-                    </MenuItem>
+
                     <MenuItem onClick={handleDeleteClick} sx={{ py: 1.5 }}>
                         <ListItemIcon>
                             <DeleteIcon sx={{ color: '#f44336' }} />
