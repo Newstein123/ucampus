@@ -7,7 +7,7 @@ import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import AppButton from '../components/AppButton';
 import { ErrorResponse } from '../hooks';
@@ -22,10 +22,16 @@ import { addPWAMetaTags } from '../utils/pwa';
 const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { navigate: pwaNavigate } = usePWANavigation();
     const dispatch = useDispatch();
     const userLoginMutation = useUserLoginMutation();
     const [apiValidationErrors, setApiValidationErrors] = useState<ErrorResponse['errors']>({});
+
+    // Get the page the user was trying to access before being redirected to login
+    // Check route state first (normal mode), then query param (PWA mode)
+    const searchParams = new URLSearchParams(location.search);
+    const fromPath = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || searchParams.get('returnTo') || '/';
     const [socialAuthEnabled, setSocialAuthEnabled] = useState(false);
     const { data: socialAuthQuery, isSuccess, isLoading } = useSocialAuthQuery('google', socialAuthEnabled);
     // Add PWA meta tags on component mount
@@ -48,7 +54,7 @@ const Login: React.FC = () => {
                 dispatch(setUser({ user }));
 
                 // Navigate based on first login status
-                const targetPath = user.first_login ? '/onboarding' : '/';
+                const targetPath = user.first_login ? '/onboarding' : fromPath;
 
                 // Use PWA-aware navigation
                 setTimeout(() => {
@@ -74,7 +80,7 @@ const Login: React.FC = () => {
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [dispatch, pwaNavigate, navigate]);
+    }, [dispatch, pwaNavigate, navigate, fromPath]);
 
     const {
         register,
@@ -102,7 +108,7 @@ const Login: React.FC = () => {
                     dispatch(setUser({ user: response.data.user as unknown as LoginUser }));
 
                     // Use PWA-aware navigation with fallback
-                    const targetPath = response.data.first_login ? '/onboarding' : '/';
+                    const targetPath = response.data.first_login ? '/onboarding' : fromPath;
                     console.log(`Navigating to: ${targetPath}`);
 
                     // Small delay to ensure Redux state is updated
@@ -203,7 +209,7 @@ const Login: React.FC = () => {
                                 dispatch(setUser({ user }));
 
                                 // Navigate based on first login status
-                                const targetPath = user.first_login ? '/onboarding' : '/';
+                                const targetPath = user.first_login ? '/onboarding' : fromPath;
 
                                 // Use PWA-aware navigation
                                 setTimeout(() => {
@@ -251,7 +257,7 @@ const Login: React.FC = () => {
                             const user = JSON.parse(userData);
                             dispatch(setUser({ user }));
 
-                            const targetPath = user.first_login ? '/onboarding' : '/';
+                            const targetPath = user.first_login ? '/onboarding' : fromPath;
 
                             setTimeout(() => {
                                 try {
@@ -297,7 +303,7 @@ const Login: React.FC = () => {
             // Reset the query state
             setSocialAuthEnabled(false);
         }
-    }, [isSuccess, socialAuthQuery?.data, dispatch, pwaNavigate, navigate]);
+    }, [isSuccess, socialAuthQuery?.data, dispatch, pwaNavigate, navigate, fromPath]);
 
     return (
         <Box

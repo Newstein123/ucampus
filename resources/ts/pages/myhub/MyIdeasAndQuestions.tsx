@@ -74,7 +74,7 @@ const ContributionItem: React.FC<ContributionItemProps> = ({ contribution, type,
     };
 
     const handleNavigate = () => {
-        const path = type === 'idea' ? `/ideas/${contribution.id}` : `/questions/${contribution.id}`;
+        const path = type === 'idea' ? `/ideas/${contribution.slug}` : `/questions/${contribution.slug}`;
         navigate(path);
     };
 

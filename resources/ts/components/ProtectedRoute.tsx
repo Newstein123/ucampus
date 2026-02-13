@@ -18,7 +18,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, redirectTo = 
     if (!isAuthenticated) {
         if (isPWA()) {
             // For PWA mode, use window.location to maintain standalone mode
-            window.location.href = redirectTo;
+            // Pass the intended destination as a query param so Login can redirect back
+            const returnUrl = encodeURIComponent(location.pathname + location.search);
+            window.location.href = `${redirectTo}?returnTo=${returnUrl}`;
             return null;
         }
         return <Navigate to={redirectTo} state={{ from: location }} replace />;

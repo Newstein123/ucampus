@@ -57,7 +57,12 @@ class ContributionController extends Controller
     public function show(ShowRequest $request)
     {
         $data = $request->validated();
-        $contribution = $this->contributionService->view($data['contribution_id']);
+        $contribution = $this->contributionService->viewBySlugOrId($data['contribution_slug']);
+        
+        if (!$contribution) {
+            return $this->response(null, 'Contribution not found', 404);
+        }
+        
         $resource = new ContributionResource($contribution);
 
         return $this->response($resource, 'Contribution fetched successfully');

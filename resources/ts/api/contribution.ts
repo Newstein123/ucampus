@@ -32,8 +32,8 @@ export const contributionApi = {
         });
         return response.data;
     },
-    async show(id: number): Promise<CreateContributionResponse> {
-        const response = await apiClient.getClient().get<CreateContributionResponse>(endpoints.contribution_show.replace('{id}', String(id)));
+    async show(slug: string): Promise<CreateContributionResponse> {
+        const response = await apiClient.getClient().get<CreateContributionResponse>(endpoints.contribution_show.replace('{slug}', slug));
         return response.data;
     },
     async create(data: CreateContributionRequest | FormData): Promise<CreateContributionResponse> {

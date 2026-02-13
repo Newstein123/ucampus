@@ -108,12 +108,15 @@ const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                         color: '#222',
                         flex: 1,
                         textAlign: 'center',
-                        mr: showBackButton ? 4 : 0,
                     }}
                 >
                     {title}
                 </Typography>
-                {rightElement && <Box sx={{ width: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{rightElement}</Box>}
+                {rightElement ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minWidth: 40 }}>{rightElement}</Box>
+                ) : (
+                    <Box sx={{ width: 40 }} /> // Spacer to balance back button
+                )}
             </Box>
 
             {/* Content */}

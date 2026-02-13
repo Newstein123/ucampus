@@ -17,7 +17,7 @@ class ShowRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'contribution_id' => $this->route('id'),
+            'contribution_slug' => $this->route('slug'),
         ]);
     }
 
@@ -29,7 +29,9 @@ class ShowRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'contribution_id' => 'required|integer|exists:contributions,id',
+            // Accept both slug (string) and numeric ID for backward compatibility
+            'contribution_slug' => 'required|string|max:255',
         ];
     }
 }
+

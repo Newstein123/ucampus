@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { contributionApi } from '../../api/contribution';
 
-const useContributionDetailQuery = (id: number) => {
+const useContributionDetailQuery = (slug: string) => {
     return useQuery({
-        queryKey: ['contributionDetail', id],
-        queryFn: () => contributionApi.show(id),
-        enabled: id > 0,
+        queryKey: ['contributionDetail', slug],
+        queryFn: () => contributionApi.show(slug),
+        enabled: !!slug && slug.length > 0,
     });
 };
 
