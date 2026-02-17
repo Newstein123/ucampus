@@ -80,21 +80,51 @@ const ShareBottomSheet: React.FC<ShareBottomSheetProps> = ({ open, onClose, titl
         }
     };
 
+    // Helper: detect if running as installed PWA (standalone mode)
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as { standalone?: boolean }).standalone === true;
+
+    // Helper: open URL - uses location.href on PWA to avoid double-open (app + Safari)
+    const openShareUrl = (url: string) => {
+        if (isPWA) {
+            window.location.href = url;
+        } else {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    };
+
     const shareOptions: ShareOption[] = [
         {
             name: 'Facebook',
             icon: <FacebookIcon sx={{ fontSize: 28, color: '#1877F2' }} />,
             onClick: () => {
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                const fbWebUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
 
-                // 1. Fallback for Mobile without System Share (e.g. Local HTTP dev)
-                if (isMobile) {
-                    window.open(`https://m.facebook.com/sharer.php?u=${encodedUrl}`, '_blank', 'noopener,noreferrer');
+                // iOS PWA: Use fb:// deep link to directly open share dialog in FB app
+                if (isIOS && isPWA) {
+                    const fbAppUrl = `fb://facewebmodal/f?href=${encodeURIComponent(fbWebUrl)}`;
+
+                    // Try opening FB app directly
+                    window.location.href = fbAppUrl;
+
+                    // If FB app is not installed, after 1.5s fall back to web
+                    setTimeout(() => {
+                        if (!document.hidden) {
+                            window.location.href = `https://m.facebook.com/sharer.php?u=${encodedUrl}`;
+                        }
+                    }, 1500);
                     return;
                 }
 
-                // 2. Desktop Fallback
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, '_blank', 'noopener,noreferrer');
+                // Regular mobile browser
+                if (isMobile) {
+                    openShareUrl(`https://m.facebook.com/sharer.php?u=${encodedUrl}`);
+                    return;
+                }
+
+                // Desktop
+                openShareUrl(fbWebUrl);
             },
             bgColor: '#E7F3FF',
         },
@@ -102,7 +132,7 @@ const ShareBottomSheet: React.FC<ShareBottomSheetProps> = ({ open, onClose, titl
             name: 'Telegram',
             icon: <TelegramIcon sx={{ fontSize: 28, color: '#0088CC' }} />,
             onClick: () => {
-                window.open(`https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`, '_blank', 'noopener,noreferrer');
+                openShareUrl(`https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`);
             },
             bgColor: '#E3F2FD',
         },
@@ -110,7 +140,7 @@ const ShareBottomSheet: React.FC<ShareBottomSheetProps> = ({ open, onClose, titl
             name: 'X',
             icon: <XIcon sx={{ fontSize: 24, color: '#fff' }} />,
             onClick: () => {
-                window.open(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`, '_blank', 'noopener,noreferrer');
+                openShareUrl(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`);
             },
             bgColor: '#000',
         },
