@@ -21,6 +21,7 @@ interface CollaborationProject {
     contribution_id: number;
     contribution: {
         id: number;
+        slug: string;
         title: string;
         thumbnail_url?: string;
         content?: {
@@ -31,6 +32,7 @@ interface CollaborationProject {
 
 interface ProjectCardProps {
     id: number;
+    slug: string;
     title: string;
     image: string;
     showMenu?: boolean;
@@ -38,13 +40,13 @@ interface ProjectCardProps {
     onDelete?: (id: number) => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ id, title, image, showMenu = false, onEdit, onDelete }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ id, slug, title, image, showMenu = false, onEdit, onDelete }) => {
     const navigate = useNavigate();
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
     const handleNavigate = () => {
-        navigate(`/projects/${id}`);
+        navigate(`/projects/${slug}`);
     };
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -249,6 +251,7 @@ const Projects: React.FC = () => {
                                     <ProjectCard
                                         key={p.id}
                                         id={p.id}
+                                        slug={p.slug}
                                         title={p.title}
                                         image={p.thumbnail_url || DEFAULT_IMAGE}
                                         showMenu={true}
@@ -269,6 +272,7 @@ const Projects: React.FC = () => {
                                     <ProjectCard
                                         key={c.id}
                                         id={c.contribution.id}
+                                        slug={c.contribution.slug}
                                         title={c.contribution.title}
                                         image={c.contribution.thumbnail_url || DEFAULT_IMAGE}
                                         showMenu={false}

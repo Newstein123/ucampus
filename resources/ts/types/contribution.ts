@@ -26,6 +26,7 @@ export interface Participant {
 
 export interface Contribution {
     id: number;
+    slug: string;
     title: string;
     content: Content;
     type: string;

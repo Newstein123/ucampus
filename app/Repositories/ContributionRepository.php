@@ -12,6 +12,13 @@ class ContributionRepository implements ContributionRepositoryInterface
         return Contribution::with(['participants.role', 'participants.user'])->find($id);
     }
 
+    public function findBySlug(string $slug)
+    {
+        return Contribution::with(['participants.role', 'participants.user'])
+            ->where('slug', $slug)
+            ->first();
+    }
+
     public function list(array $filters = [])
     {
         $perPage = $filters['per_page'] ?? 10;

@@ -281,13 +281,13 @@ const Search: React.FC = () => {
         });
     };
 
-    const navigateToDetails = (id: number, contributionType: string) => {
+    const navigateToDetails = (slug: string, contributionType: string) => {
         if (contributionType === 'idea') {
-            navigate(`/ideas/${id}`);
+            navigate(`/ideas/${slug}`);
         } else if (contributionType === 'question') {
-            navigate(`/questions/${id}`);
+            navigate(`/questions/${slug}`);
         } else {
-            navigate(`/projects/${id}`);
+            navigate(`/projects/${slug}`);
         }
     };
 
@@ -440,7 +440,7 @@ const Search: React.FC = () => {
                     {contributions.map((item) => (
                         <Card
                             key={item.id}
-                            onClick={() => navigateToDetails(item.id, item.type)}
+                            onClick={() => navigateToDetails(item.slug, item.type)}
                             sx={{
                                 mb: 2,
                                 borderRadius: 3,

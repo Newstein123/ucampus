@@ -245,6 +245,36 @@ class ContributionService implements ContributionServiceInterface
         return $this->contributionRepository->find($id);
     }
 
+    /**
+     * View a contribution by slug or ID (for backward compatibility)
+     * If identifier is numeric, treat as ID; otherwise treat as slug
+     */
+    public function viewBySlugOrId(string $identifier)
+    {
+        // Check if identifier is numeric (ID) or string (slug)
+        if (is_numeric($identifier)) {
+            return $this->view((int) $identifier);
+        }
+
+        // Find by slug
+        $contribution = $this->contributionRepository->findBySlug($identifier);
+
+        if (!$contribution) {
+            return null;
+        }
+
+        // Increment views with cache lock
+        $ip = request()->ip();
+        $key = "view_lock_{$ip}_{$contribution->id}";
+
+        if (!Cache::has($key)) {
+            $this->contributionRepository->incrementViews($contribution->id);
+            Cache::put($key, true, 3);
+        }
+
+        return $contribution;
+    }
+
     public function toggleBookmark(int $userId, int $contributionId): array
     {
         try {

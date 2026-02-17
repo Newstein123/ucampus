@@ -9,6 +9,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger';
 import Layout from '../components/Layout';
+import ShareArrowIcon from '../components/ShareArrowIcon';
+import ShareBottomSheet from '../components/ShareBottomSheet';
 import { useHomeContext } from '../contexts/HomeContext';
 import useContributionBookmarkMutation from '../hooks/contribution/useContributionBookmarkMutation';
 import useContributionInterestMutation from '../hooks/contribution/useContributionInterestMutation';
@@ -25,6 +27,7 @@ const Home: React.FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const [expandedDescriptions, setExpandedDescriptions] = useState<Set<number>>(new Set());
+    const [shareItem, setShareItem] = useState<Contribution | null>(null);
 
     const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useContributionListInfiniteQuery({ type, perPage: 10 });
 
@@ -113,14 +116,14 @@ const Home: React.FC = () => {
         bookmarkMutation.mutate(contributionId);
     };
 
-    const navigateToDetails = (id: number, contributionType: string) => {
+    const navigateToDetails = (slug: string, contributionType: string) => {
         if (contributionType === 'idea') {
-            navigate(`/ideas/${id}`);
+            navigate(`/ideas/${slug}`);
         } else if (contributionType === 'question') {
-            navigate(`/questions/${id}`);
+            navigate(`/questions/${slug}`);
         } else {
             // Fallback to project details if type is project or unknown
-            navigate(`/projects/${id}`);
+            navigate(`/projects/${slug}`);
         }
     };
 
@@ -178,7 +181,7 @@ const Home: React.FC = () => {
                 {contributions.map((item) => (
                     <Card
                         key={item.id}
-                        onClick={() => navigateToDetails(item.id, item.type)}
+                        onClick={() => navigateToDetails(item.slug, item.type)}
                         sx={{
                             mb: 3,
                             boxShadow: 0,
@@ -285,12 +288,22 @@ const Home: React.FC = () => {
                                 size="small"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    navigateToDetails(item.id, item.type);
+                                    navigateToDetails(item.slug, item.type);
                                 }}
                             >
                                 <ChatBubbleOutlineIcon fontSize="small" />
                             </IconButton>
                             <Typography sx={{ fontSize: 14, mr: 2 }}>{item.comments_count || 0}</Typography>
+                            <IconButton
+                                size="small"
+                                sx={{ mb: '2px' }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShareItem(item);
+                                }}
+                            >
+                                <ShareArrowIcon fontSize="small" />
+                            </IconButton>
                             <Box sx={{ flex: 1 }} />
                             <IconButton
                                 size="small"
@@ -322,6 +335,17 @@ const Home: React.FC = () => {
                     isFetchingNextPage={isFetchingNextPage}
                 />
             </Box>
+
+            {/* Share Bottom Sheet */}
+            {shareItem && (
+                <ShareBottomSheet
+                    open={!!shareItem}
+                    onClose={() => setShareItem(null)}
+                    title="Share"
+                    shareUrl={`${window.location.origin}/share/${shareItem.type}/${shareItem.slug}`}
+                    shareText={getContributionTitle(shareItem) || ''}
+                />
+            )}
         </Layout>
     );
 };

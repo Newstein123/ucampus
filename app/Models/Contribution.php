@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Contribution extends Model
 {
@@ -14,6 +15,7 @@ class Contribution extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'slug',
         'content',
         'type',
         'allow_collab',
@@ -33,6 +35,66 @@ class Contribution extends Model
         'allow_collab' => 'boolean',
         'is_public' => 'boolean',
     ];
+
+    /**
+     * Boot method to auto-generate slug from title
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($contribution) {
+            // Only generate slug if the column exists (defensive for migrations)
+            if (\Schema::hasColumn('contributions', 'slug')) {
+                if (empty($contribution->slug) && !empty($contribution->title)) {
+                    $contribution->slug = static::generateUniqueSlug($contribution->title);
+                }
+            }
+        });
+
+        static::updating(function ($contribution) {
+            // Only regenerate slug if title changed, slug wasn't manually set, and column exists
+            if (\Schema::hasColumn('contributions', 'slug')) {
+                if ($contribution->isDirty('title') && !$contribution->isDirty('slug') && !empty($contribution->title)) {
+                    $contribution->slug = static::generateUniqueSlug($contribution->title, $contribution->id);
+                }
+            }
+        });
+    }
+
+    /**
+     * Generate a unique slug from a title
+     */
+    public static function generateUniqueSlug(string $title, ?int $excludeId = null): string
+    {
+        $baseSlug = Str::slug($title);
+        
+        // If slug is empty (non-ASCII title), use a random string
+        if (empty($baseSlug)) {
+            $baseSlug = 'contribution-' . Str::random(8);
+        }
+        
+        $slug = $baseSlug;
+        $counter = 1;
+        
+        // Build query to check uniqueness
+        $query = static::withTrashed()->where('slug', $slug);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        while ($query->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+            
+            $query = static::withTrashed()->where('slug', $slug);
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+        }
+        
+        return $slug;
+    }
 
     public function user()
     {
