@@ -81,42 +81,23 @@ const ShareBottomSheet: React.FC<ShareBottomSheetProps> = ({ open, onClose, titl
     };
 
     const shareOptions: ShareOption[] = [
-        // Add System Share if supported (Native share sheet)
-        ...(typeof navigator !== 'undefined' && 'share' in navigator
-            ? [
-                  {
-                      name: 'More...',
-                      icon: <Box sx={{ fontSize: 24, fontWeight: 'bold' }}>...</Box>, // Simple more icon
-                      onClick: handleSystemShare,
-                      bgColor: '#f0f0f0',
-                  },
-              ]
-            : []),
         {
             name: 'Facebook',
             icon: <FacebookIcon sx={{ fontSize: 28, color: '#1877F2' }} />,
             onClick: () => {
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-                // 1. Try System Share (Best for PWA/Mobile) - Requires HTTPS
-                // If you are testing on local IP (http://192...), this will be skipped
-                if (isMobile && typeof navigator.share === 'function') {
-                    handleSystemShare();
-                    return;
-                }
-
-                // 2. Fallback for Mobile without System Share (e.g. Local HTTP dev)
+                // 1. Fallback for Mobile without System Share (e.g. Local HTTP dev)
                 if (isMobile) {
                     window.open(`https://m.facebook.com/sharer.php?u=${encodedUrl}`, '_blank', 'noopener,noreferrer');
                     return;
                 }
 
-                // 3. Desktop Fallback
+                // 2. Desktop Fallback
                 window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, '_blank', 'noopener,noreferrer');
             },
             bgColor: '#E7F3FF',
         },
-
         {
             name: 'Telegram',
             icon: <TelegramIcon sx={{ fontSize: 28, color: '#0088CC' }} />,
@@ -133,6 +114,17 @@ const ShareBottomSheet: React.FC<ShareBottomSheetProps> = ({ open, onClose, titl
             },
             bgColor: '#000',
         },
+        // Add System Share at the end if supported (Native share sheet)
+        ...(typeof navigator !== 'undefined' && 'share' in navigator
+            ? [
+                  {
+                      name: 'More...',
+                      icon: <Box sx={{ fontSize: 24, fontWeight: 'bold' }}>...</Box>, // Simple more icon
+                      onClick: handleSystemShare,
+                      bgColor: '#f0f0f0',
+                  },
+              ]
+            : []),
     ];
 
     return (
