@@ -8,16 +8,6 @@ import { Box, IconButton, InputAdornment, SwipeableDrawer, TextField, Typography
 import React, { useRef, useState } from 'react';
 import Toast from './Toast';
 
-// TikTok icon as SVG since MUI doesn't have it
-const TikTokIcon: React.FC<{ sx?: object }> = ({ sx }) => (
-    <Box component="svg" viewBox="0 0 24 24" sx={{ width: 24, height: 24, ...sx }}>
-        <path
-            fill="currentColor"
-            d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"
-        />
-    </Box>
-);
-
 interface ShareBottomSheetProps {
     open: boolean;
     onClose: () => void;
@@ -76,21 +66,57 @@ const ShareBottomSheet: React.FC<ShareBottomSheetProps> = ({ open, onClose, titl
         }
     };
 
+    const handleSystemShare = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: title,
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } catch (error) {
+                console.log('Error sharing:', error);
+            }
+        }
+    };
+
     const shareOptions: ShareOption[] = [
+        // Add System Share if supported (Native share sheet)
+        ...(typeof navigator !== 'undefined' && 'share' in navigator
+            ? [
+                  {
+                      name: 'More...',
+                      icon: <Box sx={{ fontSize: 24, fontWeight: 'bold' }}>...</Box>, // Simple more icon
+                      onClick: handleSystemShare,
+                      bgColor: '#f0f0f0',
+                  },
+              ]
+            : []),
         {
             name: 'Facebook',
             icon: <FacebookIcon sx={{ fontSize: 28, color: '#1877F2' }} />,
             onClick: () => {
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                // 1. Try System Share (Best for PWA/Mobile) - Requires HTTPS
+                // If you are testing on local IP (http://192...), this will be skipped
+                if (isMobile && typeof navigator.share === 'function') {
+                    handleSystemShare();
+                    return;
+                }
+
+                // 2. Fallback for Mobile without System Share (e.g. Local HTTP dev)
+                if (isMobile) {
+                    window.open(`https://m.facebook.com/sharer.php?u=${encodedUrl}`, '_blank', 'noopener,noreferrer');
+                    return;
+                }
+
+                // 3. Desktop Fallback
                 window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, '_blank', 'noopener,noreferrer');
             },
             bgColor: '#E7F3FF',
         },
-        {
-            name: 'TikTok',
-            icon: <TikTokIcon sx={{ fontSize: 28 }} />,
-            onClick: handleCopyClick, // Copy for TikTok since they don't have web share
-            bgColor: '#f5f5f5',
-        },
+
         {
             name: 'Telegram',
             icon: <TelegramIcon sx={{ fontSize: 28, color: '#0088CC' }} />,
